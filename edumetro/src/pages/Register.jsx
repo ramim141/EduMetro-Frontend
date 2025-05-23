@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -79,19 +79,21 @@ const Register = () => {
         student_id: "",
         role: "student",
       });
-    } catch (err) {
-      setError("Network error");
+    } catch (error) {
+      setError("Network error. Please try again later.");
+      console.error("Registration error:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="w-full max-w-md overflow-hidden bg-white shadow-lg rounded-xl">
-        <div className="p-8">
+    <div className="container flex justify-center items-center p-4 min-h-screen bg-gradient-to-br from-slate-10 to-slate-100">
+      <div className="flex overflow-hidden max-w-6xl bg-white rounded-xl shadow-2xl">
+        {/* Left side - Form */}
+        <div className="p-8 w-full lg:w-1/2">
           <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-emerald-100">
+            <div className="inline-flex justify-center items-center mb-4 w-16 h-16 bg-emerald-100 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -101,9 +103,9 @@ const Register = () => {
           </div>
 
           {error && (
-            <div className="p-4 mb-6 text-red-800 border border-red-200 rounded-lg bg-red-50">
-              <div className="flex">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="p-4 mb-6 text-red-800 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>{error}</span>
@@ -112,9 +114,9 @@ const Register = () => {
           )}
 
           {success && (
-            <div className="p-4 mb-6 border rounded-lg bg-emerald-50 text-emerald-800 border-emerald-200">
-              <div className="flex">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="p-4 mb-6 text-emerald-800 bg-emerald-50 rounded-lg border border-emerald-200">
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Verification email sent. Please check your inbox.</span>
@@ -127,7 +129,7 @@ const Register = () => {
               <div>
                 <label htmlFor="first_name" className="block mb-1 text-sm font-medium text-slate-700">First Name</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -140,14 +142,14 @@ const Register = () => {
                     value={formData.first_name}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 text-sm transition-all border rounded-md shadow-sm pl-9 border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="px-3 py-2 pl-9 w-full text-sm rounded-md border shadow-sm transition-all border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
               <div>
                 <label htmlFor="last_name" className="block mb-1 text-sm font-medium text-slate-700">Last Name</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -160,7 +162,7 @@ const Register = () => {
                     value={formData.last_name}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 text-sm transition-all border rounded-md shadow-sm pl-9 border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="px-3 py-2 pl-9 w-full text-sm rounded-md border shadow-sm transition-all border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -169,7 +171,7 @@ const Register = () => {
             <div>
               <label htmlFor="email" className="block mb-1 text-sm font-medium text-slate-700">Email</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
@@ -182,7 +184,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 text-sm transition-all border rounded-md shadow-sm pl-9 border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="px-3 py-2 pl-9 w-full text-sm rounded-md border shadow-sm transition-all border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
             </div>
@@ -195,7 +197,7 @@ const Register = () => {
                 value={formData.role}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 text-sm transition-all border rounded-md shadow-sm border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="px-3 py-2 w-full text-sm rounded-md border shadow-sm transition-all border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               >
                 <option value="student">Student</option>
                 <option value="teacher">Teacher</option>
@@ -206,7 +208,7 @@ const Register = () => {
             <div>
               <label htmlFor="student_id" className="block mb-1 text-sm font-medium text-slate-700">Student ID</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                   </svg>
@@ -219,7 +221,7 @@ const Register = () => {
                   value={formData.student_id}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 text-sm transition-all border rounded-md shadow-sm pl-9 border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="px-3 py-2 pl-9 w-full text-sm rounded-md border shadow-sm transition-all border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
             </div>
@@ -227,7 +229,7 @@ const Register = () => {
             <div>
               <label htmlFor="password" className="block mb-1 text-sm font-medium text-slate-700">Password</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                   </svg>
@@ -240,7 +242,7 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 text-sm transition-all border rounded-md shadow-sm pl-9 border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="px-3 py-2 pl-9 w-full text-sm rounded-md border shadow-sm transition-all border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
             </div>
@@ -248,7 +250,7 @@ const Register = () => {
             <div>
               <label htmlFor="confirm_password" className="block mb-1 text-sm font-medium text-slate-700">Confirm Password</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                   </svg>
@@ -261,19 +263,19 @@ const Register = () => {
                   value={formData.confirm_password}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 text-sm transition-all border rounded-md shadow-sm pl-9 border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="px-3 py-2 pl-9 w-full text-sm rounded-md border shadow-sm transition-all border-slate-200 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full px-4 py-3 font-medium text-white transition-colors duration-200 rounded-md shadow-sm bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={loading}
+              className="px-4 py-2 w-full text-sm font-medium text-white bg-emerald-600 rounded-md transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="w-4 h-4 mr-2 -ml-1 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <span className="flex justify-center items-center">
+                  <svg className="mr-2 w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -285,11 +287,31 @@ const Register = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-sm text-center text-slate-500">
-            Already have an account?{" "}
-            <a href="/login" className="font-medium transition-colors text-emerald-600 hover:text-emerald-500">
-              Sign in
-            </a>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-600">
+              Already have an account?{" "}
+              <Link to="/login" className="font-medium text-emerald-600 transition-colors hover:text-emerald-500">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Right side - Image */}
+        <div className="hidden relative lg:block lg:w-1/2">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-blue-500 opacity-90"></div>
+          <img
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+            alt="Students studying"
+            className="object-cover w-full h-full"
+          />
+          <div className="flex absolute inset-0 justify-center items-center p-12 text-white">
+            <div className="text-center">
+              <h2 className="mb-4 text-4xl font-bold">Welcome to EduMetro</h2>
+              <p className="text-lg opacity-90">
+                Join our community of learners and educators. Start your educational journey today!
+              </p>
+            </div>
           </div>
         </div>
       </div>
