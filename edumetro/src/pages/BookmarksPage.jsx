@@ -68,7 +68,7 @@ const BookmarksPage = () => {
         setLoading(false);
         
         // Set mock data for development when backend is not available
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           setBookmarks([
             { id: 1, title: 'Sample Bookmark 1', content: 'This is a sample bookmark for development', category: 'Sample', created_at: new Date().toISOString(), rating: 4.5, downloads: 120 },
             { id: 2, title: 'Sample Bookmark 2', content: 'Another sample bookmark for testing', category: 'Test', created_at: new Date().toISOString(), rating: 3.8, downloads: 85 },

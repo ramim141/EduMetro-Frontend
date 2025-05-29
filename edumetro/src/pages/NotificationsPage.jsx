@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaBell, FaComment, FaHeart, FaShare } from 'react-icons/fa';
 
-const NotificationItem = ({ icon: Icon, message, time, isRead }) => (
+const NotificationItem = ({ icon: Icon, message, time, isRead }) => { // eslint-disable-line no-unused-vars
   <div className={`p-4 ${isRead ? 'bg-white' : 'bg-purple-50'} hover:bg-gray-50 transition-colors duration-200`}>
     <div className="flex items-start">
       <div className="flex-shrink-0">
@@ -15,7 +15,7 @@ const NotificationItem = ({ icon: Icon, message, time, isRead }) => (
       </div>
     </div>
   </div>
-);
+};
 
 const NotificationsPage = () => {
   const notifications = [

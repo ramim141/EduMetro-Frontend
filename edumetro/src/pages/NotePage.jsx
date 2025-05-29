@@ -61,7 +61,7 @@ const NotePage = () => {
         setLoading(false);
         
         // Set mock data for development when backend is not available
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           setNote({
             id: parseInt(id) || 1,
             title: 'Sample Note Title',

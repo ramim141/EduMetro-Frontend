@@ -84,7 +84,7 @@ const MyNotesPage = () => {
         setLoading(false);
         
         // Set some mock data for development when backend is not available
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           setNotes([
             { id: 1, title: 'Sample Note 1', content: 'This is a sample note for development', category: 'Sample', created_at: new Date().toISOString(), rating: 4.5, downloads: 120 },
             { id: 2, title: 'Sample Note 2', content: 'Another sample note for testing', category: 'Test', created_at: new Date().toISOString(), rating: 3.8, downloads: 85 },

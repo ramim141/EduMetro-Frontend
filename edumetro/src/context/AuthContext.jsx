@@ -2,18 +2,18 @@
 
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/api'; // api ইউটিলিটি ইম্পোর্ট করো
+import api from '../utils/api';
 
-const AuthContext = createContext(); // AuthContext তৈরি
+// Create the AuthContext
+const AuthContext = createContext();
 
-export default AuthContext; // AuthContext কে ডিফল্ট এক্সপোর্ট করো
-
+// Create the AuthProvider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // ইউজারের তথ্য (যেমন: {id: 1, username: 'testuser'})
-  const [loading, setLoading] = useState(true); // প্রাথমিক অথেন্টিকেশন চেক লোডিং স্টেট
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // প্রমাণীকরণ স্টেট
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const navigate = useNavigate(); // রিডাইরেক্টের জন্য
+  const navigate = useNavigate();
 
   // টোকেন লোকাল স্টোরেজ থেকে আনার ফাংশন
   const getTokens = useCallback(() => {
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   const clearTokens = useCallback(() => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    setUser(null); // ইউজার স্টেট সাফ
+    setUser(null);
   }, []);
 
   // JWT ডিকোড করার সহজ ফাংশন (প্রোডাকশন অ্যাপ্লিকেশনে 'jwt-decode' লাইব্রেরি ব্যবহার করা ভালো)
@@ -162,17 +162,22 @@ export const AuthProvider = ({ children }) => {
 
   // লগইন ফাংশন
   const login = useCallback(async (username, password) => {
+    const response = await api.post('/api/users/login/', { username, password });
+    const { access, refresh } = response.data;
+    setTokens(access, refresh); // টোকেন সেভ করো
+    setIsAuthenticated(true); // প্রমাণীকরণ সফল
+    
+    // Fetch user profile data
     try {
-      const response = await api.post('/api/users/login/', { username, password });
-      const { access, refresh } = response.data;
-      setTokens(access, refresh); // টোকেন সেভ করো
-      setIsAuthenticated(true); // প্রমাণীকরণ সফল
-      const decodedUser = decodeJwt(access); // টোকেন থেকে ইউজার তথ্য ডিকোড করো
-      setUser(decodedUser); // ইউজার সেট করো
-      navigate('/'); // সফল লগইনের পর হোমপেজে রিডাইরেক্ট
+      const profileResponse = await api.get('/api/users/profile/');
+      setUser(profileResponse.data);
     } catch (error) {
-      throw error;
+      console.error('Failed to fetch user profile:', error);
+      const decodedUser = decodeJwt(access);
+      setUser(decodedUser);
     }
+    
+    navigate('/'); // সফল লগইনের পর হোমপেজে রিডাইরেক্ট
   }, [setTokens, decodeJwt, navigate]);
 
   // লগআউট ফাংশন
@@ -191,12 +196,56 @@ export const AuthProvider = ({ children }) => {
     navigate('/login'); // লগইন পেজে রিডাইরেক্ট করো
   }, [clearTokens, navigate, getTokens]);
 
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuthAndFetchProfile = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        setIsAuthenticated(true);
+        try {
+          const profileResponse = await api.get('/api/users/profile/');
+          console.log('AuthContext: Fetched user profile data on mount:', profileResponse.data); // Log fetched data on mount
+          setUser(profileResponse.data);
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+          setUser({ username: 'user' }); // Fallback for development
+        }
+      }
+      setLoading(false);
+    };
+    
+    checkAuthAndFetchProfile();
+  }, []);
+
+  // Function to fetch user profile data
+  const fetchUserProfile = useCallback(async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setUser(null);
+      setIsAuthenticated(false);
+      return;
+    }
+    try {
+      const profileResponse = await api.get('/api/users/profile/');
+      console.log('AuthContext: Fetched user profile data:', profileResponse.data); // Log fetched data
+      setUser(profileResponse.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Failed to fetch user profile during refresh:', error);
+      // If fetching profile fails, clear tokens and set user to null
+      clearTokens();
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  }, [clearTokens, setUser, setIsAuthenticated]);
+
   const authContextData = {
     user,
     loading,
     isAuthenticated,
     login,
     logout,
+    fetchUserProfile, // Expose the new function
   };
 
   return (
@@ -206,4 +255,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Export the context as default
 export default AuthContext;
