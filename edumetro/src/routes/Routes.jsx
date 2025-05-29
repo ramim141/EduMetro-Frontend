@@ -1,0 +1,125 @@
+// src/routes/Routes.jsx (Updated)
+
+import React, { useContext } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AuthContext from '../context/AuthContext'; // AuthContext ইম্পোর্ট করো
+
+// Import all page components
+import HomePage from '../pages/HomePage';
+import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
+import NotePage from '../pages/NotePage'; // Add this
+import AboutPage from '../pages/AboutPage'; // Add this
+import DashboardPage from '../pages/DashboardPage'; // Add this
+import MyNotesPage from '../pages/MyNotesPage'; // Add this
+import BookmarksPage from '../pages/BookmarksPage'; // Add this
+import NotificationsPage from '../pages/NotificationsPage'; // Add this
+import ProfilePage from '../pages/ProfilePage'; // Add this
+import EditProfilePage from '../pages/EditProfilePage'; // Add this
+
+// Optional: 404 Page (NotFoundPage)
+const NotFoundPage = () => (
+  <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <h1 className="text-4xl font-bold text-gray-800">404 - Page Not Found</h1>
+    <p className="mt-2 text-gray-600">The page you are looking for does not exist.</p>
+    <p className="mt-4"><Link to="/" className="text-blue-600 hover:underline">Go to Home</Link></p>
+  </div>
+);
+// Make sure to import Link if you use it in NotFoundPage, or just use <a>
+import { Link } from 'react-router-dom'; // If you use Link in NotFoundPage
+
+// Protected Route Component (No changes needed here)
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useContext(AuthContext);
+
+  // AuthContext লোড হওয়ার সময় অপেক্ষা করো, যাতে ভুলভাবে রিডাইরেক্ট না হয়
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-xl text-gray-700">
+        Checking authentication...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    // যদি প্রমাণীকৃত না হয়, লগইন পেজে রিডাইরেক্ট করো
+    return <Navigate to="/login" replace />; // 'replace' prop টি হিস্টরি স্ট্যাক পরিষ্কার করে
+  }
+  return children; // প্রমাণীকৃত হলে চিলড্রেন রেন্ডার করো
+};
+
+
+const AppRoutes = () => {
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/" element={<HomePage />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notes"
+        element={
+          <ProtectedRoute>
+            <MyNotesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/note"
+        element={
+          <ProtectedRoute>
+            <NotePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bookmarks"
+        element={
+          <ProtectedRoute>
+            <BookmarksPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/edit"
+        element={
+          <ProtectedRoute>
+            <EditProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 404 Route */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
