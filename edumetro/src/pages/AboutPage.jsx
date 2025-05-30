@@ -1,9 +1,29 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { FaHome, FaArrowLeft } from 'react-icons/fa';
 
 const AboutPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* Navigation */}
+        <div className="flex items-center justify-between mb-8">
+          <Link 
+            to="/" 
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200"
+          >
+            <FaHome className="mr-2" />
+            Home
+          </Link>
+          <Link 
+            to="/note" 
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200"
+          >
+            <FaArrowLeft className="mr-2" />
+            Back to Notes
+          </Link>
+        </div>
+
         <h1 className="text-4xl font-bold text-center text-gray-900 mb-8">
           About EduMetro
         </h1>

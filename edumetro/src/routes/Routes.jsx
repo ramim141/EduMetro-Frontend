@@ -8,7 +8,7 @@ import AuthContext from '../context/AuthContext';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
-import NotePage from '../pages/NotePage';
+import NoteListPage from '../pages/NoteListPage'; 
 import AboutPage from '../pages/AboutPage';
 import DashboardPage from '../pages/DashboardPage';
 import MyNotesPage from '../pages/MyNotesPage';
@@ -17,7 +17,8 @@ import NotificationsPage from '../pages/NotificationsPage';
 import ProfilePage from '../pages/ProfilePage';
 import EditProfilePage from '../pages/EditProfilePage';
 import PasswordChangePage from '../pages/PasswordChangePage';
-
+import UploadNotePage from '../pages/UploadNotePage'; 
+import NoteDetailsPage from '../pages/NoteDetailsPage';
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useContext(AuthContext);
@@ -42,9 +43,20 @@ const NotFoundPage = () => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
     <h1 className="text-4xl font-bold text-gray-800">404 - Page Not Found</h1>
     <p className="mt-2 text-gray-600">The page you are looking for does not exist.</p>
-    <Link to="/" className="mt-4 text-blue-600 hover:underline">
-      Go to Home
-    </Link>
+    <div className="flex space-x-4 mt-6">
+      <Link 
+        to="/" 
+        className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
+      >
+        Go to Home
+      </Link>
+      <Link 
+        to="/note" 
+        className="px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors duration-200"
+      >
+        Browse Notes
+      </Link>
+    </div>
   </div>
 );
 
@@ -56,11 +68,13 @@ const AppRoutes = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/" element={<HomePage />} />
+     
 
       {/* Protected Routes */}
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-      <Route path="/notes" element={<ProtectedRoute><MyNotesPage /></ProtectedRoute>} />
-      <Route path="/note" element={<ProtectedRoute><NotePage /></ProtectedRoute>} />
+      <Route path="/my-notes" element={<ProtectedRoute><MyNotesPage /></ProtectedRoute>} />
+      <Route path="/note" element={<NoteListPage />} />
+      <Route path="/notes/:id" element={<NoteDetailsPage />} />
       <Route path="/bookmarks" element={<ProtectedRoute><BookmarksPage /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       
@@ -68,6 +82,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
       <Route path="/change-password" element={<ProtectedRoute><PasswordChangePage /></ProtectedRoute>} />
+      <Route path="/upload-note" element={<ProtectedRoute><UploadNotePage /></ProtectedRoute>} />
 
       {/* 404 Route */}
       <Route path="*" element={<NotFoundPage />} />

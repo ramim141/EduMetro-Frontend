@@ -13,6 +13,7 @@ import {
   FaChartBar,
   FaFileAlt,
   FaBookmark,
+  FaUpload,
   // User actions
   FaUserCircle,
   FaSignOutAlt
@@ -167,7 +168,7 @@ const Navbar = () => {
                       
                       {/* My Notes Link */}
                       <Link 
-                        to="/notes" 
+                        to="/my-notes" 
                         className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
                         onClick={handleDropdownItemClick}
                       >
@@ -207,6 +208,21 @@ const Navbar = () => {
                         <div>
                           <p className="font-medium">Notifications</p>
                           <p className="text-xs text-gray-500">Your alerts and updates</p>
+                        </div>
+                      </Link>
+                      
+                      {/* Upload New Note Link */}
+                      <Link 
+                        to="/upload-note" 
+                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
+                        onClick={handleDropdownItemClick}
+                      >
+                        <div className="flex justify-center items-center mr-3 w-8 h-8 text-white bg-green-500 rounded-lg shadow-sm">
+                          <FaUpload />
+                        </div>
+                        <div>
+                          <p className="font-medium">Upload New Note</p>
+                          <p className="text-xs text-gray-500">Share your notes</p>
                         </div>
                       </Link>
                       

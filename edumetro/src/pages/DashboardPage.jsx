@@ -1,7 +1,11 @@
+// src/pages/DashboardPage.jsx (Slightly modified for correct links)
+
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { FaBook, FaBookmark, FaBell, FaUser, FaSearch, FaChartLine, FaEdit, FaUpload, FaEye, FaStar, FaHome, FaStickyNote, FaInfoCircle, FaChartBar, FaFileAlt, FaUserCircle, FaSignOutAlt, FaEnvelope, FaIdCard } from 'react-icons/fa';
+import { FaBook, FaBookmark, FaBell, FaSearch, FaChartLine, FaEdit, FaUpload, FaEye, FaStar, FaChartBar, FaFileAlt, FaUserCircle, FaEnvelope, FaIdCard } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
+import api from '../utils/api';
+import Spinner from '../components/Spinner';
 
 // eslint-disable-next-line no-unused-vars
 const DashboardCard = ({ icon: Icon, title, count, link, color }) => (
@@ -9,8 +13,8 @@ const DashboardCard = ({ icon: Icon, title, count, link, color }) => (
     to={link}
     className={`overflow-hidden relative p-6 bg-white rounded-xl border-l-4 shadow-md transition-all duration-300 transform hover:shadow-xl hover:-translate-y-1 ${color} group`}
   >
-    <div className="absolute inset-0 bg-gradient-to-r from-white via-white to-white opacity-0 transition-opacity duration-500 group-hover:opacity-10"></div>
-    <div className="flex justify-between items-center">
+    <div className="absolute inset-0 transition-opacity duration-500 opacity-0 bg-gradient-to-r from-white via-white to-white group-hover:opacity-10"></div>
+    <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium text-gray-500">{title}</p>
         <p className="mt-2 text-3xl font-bold text-gray-800 transition-colors duration-300 group-hover:text-primary-600">{count}</p>
@@ -23,42 +27,64 @@ const DashboardCard = ({ icon: Icon, title, count, link, color }) => (
 );
 
 const DashboardPage = () => {
-  console.log('Rendering DashboardPage...');
   const { user, isAuthenticated, loading } = useContext(AuthContext);
   const [animate, setAnimate] = useState(false);
-  const [stats] = useState({
-    notes: 47,
-    comments: 60,
-    downloads: 100,
-    rating: 4.5
+  const [stats, setStats] = useState({
+    notes: 0,
+    comments: 0,
+    downloads: 0,
+    rating: 0
   });
-
-  console.log('DashboardPage Auth State: isAuthenticated=', isAuthenticated, ', loading=', loading, ', user=', user);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log('DashboardPage useEffect triggered.');
-    // Entrance animation
     setAnimate(true);
+    fetchUserStats();
+  }, [user]);
+
+  const fetchUserStats = async () => {
+    if (!user?.user_id) return;
     
-    // In a real app, you would fetch dashboard data from the API
-    // Example:
-    // const fetchDashboardData = async () => {
-    //   try {
-    //     const response = await axios.get('http://127.0.0.1:8000/api/dashboard/');
-    //     setStats(response.data.stats);
-    //   } catch (err) {
-    //     console.error('Failed to load dashboard data:', err);
-    //   }
-    // };
-    // fetchDashboardData();
-  }, []);
+    try {
+      setLoadingStats(true);
+      // Fetch user's notes count
+      const notesResponse = await api.get(`/api/notes/?uploaded_by=${user.user_id}`);
+      const notesCount = notesResponse.data.count || 0;
+
+      // Fetch user's comments count
+      const commentsResponse = await api.get(`/api/comments/?user=${user.user_id}`);
+      const commentsCount = commentsResponse.data.count || 0;
+
+      // Fetch user's total downloads
+      const downloadsResponse = await api.get(`/api/notes/?uploaded_by=${user.user_id}`);
+      const totalDownloads = downloadsResponse.data.results.reduce((sum, note) => sum + (note.download_count || 0), 0);
+
+      // Fetch user's average rating
+      const ratingResponse = await api.get(`/api/notes/?uploaded_by=${user.user_id}`);
+      const notesWithRatings = ratingResponse.data.results.filter(note => note.rating_count > 0);
+      const averageRating = notesWithRatings.length > 0
+        ? notesWithRatings.reduce((sum, note) => sum + (note.rating || 0), 0) / notesWithRatings.length
+        : 0;
+
+      setStats({
+        notes: notesCount,
+        comments: commentsCount,
+        downloads: totalDownloads,
+        rating: parseFloat(averageRating.toFixed(1))
+      });
+    } catch (err) {
+      console.error('Failed to fetch user stats:', err);
+      setError('Failed to load user statistics. Please try again later.');
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const userInitial = user?.username ? user.username.charAt(0).toUpperCase() : 'P';
   const studentName = user?.first_name && user?.last_name 
     ? `${user.first_name} ${user.last_name}`
     : user?.username || 'Student Name';
-
-  console.log('DashboardPage: Preparing to render JSX');
 
   return (
     <div className={`flex min-h-screen bg-gray-100 transition-opacity duration-500 ${animate ? 'opacity-100' : 'opacity-0'}`}>
@@ -72,19 +98,19 @@ const DashboardPage = () => {
             <FaChartBar className="mr-2" />
             Dashboard
           </Link>
-          <Link to="/notes" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          <Link to="/my-notes" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
             <FaFileAlt className="mr-2" />
             My Notes
           </Link>
-           <Link to="/browse" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          <Link to="/note" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
             <FaSearch className="mr-2" />
             Browse Notes
           </Link>
-           <Link to="/bookmarks" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          <Link to="/bookmarks" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
             <FaBookmark className="mr-2" />
             Bookmarks
           </Link>
-           <Link to="/profile" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          <Link to="/profile" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
             <FaUserCircle className="mr-2" />
             Profile
           </Link>
@@ -92,7 +118,10 @@ const DashboardPage = () => {
 
         <div className="p-4 mt-8 border-t">
           <h4 className="text-sm font-semibold text-gray-600">Quick Access</h4>
-           <Link to="/note/new" className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-200">
+          <Link 
+            to="/upload-note" 
+            className="flex items-center px-4 py-2 mt-2 text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+          >
             <FaUpload className="mr-2" />
             Upload New Note
           </Link>
@@ -103,21 +132,21 @@ const DashboardPage = () => {
       {/* Main Content */}
       <div className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
         {/* Search bar and Notification */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center justify-between mb-8">
           <div className="relative w-64">
-            <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <FaSearch className="text-gray-400" />
             </div>
             <input
               type="text"
               placeholder="Search notes..."
-              className="py-2 pr-4 pl-10 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               style={{ backgroundColor: '#f3e8ff', borderColor: '#d8b4fe'}}
             />
           </div>
           <div className="flex items-center space-x-4">
              <button 
-                  className="relative p-2 text-gray-700 rounded-full transition-all duration-300 hover:bg-gray-200 focus:outline-none"
+                  className="relative p-2 text-gray-700 transition-all duration-300 rounded-full hover:bg-gray-200 focus:outline-none"
                   aria-label="Notifications"
                   style={{ backgroundColor: '#fcd34d' }}
                 >
@@ -131,10 +160,10 @@ const DashboardPage = () => {
         <p className="mb-8 text-gray-600">This is your dashboard and important information center</p>
         
         {/* Welcome card with trend */}
-        <div className="flex overflow-hidden relative justify-between items-center p-6 mb-8 bg-gray-200 rounded-xl shadow-md"
+        <div className="relative flex items-center justify-between p-6 mb-8 overflow-hidden bg-gray-200 shadow-md rounded-xl"
              style={{ backgroundColor: '#e0e0e0' }}
         >
-          <h2 className="text-2xl font-semibold text-gray-800">Welcome back, {user?.first_name || user?.username || 'Student'}!</h2>
+          <h2 className="text-2xl font-semibold text-gray-800">Welcome back, {studentName}!</h2>
           <div className="flex items-center text-gray-600">
             <FaChartLine className="ml-2 text-xl" />
           </div>
@@ -142,63 +171,79 @@ const DashboardPage = () => {
         
         {/* Stats cards */}
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Adjusted DashboardCard usage for better styling control */}
-          <div className="p-6 bg-white rounded-xl border-l-4 border-green-400 shadow-md" style={{ backgroundColor: '#d4edda' }}>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Notes Posted</p>
-                <p className="mt-2 text-3xl font-bold text-green-700">{stats.notes}</p>
+          {loadingStats ? (
+            // Loading state for stats
+            Array(4).fill(0).map((_, index) => (
+              <div key={index} className="p-6 bg-white border-l-4 border-gray-200 shadow-md rounded-xl animate-pulse">
+                <div className="flex items-center justify-between">
+                  <div className="w-1/2 h-4 bg-gray-200 rounded"></div>
+                  <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                </div>
               </div>
-              <div className="p-3 text-green-600 bg-white rounded-full">
-                <FaBook className="text-2xl" />
+            ))
+          ) : (
+            <>
+              {/* Notes Posted */}
+              <div className="p-6 bg-white border-l-4 border-green-400 shadow-md rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Notes Posted</p>
+                    <p className="mt-2 text-3xl font-bold text-green-700">{stats.notes}</p>
+                  </div>
+                  <div className="p-3 text-green-600 bg-white rounded-full">
+                    <FaBook className="text-2xl" />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-           <div className="p-6 bg-white rounded-xl border-l-4 border-yellow-400 shadow-md" style={{ backgroundColor: '#fff3cd' }}>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Comments</p>
-                <p className="mt-2 text-3xl font-bold text-yellow-700">{stats.comments}</p>
+              {/* Comments */}
+              <div className="p-6 bg-white border-l-4 border-yellow-400 shadow-md rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Comments</p>
+                    <p className="mt-2 text-3xl font-bold text-yellow-700">{stats.comments}</p>
+                  </div>
+                  <div className="p-3 text-yellow-600 bg-white rounded-full">
+                    <FaBell className="text-2xl" />
+                  </div>
+                </div>
               </div>
-              <div className="p-3 text-yellow-600 bg-white rounded-full">
-                <FaBell className="text-2xl" />
-              </div>
-            </div>
-          </div>
 
-           <div className="p-6 bg-white rounded-xl border-l-4 border-blue-400 shadow-md" style={{ backgroundColor: '#cce5ff' }}>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Download</p>
-                <p className="mt-2 text-3xl font-bold text-blue-700">{stats.downloads}</p>
+              {/* Downloads */}
+              <div className="p-6 bg-white border-l-4 border-blue-400 shadow-md rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Total Downloads</p>
+                    <p className="mt-2 text-3xl font-bold text-blue-700">{stats.downloads}</p>
+                  </div>
+                  <div className="p-3 text-blue-600 bg-white rounded-full">
+                    <FaBookmark className="text-2xl" />
+                  </div>
+                </div>
               </div>
-              <div className="p-3 text-blue-600 bg-white rounded-full">
-                <FaBookmark className="text-2xl" />
-              </div>
-            </div>
-          </div>
 
-           <div className="p-6 bg-white rounded-xl border-l-4 border-purple-400 shadow-md" style={{ backgroundColor: '#e2d9f3' }}>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Average Rating</p>
-                <p className="mt-2 text-3xl font-bold text-purple-700">{stats.rating}</p>
+              {/* Average Rating */}
+              <div className="p-6 bg-white border-l-4 border-purple-400 shadow-md rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Average Rating</p>
+                    <p className="mt-2 text-3xl font-bold text-purple-700">{stats.rating}</p>
+                  </div>
+                  <div className="p-3 text-purple-600 bg-white rounded-full">
+                    <FaStar className="text-2xl" />
+                  </div>
+                </div>
               </div>
-              <div className="p-3 text-purple-600 bg-white rounded-full">
-                <FaStar className="text-2xl" />
-              </div>
-            </div>
-          </div>
-
+            </>
+          )}
         </div>
         
         {/* User profile and quick actions */}
         <div className="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3">
           {/* User profile card */}
-          <div className="p-6 bg-white rounded-xl shadow-md lg:col-span-1">
+          <div className="p-6 bg-white shadow-md rounded-xl lg:col-span-1">
             <div className="flex flex-col items-center mb-4">
-              <div className="flex overflow-hidden justify-center items-center mb-4 w-24 h-24 text-4xl font-bold text-gray-600 bg-gray-200 rounded-full border-4 border-gray-300">
+              <div className="flex items-center justify-center w-24 h-24 mb-4 overflow-hidden text-4xl font-bold text-gray-600 bg-gray-200 border-4 border-gray-300 rounded-full">
                  {userInitial}
               </div>
               <h3 className="text-xl font-bold text-gray-800">{studentName}</h3>
@@ -223,92 +268,38 @@ const DashboardPage = () => {
               <p className="text-sm italic text-gray-600">{user?.bio || 'No bio added yet.'}</p>
             </div>
             
-            <Link to="/profile/edit" className="flex justify-center items-center py-2 mt-4 w-full text-white bg-green-600 rounded-lg transition-colors duration-300 hover:bg-green-700">
+            <Link to="/profile" className="flex items-center justify-center w-full py-2 mt-4 text-white transition-colors duration-300 bg-green-600 rounded-lg hover:bg-green-700">
               <FaEdit className="mr-2" />
               Edit Profile
             </Link>
           </div>
           
           {/* Quick actions */}
-          <div className="p-6 bg-white rounded-xl shadow-md lg:col-span-2">
+          <div className="p-6 bg-white shadow-md rounded-xl lg:col-span-2">
             <h3 className="mb-4 text-xl font-bold text-red-600">Quick Actions</h3>
             <p className="mb-4 text-gray-600">Frequently used actions to manage notes and profile</p>
             
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <Link to="/note/new" className="flex flex-col justify-center items-center p-4 text-white bg-blue-600 rounded-lg transition-colors duration-300 hover:bg-blue-700">
+              <Link 
+                to="/upload-note" 
+                className="flex flex-col items-center justify-center p-4 text-white transition-colors duration-300 bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
                 <FaUpload className="mb-2 text-2xl" />
                 <span>Upload New Note</span>
               </Link>
               
-              <Link to="/browse" className="flex flex-col justify-center items-center p-4 text-blue-600 bg-white rounded-lg border border-blue-600 transition-colors duration-300 hover:bg-blue-50">
+              <Link to="/note" className="flex flex-col items-center justify-center p-4 text-blue-600 transition-colors duration-300 bg-white border border-blue-600 rounded-lg hover:bg-blue-50">
                 <FaSearch className="mb-2 text-2xl" />
                 <span>Browse Notes</span>
               </Link>
               
-              <Link to="/notes" className="flex flex-col justify-center items-center p-4 text-blue-600 bg-white rounded-lg border border-blue-600 transition-colors duration-300 hover:bg-blue-50">
+              <Link to="/my-notes" className="flex flex-col items-center justify-center p-4 text-blue-600 transition-colors duration-300 bg-white border border-blue-600 rounded-lg hover:bg-blue-50">
                 <FaEye className="mb-2 text-2xl" />
                 <span>See Your Notes</span>
               </Link>
             </div>
           </div>
         </div>
-        
-        {/* Recent activity - Removed as per design */}
-        {/* <div className="p-6 bg-white rounded-xl shadow-md">
-          <h2 className="flex items-center mb-4 text-xl font-semibold text-gray-800">
-            <span className="inline-block flex justify-center items-center mr-2 w-8 h-8 rounded-full bg-primary-100 text-primary-600">📊</span>
-            Recent Activity
-          </h2>
-          <div className="space-y-4">
-            
-            <div className="p-4 rounded-lg border border-gray-200 transition-colors duration-300 hover:bg-gray-50">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="flex justify-center items-center mr-3 w-10 h-10 rounded-full bg-primary-100 text-primary-600">
-                    <FaBook />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">You uploaded a new note</p>
-                    <p className="text-sm text-gray-500">Introduction to React</p>
-                  </div>
-                </div>
-                <span className="text-sm text-gray-500">2 days ago</span>
-              </div>
-            </div>
-            
-            <div className="p-4 rounded-lg border border-gray-200 transition-colors duration-300 hover:bg-gray-50">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="flex justify-center items-center mr-3 w-10 h-10 text-yellow-600 bg-yellow-100 rounded-full">
-                    <FaBell />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">New comment on your note</p>
-                    <p className="text-sm text-gray-500">Data Structures in JavaScript</p>
-                  </div>
-                </div>
-                <span className="text-sm text-gray-500">3 days ago</span>
-              </div>
-            </div>
-            
-            <div className="p-4 rounded-lg border border-gray-200 transition-colors duration-300 hover:bg-gray-50">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="flex justify-center items-center mr-3 w-10 h-10 text-green-600 bg-green-100 rounded-full">
-                    <FaBookmark />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">You bookmarked a note</p>
-                    <p className="text-sm text-gray-500">CSS Grid Layout Mastery</p>
-                  </div>
-                </div>
-                <span className="text-sm text-gray-500">5 days ago</span>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
-
       </div>
     </div>
   );
