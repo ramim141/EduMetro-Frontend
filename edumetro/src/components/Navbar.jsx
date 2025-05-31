@@ -284,8 +284,13 @@ const Navbar = () => {
               <div className="flex items-center space-x-2">
                 <Link 
                   to="/login" 
-                  className="px-4 py-2 text-white transition-all duration-300 rounded-md hover:bg-white/10 hover:scale-105"
-                >
+                  className={
+                    `px-4 py-2 text-white transition-all duration-300 rounded-md shadow-md ${
+                      isScrolled
+                        ? "bg-gray-800 hover:bg-gray-700 hover:scale-105 hover:shadow-lg"
+                        : "bg-primary-600 hover:bg-primary-700 hover:scale-105 hover:shadow-lg"
+                    }`
+                  }>
                   Login
                 </Link>
                 <Link 

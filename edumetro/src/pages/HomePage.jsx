@@ -5,8 +5,20 @@ import { Link } from "react-router-dom"
 import api from "../utils/api"
 import Spinner from "../components/Spinner"
 import NoteCard from "../components/NoteCard"
-import { FaSearch, FaUpload, FaStar, FaArrowRight, FaBookOpen, FaUsers, FaDownload } from "react-icons/fa"
+import StrengthSection from "@/components/strength-section"
+import {
+  FaArrowRight,
+  FaBookOpen,
+  FaDownload,
+  FaGraduationCap,
+  FaSearch,
+  FaStar,
+  FaUniversity,
+  FaUpload,
+  FaUsers
+} from "react-icons/fa"
 import heroImage from "../assets/images/home-hero-img.png"
+
 
 const HomePage = () => {
   const [popularNotes, setPopularNotes] = useState([])
@@ -31,7 +43,7 @@ const HomePage = () => {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 ">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700">
         {/* Background Pattern */}
@@ -81,7 +93,7 @@ const HomePage = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col justify-center gap-4 sm:flex-row md:justify-start">
+            <div className="flex flex-col justify-center gap-4 sm:flex-row md:justify-start ">
               <Link
                 to="/note"
                 className="relative px-8 py-4 overflow-hidden font-bold text-indigo-600 transition-all duration-300 transform bg-white shadow-2xl group rounded-2xl hover:shadow-3xl hover:scale-105"
@@ -123,7 +135,7 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="relative px-4 py-24 overflow-hidden bg-white">
+      <section className="relative px-4 py-24 mx-auto overflow-hidden bg-white md:px-8 lg:px-8 max-w-7xl">
         {/* Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-5">
           <div className="absolute bg-indigo-600 rounded-full top-20 left-10 w-72 h-72"></div>
@@ -205,6 +217,8 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
+
+            
           </div>
         </div>
       </section>
@@ -287,39 +301,9 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Call to Action Section */}
-      <section className="relative px-4 py-24 overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 bg-white rounded-full w-96 h-96 mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute bottom-0 right-0 bg-yellow-300 rounded-full w-96 h-96 mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-        </div>
+      <StrengthSection />
 
-        <div className="container relative z-10 mx-auto text-center">
-          <h2 className="mb-6 text-4xl font-black text-white md:text-5xl">Ready to Transform Your Studies?</h2>
-          <p className="max-w-3xl mx-auto mb-12 text-xl leading-relaxed text-white/90">
-            Join thousands of students who are already excelling with NoteBank. Start your journey today!
-          </p>
-
-          <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
-            <Link
-              to="/register"
-              className="flex items-center gap-3 px-10 py-5 text-lg font-bold text-indigo-600 transition-all duration-300 transform bg-white shadow-2xl group rounded-2xl hover:shadow-3xl hover:scale-105"
-            >
-              <FaUsers className="transition-transform duration-300 group-hover:scale-110" />
-              Join the Community
-              <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-            <Link
-              to="/note"
-              className="flex items-center gap-3 px-10 py-5 text-lg font-bold text-white transition-all duration-300 border-2 border-white group rounded-2xl hover:bg-white hover:text-indigo-600"
-            >
-              <FaDownload className="transition-transform duration-300 group-hover:scale-110" />
-              Browse Notes
-            </Link>
-          </div>
-        </div>
-      </section>
+    
     </div>
   )
 }
