@@ -86,17 +86,7 @@ export default {
           950: '#450a0a',
         },
       },
-      animation: {
-        shine: 'shine 3s ease-in-out infinite',
-        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        bounce: 'bounce 1s infinite',
-        fadeIn: 'fadeIn 0.5s ease-in-out',
-        slideUp: 'slideUp 0.5s ease-in-out',
-        slideDown: 'slideDown 0.5s ease-in-out',
-        slideLeft: 'slideLeft 0.5s ease-in-out',
-        slideRight: 'slideRight 0.5s ease-in-out',
-        scale: 'scale 0.3s ease-in-out',
-      },
+      // **এখানে পরিবর্তন:** অ্যানিমেশন এবং কীফ্রেম যোগ করা হচ্ছে
       keyframes: {
         shine: {
           '0%': { transform: 'translateX(-100%)' },
@@ -125,7 +115,53 @@ export default {
         scale: {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' }
-        }
+        },
+        // **নতুন যোগ করা অ্যানিমেশন কীফ্রেম**
+        'fade-in-up': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(20px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+        'fade-in-left': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateX(-20px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateX(0)',
+          },
+        },
+        'fade-in-right': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateX(20px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateX(0)',
+          },
+        },
+      },
+      animation: {
+        shine: 'shine 3s ease-in-out infinite',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        bounce: 'bounce 1s infinite',
+        fadeIn: 'fadeIn 0.5s ease-in-out',
+        slideUp: 'slideUp 0.5s ease-in-out',
+        slideDown: 'slideDown 0.5s ease-in-out',
+        slideLeft: 'slideLeft 0.5s ease-in-out',
+        slideRight: 'slideRight 0.5s ease-in-out',
+        scale: 'scale 0.3s ease-in-out',
+        // **নতুন যোগ করা অ্যানিমেশন**
+        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+        'fade-in-left': 'fade-in-left 0.8s ease-out forwards',
+        'fade-in-right': 'fade-in-right 0.8s ease-out forwards',
       },
       transitionProperty: {
         'height': 'height',
@@ -154,9 +190,11 @@ export default {
         '2xl': '1rem',
         '3xl': '1.5rem',
         '4xl': '2rem',
+      },
+      fontFamily: {
+        'nav': ['Bebas Neue', 'sans-serif']
       }
     }
   },
   plugins: [],
 }
-

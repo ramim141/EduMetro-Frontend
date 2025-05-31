@@ -3,6 +3,7 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import navLogo from '../assets/images/nav-logo.png'; // Adjust the path as necessary
 import {
   // Navigation icons
   FaHome,
@@ -23,6 +24,16 @@ const Navbar = () => {
   const { isAuthenticated, logout, user } = useContext(AuthContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [isScrolled, setIsScrolled] = useState(false)
+  
+ // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -60,34 +71,56 @@ const Navbar = () => {
   console.log('User data:', user);
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#84AE92] to-[#6a9c7c] shadow-lg transition-all duration-300 ease-in-out">
-      <div className="container px-4 py-3 mx-auto md:px-8 lg:px-20">
-        <div className="flex justify-between items-center">
+    <nav 
+       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200/50"
+          : "bg-gradient-to-r from-[#EEAECA] via-purple-600 to-[#94BBE9]"
+      }`}
+     >
+      <div className="px-4 py-3 mx-auto md:px-8 lg:px-8 max-w-7xl"> 
+        <div className="flex items-center justify-between">
           {/* Logo */}
           <Link 
             to="/" 
             className="flex items-center text-2xl font-extrabold tracking-wider text-white uppercase transition-all duration-300 hover:scale-105 hover:text-primary-500"
           >
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-primary-100">NoteBank</span>
+            <span>
+              <img src={navLogo} alt="" className="w-6 h-6 mr-2 lg:h-8 lg:w-8" />
+            </span>
+            <span className={`lg:text-3xl font-bold transition-colors duration-300 font-nav sm:text-xl ${
+                isScrolled ? "text-gray-900" : "text-white"
+              }`}>Note <span className="text-yellow-400">Bank</span> </span>
           </Link>
 
           {/* Navigation Links */}
-          <div className="hidden items-center space-x-1 md:flex">
+          <div className="items-center justify-center flex-grow hidden space-x-8 md:flex">
             <Link 
               to="/" 
-              className="flex items-center px-4 py-2 text-white rounded-md transition-all duration-300 hover:bg-white/10 hover:scale-105"
-            >
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105 ${
+                    isScrolled
+                      ? "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+                      : "text-white/90 hover:bg-white/10 hover:text-white"
+                  }`}>
               <FaHome className="mr-1" /> Home
             </Link>
             <Link 
               to="/note" 
-              className="flex items-center px-4 py-2 text-white rounded-md transition-all duration-300 hover:bg-white/10 hover:scale-105"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105 ${
+                    isScrolled
+                      ? "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+                      : "text-white/90 hover:bg-white/10 hover:text-white"
+                  }`}
             >
-              <FaStickyNote className="mr-1" /> Note
+              <FaStickyNote className="mr-1" /> Notes
             </Link>
             <Link 
               to="/about" 
-              className="flex items-center px-4 py-2 text-white rounded-md transition-all duration-300 hover:bg-white/10 hover:scale-105"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105 ${
+                    isScrolled
+                      ? "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+                      : "text-white/90 hover:bg-white/10 hover:text-white"
+                  }`}
             >
               <FaInfoCircle className="mr-1" /> About
             </Link>
@@ -96,23 +129,27 @@ const Navbar = () => {
           {/* Auth Section */}
           <div className="flex items-center">
             {isAuthenticated ? (
-              <div className="flex relative items-center space-x-4" ref={dropdownRef}>
+              <div className="relative flex items-center space-x-4" ref={dropdownRef}>
                 {/* Notification Bell */}
-                <button 
-                  className="relative p-2 text-white rounded-full transition-all duration-300 hover:bg-white/10 hover:scale-110 focus:outline-none"
+                <button
+                  className={`relative p-2 rounded-full transition-all duration-200 hover:scale-110 ${
+                    isScrolled ? "text-gray-700 hover:bg-gray-100" : "text-white hover:bg-white/10"
+                  }`}
                   aria-label="Notifications"
                 >
                   <FaBell className="text-xl" />
-                  <span className="flex absolute top-0 right-0 w-3 h-3">
-                    <span className="inline-flex absolute w-full h-full bg-red-400 rounded-full opacity-75 animate-ping"></span>
-                    <span className="inline-flex relative w-3 h-3 bg-red-500 rounded-full"></span>
+                  <span className="absolute top-0 right-0 flex w-3 h-3">
+                    <span className="absolute inline-flex w-full h-full bg-red-400 rounded-full opacity-75 animate-ping"></span>
+                    <span className="relative inline-flex w-3 h-3 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
+                      3
+                    </span>
                   </span>
                 </button>
-                
+
                 {/* Profile Button */}
                 <button
                   onClick={handleProfileClick}
-                  className="flex overflow-hidden relative justify-center items-center w-10 h-10 font-semibold text-white rounded-full border-2 transition-all duration-300 bg-primary-600 border-white/30 hover:border-white hover:bg-primary-700 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500"
+                  className="relative flex items-center justify-center w-10 h-10 overflow-hidden font-semibold text-white transition-all duration-300 bg-purple-600 border-2 rounded-full border-white/30 hover:border-white hover:bg-purple-700 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500"
                   aria-label="Open user menu"
                 >
                   {userInitial}
@@ -121,19 +158,19 @@ const Navbar = () => {
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
                   <div 
-                    className="overflow-hidden absolute right-0 top-full z-10 mt-2 w-72 bg-white rounded-xl ring-1 ring-black ring-opacity-5 shadow-2xl transition-all duration-300 ease-out origin-top-right focus:outline-none animate-in fade-in slide-in-from-top-5"
+                    className="absolute right-0 z-10 mt-2 overflow-hidden transition-all duration-300 ease-out origin-top-right bg-white shadow-2xl top-full w-72 rounded-xl ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in slide-in-from-top-5"
                     style={{ transformOrigin: 'top right' }}
                   >
                     {/* User Profile Section */}
-                    <div className="flex relative flex-col items-center p-6 text-center bg-gradient-to-b to-white border-b border-gray-200 from-primary-50">
+                    <div className="relative flex flex-col items-center p-6 text-center border-b border-gray-200 bg-gradient-to-b to-white from-primary-50">
                       {/* Decorative Elements */}
                       <div className="absolute top-0 left-0 w-full h-full opacity-10">
-                        <div className="absolute -top-4 -left-4 w-24 h-24 rounded-full blur-xl bg-primary-300"></div>
-                        <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-xl bg-primary-300"></div>
+                        <div className="absolute w-24 h-24 rounded-full -top-4 -left-4 blur-xl bg-primary-300"></div>
+                        <div className="absolute w-24 h-24 rounded-full -right-4 -bottom-4 blur-xl bg-primary-300"></div>
                       </div>
                       
                       {/* Avatar */}
-                      <div className="flex relative justify-center items-center mb-3 w-24 h-24 text-xl font-bold text-white bg-gradient-to-br rounded-full ring-4 ring-white shadow-lg transition-all duration-300 transform from-primary-500 to-primary-700 hover:scale-105">
+                      <div className="relative flex items-center justify-center w-24 h-24 mb-3 text-xl font-bold text-white transition-all duration-300 transform rounded-full shadow-lg bg-gradient-to-br ring-4 ring-white from-purple-500 to-purple-700 hover:scale-105">
                         {userInitial}
                       </div>                      {/* User Info */}
                       <p className="text-lg font-bold text-gray-800">{studentName}</p>
@@ -143,7 +180,7 @@ const Navbar = () => {
                       <Link
                         to="/profile"
                         onClick={handleDropdownItemClick}
-                        className="px-5 py-2 mt-4 text-sm font-medium text-white bg-gradient-to-r rounded-full shadow-md transition-all duration-300 from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                        className="px-5 py-2 mt-4 text-sm font-medium text-white transition-all duration-300 rounded-full shadow-md bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                       >
                         <FaUserCircle className="inline mr-1" /> View Profile
                       </Link>
@@ -157,7 +194,7 @@ const Navbar = () => {
                         className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
                         onClick={handleDropdownItemClick}
                       >
-                        <div className="flex justify-center items-center mr-3 w-8 h-8 text-white bg-blue-500 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-blue-500 rounded-lg shadow-sm">
                           <FaChartBar />
                         </div>
                         <div>
@@ -172,7 +209,7 @@ const Navbar = () => {
                         className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
                         onClick={handleDropdownItemClick}
                       >
-                        <div className="flex justify-center items-center mr-3 w-8 h-8 text-white bg-yellow-500 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-yellow-500 rounded-lg shadow-sm">
                           <FaFileAlt />
                         </div>
                         <div>
@@ -187,7 +224,7 @@ const Navbar = () => {
                         className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
                         onClick={handleDropdownItemClick}
                       >
-                        <div className="flex justify-center items-center mr-3 w-8 h-8 text-white bg-red-500 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-red-500 rounded-lg shadow-sm">
                           <FaBookmark />
                         </div>
                         <div>
@@ -202,7 +239,7 @@ const Navbar = () => {
                         className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
                         onClick={handleDropdownItemClick}
                       >
-                        <div className="flex justify-center items-center mr-3 w-8 h-8 text-white bg-orange-500 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-orange-500 rounded-lg shadow-sm">
                           <FaBell />
                         </div>
                         <div>
@@ -217,7 +254,7 @@ const Navbar = () => {
                         className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
                         onClick={handleDropdownItemClick}
                       >
-                        <div className="flex justify-center items-center mr-3 w-8 h-8 text-white bg-green-500 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-green-500 rounded-lg shadow-sm">
                           <FaUpload />
                         </div>
                         <div>
@@ -229,9 +266,9 @@ const Navbar = () => {
                       {/* Logout Button */}
                       <button
                         onClick={handleLogoutClick}
-                        className="flex items-center px-4 py-3 mt-1 w-full text-left text-gray-700 border-t border-gray-100 transition-all duration-200 hover:bg-red-50"
+                        className="flex items-center w-full px-4 py-3 mt-1 text-left text-gray-700 transition-all duration-200 border-t border-gray-100 hover:bg-red-50"
                       >
-                        <div className="flex justify-center items-center mr-3 w-8 h-8 text-white bg-gray-500 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-gray-500 rounded-lg shadow-sm">
                           <FaSignOutAlt />
                         </div>
                         <div>
@@ -247,13 +284,13 @@ const Navbar = () => {
               <div className="flex items-center space-x-2">
                 <Link 
                   to="/login" 
-                  className="px-4 py-2 text-white rounded-md transition-all duration-300 hover:bg-white/10 hover:scale-105"
+                  className="px-4 py-2 text-white transition-all duration-300 rounded-md hover:bg-white/10 hover:scale-105"
                 >
                   Login
                 </Link>
                 <Link 
                   to="/register" 
-                  className="px-4 py-2 text-white rounded-md shadow-md transition-all duration-300 bg-primary-600 hover:bg-primary-700 hover:scale-105 hover:shadow-lg"
+                  className="px-4 py-2 text-white transition-all duration-300 rounded-md shadow-md bg-primary-600 hover:bg-primary-700 hover:scale-105 hover:shadow-lg"
                 >
                   Register
                 </Link>

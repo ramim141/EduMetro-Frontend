@@ -148,11 +148,11 @@ const MyNotesPage = () => {
 
   return (
     <div className="container p-4 mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">My Uploaded Notes</h1>
         <Link 
           to="/upload-note" 
-          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
+          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors duration-200 hover:bg-blue-700"
         >
           <FaUpload className="mr-2" />
           Upload New Note
@@ -170,16 +170,16 @@ const MyNotesPage = () => {
       )}
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <div className="flex flex-col justify-center items-center space-y-4 h-64">
           <Spinner size="w-12 h-12" />
           <p className="text-gray-600">Loading your notes...</p>
         </div>
       ) : notes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-center bg-white rounded-lg shadow-sm p-8">
+        <div className="flex flex-col justify-center items-center p-8 h-64 text-center bg-white rounded-lg shadow-sm">
           <p className="text-gray-600">You have not uploaded any notes yet.</p>
           <Link 
             to="/upload-note" 
-            className="mt-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+            className="mt-4 text-blue-600 transition-colors duration-200 hover:text-blue-800"
           >
             Upload your first note!
           </Link>
