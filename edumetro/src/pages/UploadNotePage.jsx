@@ -1,76 +1,64 @@
-// src/pages/UploadNotePage.jsx (Updated POST API endpoint)
+// src/pages/UploadNotePage.jsx (Updated with Success Modal and Redirect)
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Heading from '../components/Heading';
 import Spinner from '../components/Spinner';
-import Message from '../components/Message'; // তোমার Alert কম্পোনেন্টের নাম Message
+import Message from '../components/Message';
 import Dropdown from '../components/Dropdown';
+import Modal from '../components/Modal';
 import DragAndDropFileInput from '../components/DragAndDropFileInput';
 import api from '../utils/api';
 
+// Match Django backend department choices
+const DEPARTMENT_CHOICES = [
+  { value: 'CSE', label: 'Computer Science and Engineering' },
+  { value: 'EEE', label: 'Electrical and Electronic Engineering' },
+  { value: 'BBA', label: 'Bachelor of Business Administration' },
+  { value: 'SWE', label: 'Software Engineering' },
+  { value: 'Civil', label: 'Civil Engineering' },
+  { value: 'Architecture', label: 'Architecture' },
+  { value: 'Textile', label: 'Textile Engineering' },
+  { value: 'Agriculture', label: 'Agriculture' },
+  { value: 'ENG', label: 'English' },
+  { value: 'ECN', label: 'Economics' },
+  { value: 'PHY', label: 'Physics' },
+  { value: 'ME', label: 'Mechanical Engineering' },
+  { value: 'CE', label: 'Civil Engineering' },
+  { value: 'IPE', label: 'Industrial and Production Engineering' },
+  { value: 'Other', label: 'Other' }
+];
+
 const UploadNotePage = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
+  const [department, setDepartment] = useState('');
   const [courseName, setCourseName] = useState('');
   const [description, setDescription] = useState('');
-  const [department, setDepartment] = useState('');
-  const [noteFile, setNoteFile] = useState(null);
-
-  const [courseOptions, setCourseOptions] = useState([]);
-  const [departmentOptions, setDepartmentOptions] = useState([]);
-
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [error, setError] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // Fetch courses and departments
-  useEffect(() => {
-    const fetchDropdownOptions = async () => {
-      try {
-        // Fetch courses from existing notes (workaround if no dedicated endpoint)
-        const notesRes = await api.get('/api/notes/');
-        const uniqueCourses = [...new Set(notesRes.data.results.map(note => note.course_name))].filter(name => name);
-        const courses = uniqueCourses.map(course => ({
-          value: course,
-          label: course
-        }));
-        setCourseOptions(courses);
+  const handleDepartmentChange = (e) => {
+    const newDepartment = e.target.value;
+    setDepartment(newDepartment);
+  };
 
-        // Fetch department choices using OPTIONS request to /api/notes/
-        const optionsRes = await api.options('/api/notes/');
-        console.log('OPTIONS /api/notes/ response:', optionsRes.data);
-
-        const departmentField = optionsRes.data.actions.POST.department_name;
-        if (departmentField && departmentField.choices) {
-          const departments = departmentField.choices.map(choice => ({
-            value: choice.value,
-            label: choice.display_name
-          }));
-          setDepartmentOptions(departments);
-        } else {
-          console.warn('Department choices not found in OPTIONS response.', optionsRes.data);
-          // Fallback or error handling if choices are not available via OPTIONS
-          setApiError('Could not load department options.');
-        }
-
-      } catch (err) {
-        console.error('Failed to fetch dropdown options:', err.response ? err.response.data : err.message);
-        setApiError('Failed to load courses or departments. Please try again.');
-      }
-    };
-    fetchDropdownOptions();
-  }, []);
+  const handleCourseChange = (e) => {
+    setCourseName(e.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setApiError(null);
-    setSuccessMessage(null);
+    setError(null);
 
     // Validate form
-    if (!title || !courseName || !description || !department || !noteFile) {
-      setApiError('All fields including the note file are required.');
+    if (!title || !courseName || !description || !department || !selectedFile) {
+      setError('All fields including the note file are required.');
       return;
     }
 
@@ -83,7 +71,7 @@ const UploadNotePage = () => {
       formData.append('course_name', courseName); // Use course_name field name
       formData.append('description', description);
       formData.append('department_name', department); // Use department_name field name
-      formData.append('file', noteFile);
+      formData.append('file', selectedFile);
 
       // Make API request
       const response = await api.post('/api/notes/', formData, {
@@ -94,15 +82,18 @@ const UploadNotePage = () => {
 
       // Handle success
       console.log('Note uploaded successfully:', response.data);
-      setSuccessMessage('Note uploaded successfully!');
+      setShowSuccessModal(true);
       
-      // Reset form
+      // Clear form
       setTitle('');
       setCourseName('');
       setDescription('');
       setDepartment('');
-      setNoteFile(null);
+      setSelectedFile(null);
+      setError(null);
 
+      // Redirect will happen after modal is closed
+      
     } catch (err) {
       console.error('Note upload error:', err.response ? err.response.data : err.message);
       let errorMessage = 'Failed to upload note. Please try again.';
@@ -124,35 +115,31 @@ const UploadNotePage = () => {
           errorMessage = errors.detail;
         }
       }
-      setApiError(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigate('/my-notes');
+  };
+
   return (
     <AuthLayout>
-      <div className="container p-4 mx-auto max-w-2xl">
+      <div className="container max-w-2xl p-4 mx-auto">
         <div className="p-6 bg-white rounded-lg shadow-sm">
           <Heading level={1} className="mb-6 text-center">
             Upload New Note
           </Heading>
 
-          {apiError && (
+          {error && (
             <Message 
               type="error" 
-              message={apiError} 
-              onClose={() => setApiError(null)} 
+              message={error} 
+              onClose={() => setError(null)} 
               duration={5000}
-              className="mb-6"
-            />
-          )}
-
-          {successMessage && (
-            <Message 
-              type="success" 
-              message={successMessage} 
-              onClose={() => setSuccessMessage(null)}
               className="mb-6"
             />
           )}
@@ -174,13 +161,13 @@ const UploadNotePage = () => {
 
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700">
-                Course
+                Department
               </label>
               <Dropdown
-                options={courseOptions}
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
-                placeholder="Select a course"
+                options={DEPARTMENT_CHOICES}
+                value={department}
+                onChange={handleDepartmentChange}
+                placeholder="Select a department"
                 required
                 className="w-full"
               />
@@ -188,13 +175,13 @@ const UploadNotePage = () => {
 
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700">
-                Department
+                Course Name
               </label>
-              <Dropdown
-                options={departmentOptions}
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                placeholder="Select a department"
+              <Input
+                type="text"
+                value={courseName}
+                onChange={handleCourseChange}
+                placeholder="Enter course code and name (e.g. CSE-301 Database)"
                 required
                 className="w-full"
               />
@@ -210,7 +197,7 @@ const UploadNotePage = () => {
                 placeholder="Enter note description"
                 required
                 rows="4"
-                className="p-3 w-full rounded-md border border-gray-300 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 transition-all duration-200 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -219,7 +206,7 @@ const UploadNotePage = () => {
                 Note File (PDF)
               </label>
               <DragAndDropFileInput
-                onFileSelect={setNoteFile}
+                onFileSelect={setSelectedFile}
                 acceptedFileTypes={['pdf']}
                 className="w-full"
               />
@@ -231,7 +218,7 @@ const UploadNotePage = () => {
               className="w-full transition-all duration-200"
             >
               {loading ? (
-                <div className="flex justify-center items-center">
+                <div className="flex items-center justify-center">
                   <Spinner className="mr-2" /> Uploading...
                 </div>
               ) : (
@@ -241,6 +228,49 @@ const UploadNotePage = () => {
           </form>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <Modal 
+        isOpen={showSuccessModal} 
+        onClose={handleCloseSuccessModal}
+        className="w-full max-w-md p-6"
+      >
+        <div className="text-center">
+          {/* Success Icon */}
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-green-100">
+            <svg
+              className="w-8 h-8 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+
+          {/* Success Message */}
+          <h3 className="mb-4 text-2xl font-semibold text-gray-900">
+            Note Uploaded Successfully!
+          </h3>
+          <p className="mb-6 text-gray-600">
+            Your note has been uploaded and is now available in your notes collection.
+          </p>
+
+          {/* Action Button */}
+          <Button
+            onClick={handleCloseSuccessModal}
+            className="w-full transition-all duration-200"
+          >
+            View My Notes
+          </Button>
+        </div>
+      </Modal>
     </AuthLayout>
   );
 };
