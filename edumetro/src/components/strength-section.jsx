@@ -3,40 +3,7 @@
 import { FaUsers, FaBookOpen, FaGraduationCap, FaUniversity } from "react-icons/fa"
 
 const StrengthSection = () => {
-  const stats = [
-    {
-      icon: FaUsers,
-      number: "100+",
-      label: "Active Students",
-      color: "from-blue-500 to-indigo-600",
-      bgColor: "bg-blue-50",
-      description: "Students actively learning",
-    },
-    {
-      icon: FaBookOpen,
-      number: "1000+",
-      label: "Learning Content",
-      color: "from-emerald-500 to-green-600",
-      bgColor: "bg-emerald-50",
-      description: "Quality study materials",
-    },
-    {
-      icon: FaGraduationCap,
-      number: "45+",
-      label: "Courses",
-      color: "from-purple-500 to-violet-600",
-      bgColor: "bg-purple-50",
-      description: "Comprehensive courses",
-    },
-    {
-      icon: FaUniversity,
-      number: "10+",
-      label: "Departments",
-      color: "from-orange-500 to-red-600",
-      bgColor: "bg-orange-50",
-      description: "Academic departments",
-    },
-  ]
+ 
 
   return (
     <section className="relative px-4 py-20 mx-auto overflow-hidden lg:py-32 bg-gradient-to-br from-indigo-50 via-white to-purple-50 ">
@@ -76,7 +43,7 @@ const StrengthSection = () => {
             <div className="relative z-10">
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center justify-center w-20 h-20 transition-all duration-300 shadow-xl bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl group-hover:shadow-2xl group-hover:scale-110">
-                  <FaUsers className="m-4 text-3xl text-white" />
+                  <FaUsers className="m-4 text-4xl text-white" />
                 </div>
                 <div>
                   <h3 className="text-4xl font-black text-transparent lg:text-4xl bg-gradient-to-br from-blue-600 to-indigo-700 bg-clip-text">
@@ -136,7 +103,7 @@ const StrengthSection = () => {
             <div className="relative z-10">
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center justify-center w-20 h-20 transition-all duration-300 shadow-xl bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl group-hover:shadow-2xl group-hover:scale-110">
-                  <FaGraduationCap className="text-3xl text-white" />
+                  <FaGraduationCap className="text-5xl text-white" />
                 </div>
                 <div>
                   <h3 className="text-4xl font-black text-transparent lg:text-4xl bg-gradient-to-br from-purple-600 to-violet-700 bg-clip-text">
@@ -165,7 +132,7 @@ const StrengthSection = () => {
             <div className="relative z-10">
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center justify-center w-20 h-20 transition-all duration-300 shadow-xl bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl group-hover:shadow-2xl group-hover:scale-110">
-                  <FaUniversity className="m-4 text-3xl text-white" />
+                  <FaUniversity className="m-4 text-4xl text-white" />
                 </div>
                 <div>
                   <h3 className="text-4xl font-black text-transparent lg:text-4xl bg-gradient-to-br from-orange-600 to-red-700 bg-clip-text">

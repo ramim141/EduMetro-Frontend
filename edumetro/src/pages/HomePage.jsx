@@ -6,6 +6,8 @@ import api from "../utils/api"
 import Spinner from "../components/Spinner"
 import NoteCard from "../components/NoteCard"
 import StrengthSection from "@/components/strength-section"
+import RequestNoteForm from "@/components/request-note-form"
+import Footer from "@/components/footer"
 import {
   FaArrowRight,
   FaBookOpen,
@@ -302,8 +304,13 @@ const HomePage = () => {
       </section>
 
       <StrengthSection />
+      
+      {/* Request note form Section */}
+      <RequestNoteForm />
 
-    
+      {/* Footer Section */}
+      <Footer />
+
     </div>
   )
 }
