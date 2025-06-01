@@ -190,9 +190,9 @@ const NoteListPage = () => {
 
 
   return (
-    <div className="container flex flex-col gap-6 p-4 mx-auto md:flex-row">
+    <div className="flex flex-col gap-6 px-8 py-12 mx-auto md:flex-row max-w-7xl">
       {/* Filter Section */}
-      <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow-sm transition-all duration-200 hover:shadow-md md:w-1/4">
+      <div className="w-full p-6 transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md md:w-1/4">
         <h2 className="mb-6 text-xl font-semibold text-gray-800">Filter Notes</h2>
         <div className="space-y-6">
           <div>
@@ -233,7 +233,7 @@ const NoteListPage = () => {
               {ratingOptions.map((option) => (
                 <label 
                   key={option.value} 
-                  className="flex items-center space-x-2 p-2 rounded-md cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                  className="flex items-center p-2 space-x-2 transition-colors duration-200 rounded-md cursor-pointer hover:bg-gray-50"
                 >
                   <input
                     type="radio"
@@ -249,7 +249,7 @@ const NoteListPage = () => {
               {filterRating && (
                 <button
                   onClick={() => setFilterRating('')}
-                  className="w-full mt-2 text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                  className="w-full mt-2 text-sm text-blue-600 transition-colors duration-200 hover:text-blue-800"
                 >
                   Clear Rating Filter
                 </button>

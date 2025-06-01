@@ -273,7 +273,7 @@ const Footer = () => {
       <div
         className={`relative pt-8 pb-8 mt-8 text-center border-t border-white/10 backdrop-blur-sm transition-all duration-1000 delay-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
       >
-        <p className="text-blue-300">© Copyright 2024 Edumon. All rights reserved.</p>
+        <p className="text-blue-300">© Copyright 2024 NoteBank. All rights reserved.</p>
 
         {/* Scroll to Top Button */}
         <button

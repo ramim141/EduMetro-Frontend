@@ -10,17 +10,18 @@ import RequestNoteForm from "@/components/request-note-form"
 import Footer from "@/components/footer"
 import {
   FaArrowRight,
-  FaBookOpen,
+  FaBookOpen as FaBookOpenLegacy,
   FaDownload,
   FaGraduationCap,
   FaSearch,
   FaStar,
   FaUniversity,
-  FaUpload,
+  FaUpload as FaUploadLegacy,
   FaUsers
-} from "react-icons/fa"
+} 
+from "react-icons/fa"
 import heroImage from "../assets/images/home-hero-img.png"
-
+import { BookOpen, Upload, ArrowRight, LoaderCircle, XCircle } from 'lucide-react';
 
 const HomePage = () => {
   const [popularNotes, setPopularNotes] = useState([])
@@ -31,11 +32,18 @@ const HomePage = () => {
     const fetchPopularNotes = async () => {
       setNotesLoading(true)
       try {
+        // Simulate API call delay for demonstration of loading/error states
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // For demonstration, you can uncomment one of these to test different states:
+        // const response = { data: { results: [] } }; // No notes state
+        // throw new Error("Network connection lost. Please check your internet."); // Error state
+        
         const response = await api.get("/api/notes/?ordering=-created_at&limit=4")
         setPopularNotes(response.data.results || [])
       } catch (err) {
         console.error("Failed to fetch notes for homepage:", err)
-        setNotesError("Failed to load notes. Please try again later.")
+        setNotesError(err.message || "Failed to load notes. Please try again later.")
       } finally {
         setNotesLoading(false)
       }
@@ -43,6 +51,7 @@ const HomePage = () => {
 
     fetchPopularNotes()
   }, [])
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 ">
@@ -86,10 +95,9 @@ const HomePage = () => {
                 {/* here add a download icon */}
                 <FaDownload className="mx-auto text-2xl text-yellow-400" />
                 <div className="text-sm text-white/80">Downloads</div>
-              </div>
-              <div className="text-center">
+              </div>              <div className="text-center">
                 {/* here add a upload icon */}
-                <FaUpload className="mx-auto text-2xl text-yellow-400" />
+                <FaUploadLegacy className="mx-auto text-2xl text-yellow-400" />
                 <div className="text-sm text-white/80">Upload</div>
               </div>
             </div>
@@ -182,10 +190,9 @@ const HomePage = () => {
 
             {/* Feature 2 */}
             <div className="relative p-8 transition-all duration-500 transform border border-gray-100 shadow-xl group bg-gradient-to-br from-white to-gray-50 rounded-3xl hover:shadow-2xl hover:-translate-y-2">
-              <div className="absolute inset-0 transition-opacity duration-500 opacity-0 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-3xl group-hover:opacity-5"></div>
-              <div className="relative z-10">
+              <div className="absolute inset-0 transition-opacity duration-500 opacity-0 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-3xl group-hover:opacity-5"></div>              <div className="relative z-10">
                 <div className="flex items-center justify-center w-20 h-20 mb-6 transition-transform duration-300 shadow-lg bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl group-hover:scale-110">
-                  <FaUpload className="text-3xl text-white" />
+                  <FaUploadLegacy className="text-3xl text-white" />
                 </div>
                 <h3 className="mb-4 text-2xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
                   Share Your Knowledge
@@ -225,77 +232,88 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Latest Notes Section */}
+     {/* Enhanced Latest Notes Section */}
       <section className="relative px-4 py-24 overflow-hidden bg-gradient-to-br from-gray-50 to-white">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 right-0 bg-indigo-600 rounded-full w-96 h-96"></div>
-          <div className="absolute bottom-0 left-0 bg-purple-600 rounded-full w-72 h-72"></div>
+        {/* Background Pattern - More dynamic with radial gradients and subtle blur */}
+        <div className="absolute inset-0 opacity-10 filter blur-xl">
+          <div className="absolute top-0 right-0 rounded-full w-96 h-96 bg-gradient-to-br from-indigo-500 to-purple-500 mix-blend-multiply animate-blob animation-delay-2000"></div>
+          <div className="absolute rounded-full bottom-1/4 left-1/4 w-72 h-72 bg-gradient-to-br from-pink-400 to-red-400 mix-blend-multiply animate-blob"></div>
+          <div className="absolute w-64 h-64 rounded-full top-1/2 left-1/3 bg-gradient-to-br from-blue-400 to-green-400 mix-blend-multiply animate-blob animation-delay-4000"></div>
         </div>
 
         <div className="container relative z-10 mx-auto">
+          {/* Section Header */}
           <div className="mb-20 text-center">
-            <h2 className="mb-6 text-5xl font-black text-gray-900 md:text-6xl">
+            <h2 className="mb-6 text-5xl font-extrabold leading-tight text-gray-900 md:text-6xl">
               Latest{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 drop-shadow-lg">
                 Notes
               </span>
             </h2>
-            <div className="w-24 h-1 mx-auto mb-6 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600"></div>
-            <p className="max-w-2xl mx-auto text-xl leading-relaxed text-gray-600">
-              Discover the most recent study materials uploaded by our community of dedicated students.
+            <div className="w-24 h-1.5 mx-auto mb-6 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 shadow-md transform scale-x-105"></div>
+            <p className="max-w-3xl mx-auto text-xl leading-relaxed text-gray-600">
+              Dive into the freshest collection of high-quality study materials, meticulously curated and shared by our vibrant academic community.
             </p>
           </div>
 
+          {/* Conditional Rendering based on state */}
           {notesLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="relative">
-                <Spinner size="w-16 h-16" />
-                <p className="mt-4 font-medium text-gray-600">Loading amazing notes...</p>
-              </div>
+            <div className="flex flex-col items-center justify-center h-64 animate-pulse">
+              <Spinner size="w-20 h-20" /> {/* Reusing your Spinner component */}
+              <p className="mt-6 text-xl font-medium text-gray-600">Loading amazing notes...</p>
             </div>
           ) : notesError ? (
-            <div className="py-16 text-center">
-              <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-red-100 rounded-full">
-                <FaBookOpen className="text-3xl text-red-500" />
+            <div className="py-16 text-center rounded-lg shadow-inner bg-red-50">
+              <div className="flex items-center justify-center mx-auto mb-6 bg-red-100 rounded-full w-28 h-28 animate-bounce-slow">
+                <XCircle className="text-5xl text-red-600" /> {/* Lucide icon */}
               </div>
-              <p className="text-lg font-medium text-red-500">{notesError}</p>
+              <p className="mb-2 text-2xl font-semibold text-red-700">Oops! Something went wrong.</p>
+              <p className="max-w-md mx-auto text-lg text-red-500">{notesError}</p>
+              <button
+                onClick={() => window.location.reload()} // Simple reload to retry
+                className="px-8 py-3 mt-8 font-semibold text-white transition-colors duration-300 transform bg-red-600 rounded-full shadow-lg hover:bg-red-700 hover:scale-105"
+              >
+                Retry Loading
+              </button>
             </div>
           ) : popularNotes.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="flex items-center justify-center w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100">
-                <FaBookOpen className="text-5xl text-indigo-600" />
+            <div className="py-16 text-center bg-white border border-gray-100 shadow-lg rounded-xl">
+              <div className="flex items-center justify-center mx-auto mb-8 rounded-full w-36 h-36 bg-gradient-to-br from-indigo-100 to-purple-100 animate-fade-in-up">
+                <BookOpen className="text-6xl text-indigo-600 animate-wiggle" /> {/* Lucide icon */}
               </div>
-              <h3 className="mb-4 text-2xl font-bold text-gray-900">No Notes Yet</h3>
-              <p className="max-w-md mx-auto mb-8 text-lg text-gray-600">
-                Be the first to upload and share your knowledge with the community!
+              <h3 className="mb-4 text-3xl font-bold text-gray-900">No Notes Found</h3>
+              <p className="max-w-md mx-auto mb-8 text-xl text-gray-600">
+                Be the first to ignite the knowledge hub! Upload your valuable notes and share them with the community.
               </p>
               <Link
                 to="/upload"
-                className="inline-flex items-center gap-2 px-8 py-4 font-bold text-white transition-all duration-300 transform shadow-xl bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl hover:shadow-2xl hover:scale-105"
+                className="inline-flex items-center gap-3 px-10 py-5 text-xl font-bold text-white transition-all duration-300 transform rounded-full shadow-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-2xl hover:scale-105 group"
               >
-                <FaUpload />
-                Upload First Note
+                <Upload className="transition-transform duration-300 group-hover:-translate-y-1" /> {/* Lucide icon */}
+                Upload Your First Note
+                <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" /> {/* Lucide icon */}
               </Link>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {/* Notes Grid */}
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-fade-in">
                 {popularNotes.map((note) => (
-                  <div key={note.id} className="transition-transform duration-300 transform hover:scale-105">
-                    <NoteCard note={note} />
+                  <div key={note.id} className="transition-transform duration-300 ease-in-out transform hover:scale-103">
+                    <NoteCard note={note} /> {/* Reusing your NoteCard component */}
                   </div>
                 ))}
               </div>
 
-              <div className="mt-16 text-center">
+              {/* View All Notes Button */}
+              <div className="mt-20 text-center">
                 <Link
                   to="/note"
-                  className="inline-flex items-center gap-3 px-10 py-5 text-lg font-bold text-white transition-all duration-300 transform shadow-2xl group bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl hover:shadow-3xl hover:scale-105 hover:from-indigo-700 hover:to-purple-700"
+                  className="inline-flex items-center gap-3 px-12 py-6 text-xl font-bold text-white transition-all duration-300 transform rounded-full shadow-2xl group bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-3xl hover:scale-105 hover:from-indigo-700 hover:to-purple-700 active:scale-95"
                 >
-                  <FaBookOpen className="transition-transform duration-300 group-hover:rotate-12" />
+                  <BookOpen className="transition-transform duration-300 w-7 h-7 group-hover:rotate-6" /> {/* Lucide icon */}
                   View All Notes
-                  <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+                  <ArrowRight className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-2" /> {/* Lucide icon */}
                 </Link>
               </div>
             </>

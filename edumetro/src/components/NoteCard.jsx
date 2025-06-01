@@ -1,56 +1,123 @@
-// src/components/NoteCard.jsx (Updated to link to NoteDetailsPage)
-
 import React from 'react';
-import { Link } from 'react-router-dom'; // Link ইম্পোর্ট করো
+import { Link } from 'react-router-dom';
 import RatingStars from './RatingStars';
-import { FaComment, FaHeart, FaDownload, FaBookmark } from 'react-icons/fa';
-
+import { 
+  FaComment, 
+  FaHeart, 
+  FaDownload, 
+  FaBookmark,
+  FaUniversity,
+  FaFileAlt
+} from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import noteThum from '../assets/images/note_thum.jpg';
 const NoteCard = ({ note, onDownload, onLike, onBookmark }) => {
-  const imageUrl = note.image || 'https://via.placeholder.com/150'; 
-  const downloadLink = note.file_url || '#'; 
+
+  const downloadLink = note.file_url || '#';
 
   return (
-    // সম্পূর্ণ কার্ডটিকে Link কম্পোনেন্ট দিয়ে র‍্যাপ করা হয়েছে
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row border border-gray-200">
-      {/* এই Link টি নোট ডিটেইলস পেজে নিয়ে যাবে */}
-      <Link to={`/notes/${note.id}`} className="flex flex-grow"> {/* flex-grow যোগ করা যাতে লিংক পুরো কার্ডের ভেতরের অংশটুকু দখল করে */}
-        {/* বাম পাশের ইমেজ */}
-        <div className="md:w-1/3 w-full bg-gray-100 flex items-center justify-center p-4">
-          <img src={imageUrl} alt={note.title} className="max-w-full max-h-40 object-contain" />
+    <motion.div 
+      className="relative flex flex-col overflow-hidden transition-all duration-300 bg-white border border-gray-200 rounded-xl hover:shadow-2xl md:flex-row group"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+    >
+      {/* Link to Note Details Page */}
+      <Link to={`/notes/${note.id}`} className="flex flex-grow">
+        {/* Image Section */}
+        <div className="relative flex items-center justify-center w-full p-4 overflow-hidden bg-gradient-to-br from-indigo-50 to-blue-50 md:w-1/3">
+          <motion.img
+            src={noteThum}
+            alt={note.title}
+            className="object-cover w-full h-48 transition-all duration-500 rounded-lg group-hover:scale-105"
+            whileHover={{ scale: 1.05 }}
+          />
+          <div className="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-t from-black/20 to-transparent group-hover:opacity-100"></div>
         </div>
 
-        {/* ডান পাশের কন্টেন্ট */}
-        <div className="md:w-2/3 w-full p-4 flex flex-col justify-between">
+        {/* Content Section */}
+        <div className="flex flex-col justify-between w-full p-6 md:w-2/3">
           <div>
-            <h3 className="text-xl font-semibold text-gray-800">{note.title || 'Title of notes'}</h3>
-            <p className="text-sm text-gray-600">Course name: {note.course_name || 'N/A'}</p>
-            <p className="text-sm text-gray-600 mb-2">Description: {note.description || 'N/A'}</p>
+            <h3 className="text-2xl font-bold text-gray-900 transition-colors duration-200 group-hover:text-indigo-600">
+              {note.title || 'Title of notes'}
+            </h3>
+            
+            
+            
+            <div className="flex items-center mt-1 text-sm text-gray-600">
+              <FaFileAlt className="mr-1 text-blue-400" />
+              <span>{note.course_name || 'Course Name'}</span>
+            </div>
+            <div className="flex items-center mt-2 text-sm text-gray-600">
+              <FaUniversity className="mr-1 text-indigo-400" />
+              <span>{note.department_name || 'University'}</span>
+            </div>
 
-            <div className="flex items-center text-sm mb-3">
+            <p className="mt-3 text-gray-600 line-clamp-2">
+              {note.description || 'No description available'}
+            </p>
+
+            <div className="flex items-center mt-4">
               <RatingStars rating={note.average_rating || 0} />
-              <span className="ml-2 text-gray-600">({note.rating_count || 0} reviews)</span>
+              <span className="ml-2 text-sm text-gray-500">({note.rating_count || 0} reviews)</span>
             </div>
           </div>
         </div>
-      </Link> {/* Link এর শেষ */}
+      </Link>
 
-      {/* আইকন এবং সংখ্যা - এগুলো লিংকের বাইরে থাকবে যাতে ক্লিক হ্যান্ডলার কাজ করে */}
-      <div className="md:w-1/3 w-full md:w-auto p-4 md:p-0 flex items-center justify-around md:justify-end text-gray-500 text-sm mt-auto md:mt-0 md:border-l border-gray-200">
-        <div className="flex items-center mr-4">
-          <FaComment className="mr-1 text-gray-500" /> {note.comment_count || 0}
-        </div>
-        <button onClick={() => onLike(note.id)} className="flex items-center mr-4 hover:text-red-500">
-          <FaHeart className={`mr-1 ${note.is_liked ? 'text-red-500' : 'text-gray-500'}`} /> {note.likes_count || 0}
-        </button>
-        <button onClick={() => onBookmark(note.id)} className="flex items-center mr-4 hover:text-blue-500">
-          <FaBookmark className={`mr-1 ${note.is_bookmarked ? 'text-blue-500' : 'text-gray-500'}`} /> {note.bookmark_count || 0}
-        </button>
-        {/* ডাউনলোড বাটনকে সরাসরি Link এর বাইরে রেখে তার onClick হ্যান্ডলার ব্যবহার করা */}
-        <button onClick={() => onDownload(note.id)} className="flex items-center hover:text-green-500">
-          <FaDownload className="mr-1" /> {note.download_count || 0}
-        </button>
+      {/* Action Icons Section */}
+      <div className="flex items-center justify-around w-full p-4 mt-auto text-sm text-gray-600 bg-gradient-to-r from-gray-50 to-indigo-50 md:w-auto md:p-6 md:justify-end md:mt-0 md:border-l md:border-gray-100">
+        <motion.button 
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center px-3 py-2 rounded-lg hover:bg-indigo-50 group"
+        >
+          <FaComment className="text-xl text-indigo-500 transition-colors duration-200 group-hover:text-indigo-700" />
+          <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-indigo-700">
+            {note.comment_count || 0}
+          </span>
+        </motion.button>
+        
+        <motion.button
+          onClick={() => onLike(note.id)}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center px-3 py-2 rounded-lg hover:bg-red-50 group"
+        >
+          <FaHeart
+            className={`text-xl ${note.is_liked ? 'text-red-500' : 'text-gray-400'} transition-colors duration-200 group-hover:text-red-600`}
+          />
+          <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-red-600">
+            {note.likes_count || 0}
+          </span>
+        </motion.button>
+        
+        <motion.button
+          onClick={() => onBookmark(note.id)}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center px-3 py-2 rounded-lg hover:bg-blue-50 group"
+        >
+          <FaBookmark
+            className={`text-xl ${note.is_bookmarked ? 'text-blue-500' : 'text-gray-400'} transition-colors duration-200 group-hover:text-blue-600`}
+          />
+          <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-blue-600">
+            {note.bookmark_count || 0}
+          </span>
+        </motion.button>
+        
+        <motion.button
+          onClick={() => onDownload(note.id)}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center px-3 py-2 rounded-lg hover:bg-green-50 group"
+        >
+          <FaDownload
+            className="text-xl text-green-500 transition-colors duration-200 group-hover:text-green-600"
+          />
+          <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-green-600">
+            {note.download_count || 0}
+          </span>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

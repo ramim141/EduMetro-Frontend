@@ -86,13 +86,12 @@ export default {
           950: '#450a0a',
         },
       },
-      // **এখানে পরিবর্তন:** অ্যানিমেশন এবং কীফ্রেম যোগ করা হচ্ছে
       keyframes: {
         shine: {
           '0%': { transform: 'translateX(-100%)' },
           '50%, 100%': { transform: 'translateX(100%)' },
         },
-        fadeIn: {
+        fadeIn: { // Existing fadeIn (camelCase)
           '0%': { opacity: '0' },
           '100%': { opacity: '1' }
         },
@@ -116,7 +115,7 @@ export default {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' }
         },
-        // **নতুন যোগ করা অ্যানিমেশন কীফ্রেম**
+        // Existing custom animations (hyphenated)
         'fade-in-up': {
           '0%': {
             opacity: '0',
@@ -147,21 +146,53 @@ export default {
             transform: 'translateX(0)',
           },
         },
+        // --- NEW KEYFRAMES ADDED FOR LATEST NOTES SECTION ---
+        blob: {
+          "0%": { transform: "translate(0px, 0px) scale(1)" },
+          "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+          "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+          "100%": { transform: "translate(0px, 0px) scale(1)" },
+        },
+        wiggle: {
+          "0%, 100%": { transform: "rotate(-3deg)" },
+          "50%": { transform: "rotate(3deg)" },
+        },
+        'bounce-slow': {
+          '0%, 100%': {
+            transform: 'translateY(-15%)',
+            animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)',
+          },
+          '50%': {
+            transform: 'translateY(0)',
+            animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)',
+          },
+        },
+        'fade-in': { // Added specific 'fade-in' for the grid container
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        // --- END NEW KEYFRAMES ---
       },
       animation: {
         shine: 'shine 3s ease-in-out infinite',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         bounce: 'bounce 1s infinite',
-        fadeIn: 'fadeIn 0.5s ease-in-out',
+        fadeIn: 'fadeIn 0.5s ease-in-out', // Existing fadeIn (camelCase)
         slideUp: 'slideUp 0.5s ease-in-out',
         slideDown: 'slideDown 0.5s ease-in-out',
         slideLeft: 'slideLeft 0.5s ease-in-out',
         slideRight: 'slideRight 0.5s ease-in-out',
         scale: 'scale 0.3s ease-in-out',
-        // **নতুন যোগ করা অ্যানিমেশন**
+        // Existing custom animations
         'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
         'fade-in-left': 'fade-in-left 0.8s ease-out forwards',
         'fade-in-right': 'fade-in-right 0.8s ease-out forwards',
+        // --- NEW ANIMATIONS ADDED FOR LATEST NOTES SECTION ---
+        blob: "blob 7s infinite",
+        wiggle: "wiggle 1s ease-in-out infinite",
+        'bounce-slow': 'bounce-slow 2s infinite',
+        'fade-in': 'fade-in 1s ease-out forwards', // Added specific 'fade-in' for the grid container
+        // --- END NEW ANIMATIONS ---
       },
       transitionProperty: {
         'height': 'height',
