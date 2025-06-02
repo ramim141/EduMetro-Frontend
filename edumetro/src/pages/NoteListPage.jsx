@@ -28,12 +28,8 @@ const NoteListPage = () => {
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterRating, setFilterRating] = useState('');
   
-  // ড্রপডাউন অপশন
-  const [courseOptions, setCourseOptions] = useState([]);
-  const [departmentOptions, setDepartmentOptions] = useState([]);
-
-  const { isAuthenticated, user } = useContext(AuthContext); // AuthContext থেকে isAuthenticated এবং user নাও
-  const navigate = useNavigate(); // useNavigate হুক নাও
+  const { isAuthenticated, user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const ratingOptions = [
     { value: '5', label: <RatingStars rating={5} /> },
@@ -66,24 +62,6 @@ const NoteListPage = () => {
       setLoading(false);
     }
   };
-
-  // ড্রপডাউন অপশন ফেচ করার জন্য useEffect
-  useEffect(() => {
-    const fetchDropdownOptions = async () => {
-      try {
-        const courseRes = await api.get('/api/courses/');
-        const courses = courseRes.data.map(item => ({ value: item.id, label: item.name }));
-        setCourseOptions(courses);
-
-        const deptRes = await api.get('/api/departments/');
-        const departments = deptRes.data.map(item => ({ value: item.id, label: item.name }));
-        setDepartmentOptions(departments);
-      } catch (err) {
-        console.error('Failed to fetch filter options:', err);
-      }
-    };
-    fetchDropdownOptions();
-  }, []);
 
   // প্রাথমিক নোট লোড করার জন্য এবং ফিল্টার পরিবর্তন হলে
   useEffect(() => {
@@ -192,7 +170,7 @@ const NoteListPage = () => {
   return (
     <div className="flex flex-col gap-6 px-8 py-12 mx-auto md:flex-row max-w-7xl">
       {/* Filter Section */}
-      <div className="w-full p-6 transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md md:w-1/4">
+      <div className="w-full p-6 transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md md:w-1/4 h-fit">
         <h2 className="mb-6 text-xl font-semibold text-gray-800">Filter Notes</h2>
         <div className="space-y-6">
           <div>
@@ -209,8 +187,9 @@ const NoteListPage = () => {
           
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">Course</label>
-            <Dropdown
-              options={courseOptions}
+            <Input
+              type="text"
+              placeholder="Enter course name..."
               value={filterCourse}
               onChange={(e) => setFilterCourse(e.target.value)}
               className="w-full"
@@ -219,8 +198,9 @@ const NoteListPage = () => {
 
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">Department</label>
-            <Dropdown
-              options={departmentOptions}
+            <Input
+              type="text"
+              placeholder="Enter department name..."
               value={filterDepartment}
               onChange={(e) => setFilterDepartment(e.target.value)}
               className="w-full"

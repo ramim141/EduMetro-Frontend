@@ -32,6 +32,28 @@ const DEPARTMENT_CHOICES = [
   { value: 'Other', label: 'Other' }
 ];
 
+// Function to sanitize filename
+const sanitizeFilename = (filename) => {
+  // Remove file extension
+  const ext = filename.split('.').pop();
+  const nameWithoutExt = filename.slice(0, -(ext.length + 1));
+  
+  // Remove special characters and replace spaces with underscores
+  const sanitized = nameWithoutExt
+    .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '_') // Replace spaces with underscores
+    .toLowerCase(); // Convert to lowercase
+  
+  // Truncate to 100 characters (excluding extension)
+  const truncated = sanitized.slice(0, 100);
+  
+  // Add timestamp to ensure uniqueness
+  const timestamp = new Date().getTime();
+  
+  // Return sanitized filename with extension
+  return `${truncated}_${timestamp}.${ext}`;
+};
+
 const UploadNotePage = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
@@ -52,6 +74,32 @@ const UploadNotePage = () => {
     setCourseName(e.target.value);
   };
 
+  const handleFileSelect = (file) => {
+    if (file) {
+      // Validate file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        setError('File size should not exceed 10MB');
+        return;
+      }
+
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        setError('Only PDF files are allowed');
+        return;
+      }
+
+      // Create a new File object with sanitized name
+      const sanitizedFile = new File(
+        [file],
+        sanitizeFilename(file.name),
+        { type: file.type }
+      );
+      setSelectedFile(sanitizedFile);
+      setError(null); // Clear any previous errors
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -68,9 +116,9 @@ const UploadNotePage = () => {
       // Create FormData object
       const formData = new FormData();
       formData.append('title', title);
-      formData.append('course_name', courseName); // Use course_name field name
+      formData.append('course_name', courseName);
       formData.append('description', description);
-      formData.append('department_name', department); // Use department_name field name
+      formData.append('department_name', department);
       formData.append('file', selectedFile);
 
       // Make API request
@@ -91,8 +139,6 @@ const UploadNotePage = () => {
       setDepartment('');
       setSelectedFile(null);
       setError(null);
-
-      // Redirect will happen after modal is closed
       
     } catch (err) {
       console.error('Note upload error:', err.response ? err.response.data : err.message);
@@ -101,14 +147,17 @@ const UploadNotePage = () => {
       if (err.response && err.response.data) {
         const errors = err.response.data;
         if (typeof errors === 'object') {
-          // Handle validation errors
-          errorMessage = Object.entries(errors)
-            .map(([field, messages]) => {
-              // Check if messages is an array before joining
-              const formattedMessages = Array.isArray(messages) ? messages.join(', ') : messages;
-              return `${field}: ${formattedMessages}`;
-            })
-            .join('\n');
+          // Handle file-specific errors
+          if (errors.file && Array.isArray(errors.file)) {
+            errorMessage = `File error: ${errors.file.join(', ')}`;
+          } else {
+            errorMessage = Object.entries(errors)
+              .map(([field, messages]) => {
+                const formattedMessages = Array.isArray(messages) ? messages.join(', ') : messages;
+                return `${field}: ${formattedMessages}`;
+              })
+              .join('\n');
+          }
         } else if (typeof errors === 'string') {
           errorMessage = errors;
         } else if (errors.detail) {
@@ -195,7 +244,7 @@ const UploadNotePage = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Enter note description"
-                required
+                
                 rows="4"
                 className="w-full p-3 transition-all duration-200 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
@@ -206,10 +255,13 @@ const UploadNotePage = () => {
                 Note File (PDF)
               </label>
               <DragAndDropFileInput
-                onFileSelect={setSelectedFile}
+                onFileSelect={handleFileSelect}
                 acceptedFileTypes={['pdf']}
                 className="w-full"
               />
+              <p className="mt-1 text-sm text-gray-500">
+                Maximum file size: 10MB. Only PDF files are allowed.
+              </p>
             </div>
 
             <Button
