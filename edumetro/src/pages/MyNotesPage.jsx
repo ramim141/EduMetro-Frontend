@@ -9,6 +9,7 @@ import Pagination from '../components/Pagination';
 import AuthContext from '../context/AuthContext'; // AuthContext ইম্পোর্ট করো
 import { useNavigate, Link } from 'react-router-dom'; // useNavigate ইম্পোর্ট করো
 import { FaUpload } from 'react-icons/fa';
+import Footer from '@/components/footer';
 
 const MyNotesPage = () => {
   const [notes, setNotes] = useState([]);
@@ -147,7 +148,8 @@ const MyNotesPage = () => {
 };
 
   return (
-    <div className="container p-4 mx-auto">
+    <div>
+      <div className="container p-4 mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">My Uploaded Notes</h1>
         <Link 
@@ -208,6 +210,8 @@ const MyNotesPage = () => {
           />
         </div>
       )}
+    </div>
+    <Footer/>
     </div>
   );
 };
