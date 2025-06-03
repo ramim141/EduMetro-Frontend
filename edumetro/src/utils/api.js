@@ -1,106 +1,141 @@
-// // src/utils/api.js (Updated - Response Interceptor Removed)
+// src/utils/api.js
 
-// import axios from 'axios';
+import axios from "axios";
+import { toast } from 'react-hot-toast';
 
-// // Create an axios instance with a base URL
-// const api = axios.create({
-//   baseURL: 'http://127.0.0.1:8000',
-//   timeout: 10000, // Add a timeout to prevent hanging requests
-// });
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "http://127.0.0.1:8000";
 
-// // Add a request interceptor to include the JWT token in requests
-// api.interceptors.request.use(
-//   (config) => {
-//     // Get the token from localStorage
-//     const accessToken = localStorage.getItem('accessToken');
-    
-//     // If token exists, add it to the Authorization header
-//     if (accessToken) {
-//       config.headers.Authorization = `Bearer ${accessToken}`;
-//     }
-    
-//     return config;
-//   },
-//   (error) => {
-//     console.error('API Request Error:', error);
-//     return Promise.reject(error);
-//   }
-// );
-
-// // Add a response interceptor for debugging
-// api.interceptors.response.use(
-//   (response) => {
-//     // Any status code within the range of 2xx causes this function to trigger
-//     return response;
-//   },
-//   (error) => {
-//     // Any status codes outside the range of 2xx cause this function to trigger
-//     console.error('API Response Error:', error.message);
-//     if (error.response) {
-//       // The request was made and the server responded with a status code
-//       // that falls out of the range of 2xx
-//       console.error('Error data:', error.response.data);
-//       console.error('Error status:', error.response.status);
-//     } else if (error.request) {
-//       // The request was made but no response was received
-//       console.error('No response received:', error.request);
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
-// export default api;
-
-
-// src/utils/api.js (Updated - Response Interceptor Removed)
-
-import axios from "axios"
-
-// Create an axios instance with a base URL
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
-  timeout: 10000, // Add a timeout to prevent hanging requests
-})
+  baseURL: BASE_API_URL,
+  timeout: 10000,
+});
 
-// Add a request interceptor to include the JWT token in requests
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+const refreshAccessToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      throw new Error("No refresh token found.");
+    }
+    const response = await axios.post(`${BASE_API_URL}/api/users/token/refresh/`, {
+      refresh: refreshToken,
+    });
+    const { access } = response.data;
+    localStorage.setItem("accessToken", access);
+    return access;
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    toast.error("Your session has expired. Please log in again.");
+    return Promise.reject(error);
+  }
+};
+
 api.interceptors.request.use(
   (config) => {
-    // Get the token from localStorage
-    const accessToken = localStorage.getItem("accessToken")
-
-    // If token exists, add it to the Authorization header
+    const accessToken = localStorage.getItem("accessToken");
     if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
-
-    return config
+    return config;
   },
   (error) => {
-    console.error("API Request Error:", error)
-    return Promise.reject(error)
-  },
-)
+    console.error("API Request Error:", error);
+    return Promise.reject(error);
+  }
+);
 
-// Add a response interceptor for debugging
 api.interceptors.response.use(
-  (response) => {
-    // Any status code within the range of 2xx causes this function to trigger
-    return response
-  },
-  (error) => {
-    // Any status codes outside the range of 2xx cause this function to trigger
-    console.error("API Response Error:", error.message)
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error("Error data:", error.response.data)
-      console.error("Error status:", error.response.status)
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error("No response received:", error.request)
-    }
-    return Promise.reject(error)
-  },
-)
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-export default api
+    if (
+      error.response?.status === 401 &&
+      originalRequest.url !== `${BASE_API_URL}/api/users/token/refresh/` &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+        .then(token => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        })
+        .catch(err => {
+          return Promise.reject(err);
+        });
+      }
+
+      isRefreshing = true;
+
+      try {
+        const newAccessToken = await refreshAccessToken();
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        processQueue(null, newAccessToken);
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    console.error("API Response Error:", error.message);
+    if (error.response) {
+      console.error('Error data:', error.response.data);
+      console.error('Error status:', error.response.status);
+    } else if (error.request) {
+      console.error('No response received:', error.request);
+    }
+    return Promise.reject(error);
+  }
+);
+
+// ✅ আপনার API ফাংশনগুলো এখানে এক্সপোর্ট করুন, যাতে অন্য কম্পোনেন্টগুলো তাদের ব্যবহার করতে পারে।
+export const loginUser = async (credentials) => {
+  return api.post('/api/users/login/', credentials);
+};
+
+export const getUserProfile = async () => {
+  return api.get('/api/users/profile/');
+};
+
+// ✅ নতুন ফাংশন: ডিপার্টমেন্ট তালিকা ফেচ করার জন্য
+export const getDepartments = async () => {
+  return api.get('/api/notes/departments/'); // নিশ্চিত করুন এই API এন্ডপয়েন্টটি ঠিক আছে
+};
+
+// ✅ নতুন ফাংশন: কোর্স তালিকা ফেচ করার জন্য
+// আপনি চাইলে একটি `departmentId` প্যারামিটার যোগ করতে পারেন যদি backend এ ফিল্টার সাপোর্ট করে
+// ✅ ফাংশন: কোর্স তালিকা ফেচ করার জন্য
+export const getCourses = async (departmentId = null) => { // departmentId এখন ঐচ্ছিক
+  let url = '/api/notes/courses/';
+  if (departmentId) {
+    url += `?department=${departmentId}`; // ✅ backend filter support
+  }
+  return api.get(url);
+};
+
+
+// ... (আপনার অন্যান্য API কল ফাংশন যেমন registerUser, updateProfile, etc.) ...
+
+export default api; // `api` instance টি default export হিসেবে রাখুন

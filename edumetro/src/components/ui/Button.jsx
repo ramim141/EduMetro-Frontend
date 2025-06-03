@@ -47,7 +47,7 @@ const Button = forwardRef(
         {...props}
       >
         {isLoading && (
-          <FaSpinner className="w-4 h-4 mr-2 animate-spin" />
+          <FaSpinner className="mr-2 w-4 h-4 animate-spin" />
         )}
         {!isLoading && leftIcon && (
           <span className="mr-2">{leftIcon}</span>
@@ -63,4 +63,4 @@ const Button = forwardRef(
 
 Button.displayName = "Button"
 
-export default Button 
+export default Button

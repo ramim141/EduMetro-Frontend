@@ -1,22 +1,20 @@
 "use client"
 
 import { forwardRef } from "react"
-import { FaUser, FaLock, FaEnvelope, FaIdCard, FaBuilding, FaSearch, FaCalendar, FaPhone, FaBookOpen } from "react-icons/fa"
+import {
+  FaUser,
+  FaLock,
+  FaEnvelope,
+  FaIdCard,
+  FaBuilding,
+  FaSearch,
+  FaCalendar,
+  FaPhone,
+  FaBookOpen,
+} from "react-icons/fa"
 
 const Input = forwardRef(
-  (
-    {
-      label,
-      type = "text",
-      error,
-      icon,
-      size = "md",
-      variant = "outlined",
-      className = "",
-      ...props
-    },
-    ref
-  ) => {
+  ({ label, type = "text", error, icon, size = "md", variant = "outlined", className = "", ...props }, ref) => {
     const renderIcon = () => {
       if (!icon) return null
 
@@ -49,9 +47,10 @@ const Input = forwardRef(
     }
 
     const getVariantClasses = () => {
-      const baseClasses = "w-full rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+      const baseClasses =
+        "w-full rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
       const errorClasses = error ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-indigo-500"
-      
+
       const variants = {
         outlined: `${baseClasses} ${errorClasses} bg-white`,
         filled: `${baseClasses} ${errorClasses} bg-gray-50`,
@@ -73,16 +72,10 @@ const Input = forwardRef(
 
     return (
       <div className={`w-full ${className}`}>
-        {label && (
-          <label className="block mb-2 text-sm font-medium text-gray-700">
-            {label}
-          </label>
-        )}
+        {label && <label className="block mb-2 text-sm font-medium text-gray-700">{label}</label>}
         <div className="relative">
           {icon && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              {renderIcon()}
-            </div>
+            <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">{renderIcon()}</div>
           )}
           <input
             ref={ref}
@@ -91,16 +84,12 @@ const Input = forwardRef(
             {...props}
           />
         </div>
-        {error && (
-          <p className="mt-1 text-sm text-red-600">
-            {error}
-          </p>
-        )}
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       </div>
     )
-  }
+  },
 )
 
 Input.displayName = "Input"
 
-export default Input 
+export default Input

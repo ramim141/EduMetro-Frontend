@@ -115,7 +115,7 @@
 
 "use client"
 // Import icons from react-icons
-import { FaUser, FaLock, FaEnvelope, FaIdCard, FaBuilding, FaSearch, FaCalendar, FaPhone } from "react-icons/fa"
+import { FaUser, FaLock, FaEnvelope, FaIdCard, FaBuilding, FaSearch, FaCalendar, FaPhone, FaBookOpen, FaFileAlt } from "react-icons/fa"; 
 
 const Input = ({
   icon,

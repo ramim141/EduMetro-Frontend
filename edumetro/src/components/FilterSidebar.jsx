@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { FaFilter, FaUniversity, FaStar, FaBookOpen, FaSort, FaTimes } from "react-icons/fa"
 import Input from "./Input"
-import Dropdown from "./Dropdown"
+import Dropdown from "./ui/Dropdown"
 import Button from "./Button"
 import RatingStars from "./RatingStars"
 

@@ -89,4 +89,4 @@ const Message = ({ type = "info", message, onClose, duration = 3000 }) => {
   )
 }
 
-export default Message 
+export default Message

@@ -1,330 +1,438 @@
-// src/pages/UploadNotePage.jsx (Updated with Success Modal and Redirect)
+"use client"
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AuthLayout from '../layouts/AuthLayout';
-import Input from '../components/Input';
-import Button from '../components/Button';
-import Heading from '../components/Heading';
-import Spinner from '../components/Spinner';
-import Message from '../components/Message';
-import Dropdown from '../components/Dropdown';
-import Modal from '../components/Modal';
-import DragAndDropFileInput from '../components/DragAndDropFileInput';
-import api from '../utils/api';
-
-// Match Django backend department choices
-const DEPARTMENT_CHOICES = [
-  { value: 'CSE', label: 'Computer Science and Engineering' },
-  { value: 'EEE', label: 'Electrical and Electronic Engineering' },
-  { value: 'BBA', label: 'Bachelor of Business Administration' },
-  { value: 'SWE', label: 'Software Engineering' },
-  { value: 'Civil', label: 'Civil Engineering' },
-  { value: 'Architecture', label: 'Architecture' },
-  { value: 'Textile', label: 'Textile Engineering' },
-  { value: 'Agriculture', label: 'Agriculture' },
-  { value: 'ENG', label: 'English' },
-  { value: 'ECN', label: 'Economics' },
-  { value: 'PHY', label: 'Physics' },
-  { value: 'ME', label: 'Mechanical Engineering' },
-  { value: 'CE', label: 'Civil Engineering' },
-  { value: 'IPE', label: 'Industrial and Production Engineering' },
-  { value: 'Other', label: 'Other' }
-];
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import {
+  FaUpload,
+  FaFileAlt,
+  FaGraduationCap,
+  FaBuilding,
+  FaBookOpen,
+  FaEdit,
+  FaCheckCircle,
+  FaCloudUploadAlt,
+  FaRocket,
+  FaStar,
+  FaHeart,
+} from "react-icons/fa"
+import { Sparkles } from "lucide-react"
+import AuthLayout from "../layouts/AuthLayout"
+import Input from "../components/ui/Input"
+import Button from "../components/ui/Button"
+import Heading from "../components/ui/Heading"
+import Message from "../components/ui/Message"
+import Dropdown from "../components/ui/Dropdown"
+import Modal from "../components/ui/Modal"
+import DragAndDropFileInput from "../components/ui/DragAndDropFileInput"
+import api, { getDepartments as fetchDepartmentsApi, getCourses as fetchCoursesApi } from "../utils/api"
 
 // Function to sanitize filename
 const sanitizeFilename = (filename) => {
-  // Remove file extension
-  const ext = filename.split('.').pop();
-  const nameWithoutExt = filename.slice(0, -(ext.length + 1));
-  
-  // Remove special characters and replace spaces with underscores
-  const sanitized = nameWithoutExt
-    .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '_') // Replace spaces with underscores
-    .toLowerCase(); // Convert to lowercase
-  
-  // Truncate to 100 characters (excluding extension)
-  const truncated = sanitized.slice(0, 100);
-  
-  // Add timestamp to ensure uniqueness
-  const timestamp = new Date().getTime();
-  
-  // Return sanitized filename with extension
-  return `${truncated}_${timestamp}.${ext}`;
-};
+  const ext = filename.split(".").pop()
+  const nameWithoutExt = filename.slice(0, -(ext.length + 1))
 
-const UploadNotePage = () => {
-  const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [department, setDepartment] = useState('');
-  const [courseName, setCourseName] = useState('');
-  const [description, setDescription] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const sanitized = nameWithoutExt
+    .replace(/[^a-zA-Z0-9\s-]/g, "")
+    .replace(/\s+/g, "_")
+    .toLowerCase()
+
+  const truncated = sanitized.slice(0, 100)
+  const timestamp = new Date().getTime()
+
+  return `${truncated}_${timestamp}.${ext}`
+}
+
+const EnhancedUploadNotePage = () => {
+  const navigate = useNavigate()
+  const [title, setTitle] = useState("")
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState("")
+  const [selectedCourseId, setSelectedCourseId] = useState("")
+  const [description, setDescription] = useState("")
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+
+  const [departments, setDepartments] = useState([])
+  const [allCourses, setAllCourses] = useState([])
+  const [filteredCourses, setFilteredCourses] = useState([])
+
+  useEffect(() => {
+    const loadDropdownData = async () => {
+      try {
+        const departmentRes = await fetchDepartmentsApi()
+        const loadedDepartments = departmentRes.data.results || departmentRes.data
+        setDepartments(loadedDepartments)
+
+        const courseRes = await fetchCoursesApi()
+        const loadedCourses = courseRes.data.results || courseRes.data
+        setAllCourses(loadedCourses)
+      } catch (err) {
+        console.error("Failed to load departments or courses:", err.response ? err.response.data : err.message)
+        setError("Failed to load department and course options.")
+      }
+    }
+    loadDropdownData()
+  }, [])
+
+  useEffect(() => {
+    if (selectedDepartmentId) {
+      const departmentIdInt = Number.parseInt(selectedDepartmentId)
+      const coursesForDept = allCourses.filter((course) => {
+        return course.department === departmentIdInt
+      })
+      setFilteredCourses(coursesForDept)
+    } else {
+      setFilteredCourses([])
+    }
+    setSelectedCourseId("")
+  }, [selectedDepartmentId, allCourses])
 
   const handleDepartmentChange = (e) => {
-    const newDepartment = e.target.value;
-    setDepartment(newDepartment);
-  };
+    const newDepartmentId = e.target.value
+    setSelectedDepartmentId(newDepartmentId)
+  }
 
   const handleCourseChange = (e) => {
-    setCourseName(e.target.value);
-  };
+    const newCourseId = e.target.value
+    setSelectedCourseId(newCourseId)
+  }
 
   const handleFileSelect = (file) => {
     if (file) {
-      // Validate file size (max 10MB)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      const maxSize = 10 * 1024 * 1024 // 10MB in bytes
       if (file.size > maxSize) {
-        setError('File size should not exceed 10MB');
-        return;
+        setError("File size should not exceed 10MB")
+        setSelectedFile(null)
+        return
       }
 
-      // Validate file type
-      if (file.type !== 'application/pdf') {
-        setError('Only PDF files are allowed');
-        return;
+      if (file.type !== "application/pdf") {
+        setError("Only PDF files are allowed")
+        setSelectedFile(null)
+        return
       }
 
-      // Create a new File object with sanitized name
-      const sanitizedFile = new File(
-        [file],
-        sanitizeFilename(file.name),
-        { type: file.type }
-      );
-      setSelectedFile(sanitizedFile);
-      setError(null); // Clear any previous errors
+      const sanitizedFile = new File([file], sanitizeFilename(file.name), { type: file.type })
+      setSelectedFile(sanitizedFile)
+      setError(null)
+    } else {
+      setSelectedFile(null)
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
-    // Validate form
-    if (!title || !courseName || !description || !department || !selectedFile) {
-      setError('All fields including the note file are required.');
-      return;
+    if (!title || !selectedCourseId || !description || !selectedDepartmentId || !selectedFile) {
+      setError("All fields including the note file are required.")
+      setLoading(false)
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
-      // Create FormData object
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('course_name', courseName);
-      formData.append('description', description);
-      formData.append('department_name', department);
-      formData.append('file', selectedFile);
+      const formData = new FormData()
+      formData.append("title", title)
+      formData.append("description", description)
+      formData.append("file", selectedFile)
+      formData.append("department", selectedDepartmentId)
+      formData.append("course", selectedCourseId)
 
-      // Make API request
-      const response = await api.post('/api/notes/', formData, {
+      const response = await api.post("/api/notes/", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-      });
+      })
 
-      // Handle success
-      console.log('Note uploaded successfully:', response.data);
-      setShowSuccessModal(true);
-      
+      console.log("Note uploaded successfully:", response.data)
+      setShowSuccessModal(true)
+
       // Clear form
-      setTitle('');
-      setCourseName('');
-      setDescription('');
-      setDepartment('');
-      setSelectedFile(null);
-      setError(null);
-      
+      setTitle("")
+      setSelectedCourseId("")
+      setSelectedDepartmentId("")
+      setDescription("")
+      setSelectedFile(null)
+      setError(null)
     } catch (err) {
-      console.error('Note upload error:', err.response ? err.response.data : err.message);
-      let errorMessage = 'Failed to upload note. Please try again.';
-      
-      if (err.response && err.response.data) {
-        const errors = err.response.data;
-        if (typeof errors === 'object') {
-          // Handle file-specific errors
-          if (errors.file && Array.isArray(errors.file)) {
-            errorMessage = `File error: ${errors.file.join(', ')}`;
-          } else {
+      console.error("Note upload error:", err)
+      let errorMessage = "Failed to upload note. Please try again."
+
+      if (err.response) {
+        if (err.response.data) {
+          const errors = err.response.data
+          if (errors.detail) {
+            errorMessage = errors.detail
+          } else if (typeof errors === "object") {
             errorMessage = Object.entries(errors)
               .map(([field, messages]) => {
-                const formattedMessages = Array.isArray(messages) ? messages.join(', ') : messages;
-                return `${field}: ${formattedMessages}`;
+                const formattedMessages = Array.isArray(messages) ? messages.join(", ") : messages
+                return `${field}: ${formattedMessages}`
               })
-              .join('\n');
+              .join("\n")
+          } else if (typeof errors === "string") {
+            errorMessage = errors
           }
-        } else if (typeof errors === 'string') {
-          errorMessage = errors;
-        } else if (errors.detail) {
-          errorMessage = errors.detail;
+        } else {
+          errorMessage = `Request failed with status ${err.response.status}.`
         }
+      } else if (err.request) {
+        errorMessage = "No response from server. Check your network connection."
+      } else {
+        errorMessage = `Error setting up request: ${err.message}`
       }
-      setError(errorMessage);
+      setError(errorMessage)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleCloseSuccessModal = () => {
-    setShowSuccessModal(false);
-    navigate('/my-notes');
-  };
+    setShowSuccessModal(false)
+    navigate("/my-notes")
+  }
 
   return (
     <AuthLayout>
-      <div className="container max-w-2xl p-4 mx-auto">
-        <div className="p-6 bg-white rounded-lg shadow-sm">
-          <Heading level={1} className="mb-6 text-center">
-            Upload New Note
-          </Heading>
+      {/* Background with animated gradient */}
+      <div className="overflow-hidden relative min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50 to-accent-50">
+        {/* Animated background elements */}
+        <div className="overflow-hidden absolute inset-0 pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br rounded-full opacity-20 from-primary-200 to-secondary-200 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br rounded-full opacity-20 from-accent-200 to-primary-200 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 w-60 h-60 bg-gradient-to-br rounded-full opacity-20 transform -translate-x-1/2 -translate-y-1/2 from-secondary-200 to-accent-200 animate-blob animation-delay-4000"></div>
+        </div>
 
-          {error && (
-            <Message 
-              type="error" 
-              message={error} 
-              onClose={() => setError(null)} 
-              duration={5000}
-              className="mb-6"
-            />
-          )}
+        <div className="container relative z-10 px-4 py-8 mx-auto">
+          <div className="mx-auto max-w-4xl">
+            {/* Header Section */}
+            <div className="mb-12 text-center animate-fade-in-up">
+              <div className="inline-flex justify-center items-center mb-6 w-20 h-20 bg-gradient-to-br rounded-full shadow-lg from-primary-500 to-secondary-500 animate-bounce-slow">
+                <FaCloudUploadAlt className="w-10 h-10 text-white" />
+              </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Title
-              </label>
-              <Input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter note title"
-                required
-                className="w-full"
-              />
-            </div>
+              <Heading level={1} gradient={true} color="primary" className="mb-4 animate-fade-in-up" animated={true}>
+                <span className="flex gap-3 justify-center items-center">
+                  <Sparkles className="w-8 h-8 animate-pulse text-accent-500" />
+                  Share Your Knowledge
+                  <FaRocket className="w-8 h-8 animate-bounce text-secondary-500" />
+                </span>
+              </Heading>
 
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Department
-              </label>
-              <Dropdown
-                options={DEPARTMENT_CHOICES}
-                value={department}
-                onChange={handleDepartmentChange}
-                placeholder="Select a department"
-                required
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Course Name
-              </label>
-              <Input
-                type="text"
-                value={courseName}
-                onChange={handleCourseChange}
-                placeholder="Enter course code and name (e.g. CSE-301 Database)"
-                required
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter note description"
-                
-                rows="4"
-                className="w-full p-3 transition-all duration-200 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Note File (PDF)
-              </label>
-              <DragAndDropFileInput
-                onFileSelect={handleFileSelect}
-                acceptedFileTypes={['pdf']}
-                className="w-full"
-              />
-              <p className="mt-1 text-sm text-gray-500">
-                Maximum file size: 10MB. Only PDF files are allowed.
+              <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600 animate-fade-in-up animation-delay-200">
+                Upload your notes and help fellow students succeed. Your contribution makes a difference!
+                <FaHeart className="inline-block ml-2 w-5 h-5 animate-pulse text-accent-500" />
               </p>
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full transition-all duration-200"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <Spinner className="mr-2" /> Uploading...
+            {/* Main Upload Form */}
+            <div className="overflow-hidden rounded-3xl border shadow-2xl backdrop-blur-sm bg-white/80 border-white/20 animate-fade-in-up animation-delay-400">
+              {/* Form Header */}
+              <div className="overflow-hidden relative p-6 text-white bg-gradient-to-r from-primary-600 via-secondary-600 to-accent-600">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-secondary-600/90"></div>
+                <div className="flex relative z-10 gap-3 justify-center items-center">
+                  <FaFileAlt className="w-6 h-6 animate-pulse" />
+                  <h2 className="text-2xl font-bold">Upload Your Note</h2>
+                  <FaStar className="w-6 h-6 animate-spin" />
                 </div>
-              ) : (
-                'Upload Note'
-              )}
-            </Button>
-          </form>
+                <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full animate-pulse bg-white/10"></div>
+                <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-white/10 animate-bounce-slow"></div>
+              </div>
+
+              <div className="p-8">
+                {error && (
+                  <div className="mb-8 animate-fade-in-up">
+                    <Message type="error" message={error} onClose={() => setError(null)} duration={5000} />
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  {/* Title Input */}
+                  <div className="group animate-fade-in-left animation-delay-600">
+                    <div className="flex gap-3 items-center mb-3">
+                      <div className="flex justify-center items-center w-10 h-10 bg-gradient-to-br rounded-full shadow-lg transition-transform duration-300 from-primary-500 to-secondary-500 group-hover:scale-110">
+                        <FaEdit className="w-5 h-5 text-white" />
+                      </div>
+                      <label className="text-lg font-semibold text-gray-800 transition-colors duration-300 group-hover:text-primary-600">
+                        Note Title
+                      </label>
+                    </div>
+                    <Input
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Enter an engaging title for your note"
+                      required
+                      className="w-full transform hover:scale-[1.02] transition-all duration-300"
+                      size="lg"
+                      icon="book-open"
+                    />
+                  </div>
+
+                  {/* Department and Course Row */}
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {/* Department Dropdown */}
+                    <div className="group animate-fade-in-left animation-delay-800">
+                      <div className="flex gap-3 items-center mb-3">
+                        <div className="flex justify-center items-center w-10 h-10 bg-gradient-to-br rounded-full shadow-lg transition-transform duration-300 from-accent-500 to-primary-500 group-hover:scale-110">
+                          <FaBuilding className="w-5 h-5 text-white" />
+                        </div>
+                        <label className="text-lg font-semibold text-gray-800 transition-colors duration-300 group-hover:text-accent-600">
+                          Department
+                        </label>
+                      </div>
+                      <div className="transform hover:scale-[1.02] transition-all duration-300">
+                        <Dropdown
+                          options={departments.map((dept) => ({ value: dept.id, label: dept.name }))}
+                          value={selectedDepartmentId}
+                          onChange={handleDepartmentChange}
+                          placeholder="Select your department"
+                          required
+                          className="w-full"
+                          size="lg"
+                          animated={true}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Course Dropdown */}
+                    <div className="group animate-fade-in-right animation-delay-1000">
+                      <div className="flex gap-3 items-center mb-3">
+                        <div className="flex justify-center items-center w-10 h-10 bg-gradient-to-br rounded-full shadow-lg transition-transform duration-300 from-secondary-500 to-accent-500 group-hover:scale-110">
+                          <FaGraduationCap className="w-5 h-5 text-white" />
+                        </div>
+                        <label className="text-lg font-semibold text-gray-800 transition-colors duration-300 group-hover:text-secondary-600">
+                          Course
+                        </label>
+                      </div>
+                      <div className="transform hover:scale-[1.02] transition-all duration-300">
+                        <Dropdown
+                          options={filteredCourses.map((course) => ({ value: course.id, label: course.name }))}
+                          value={selectedCourseId}
+                          onChange={handleCourseChange}
+                          placeholder={selectedDepartmentId ? "Select a course" : "Select a department first"}
+                          required
+                          disabled={!selectedDepartmentId || filteredCourses.length === 0}
+                          className="w-full"
+                          size="lg"
+                          animated={true}
+                        />
+                      </div>
+                      {selectedDepartmentId && filteredCourses.length === 0 && !loading && (
+                        <p className="mt-2 text-sm text-red-500 animate-fade-in">
+                          No courses found for this department.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="group animate-fade-in-left animation-delay-1200">
+                    <div className="flex gap-3 items-center mb-3">
+                      <div className="flex justify-center items-center w-10 h-10 bg-gradient-to-br rounded-full shadow-lg transition-transform duration-300 from-success-500 to-primary-500 group-hover:scale-110">
+                        <FaBookOpen className="w-5 h-5 text-white" />
+                      </div>
+                      <label className="text-lg font-semibold text-gray-800 transition-colors duration-300 group-hover:text-success-600">
+                        Description
+                      </label>
+                    </div>
+                    <div className="transform hover:scale-[1.02] transition-all duration-300">
+                      <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Describe your note content, topics covered, and any helpful details..."
+                        rows="4"
+                        className="p-4 w-full placeholder-gray-400 text-gray-700 bg-gray-50 rounded-xl border-2 border-gray-200 transition-all duration-300 resize-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 hover:bg-white"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* File Upload */}
+                  <div className="group animate-fade-in-right animation-delay-1400">
+                    <div className="flex gap-3 items-center mb-3">
+                      <div className="flex justify-center items-center w-10 h-10 bg-gradient-to-br rounded-full shadow-lg transition-transform duration-300 from-warning-500 to-accent-500 group-hover:scale-110">
+                        <FaUpload className="w-5 h-5 text-white" />
+                      </div>
+                      <label className="text-lg font-semibold text-gray-800 transition-colors duration-300 group-hover:text-warning-600">
+                        Upload File
+                      </label>
+                    </div>
+                    <div className="transform hover:scale-[1.02] transition-all duration-300">
+                      <DragAndDropFileInput
+                        onFileSelect={handleFileSelect}
+                        acceptedFileTypes={["pdf"]}
+                        className="w-full"
+                        variant="accent"
+                        size="lg"
+                        animated={true}
+                      />
+                    </div>
+                    <p className="flex gap-2 items-center mt-3 text-sm text-gray-500">
+                      <FaFileAlt className="w-4 h-4 text-primary-500" />
+                      Maximum file size: 10MB. Only PDF files are allowed.
+                    </p>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-6 animate-fade-in-up animation-delay-1600">
+                    <Button
+                      type="submit"
+                      loading={loading}
+                      className="w-full py-4 text-lg font-semibold transform hover:scale-[1.02] transition-all duration-300 shadow-xl hover:shadow-2xl"
+                      size="xl"
+                      variant="primary"
+                      icon={<FaRocket className="w-5 h-5" />}
+                      iconPosition="left"
+                    >
+                      {loading ? "Uploading Your Note..." : "Share Your Knowledge"}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+           
+          </div>
         </div>
       </div>
+       
+      <Modal isOpen={showSuccessModal} onClose={handleCloseSuccessModal} customClasses="w-full max-w-md mt-[560px]">
+        <div className="overflow-hidden relative p-6 text-center text-white bg-gradient-to-br rounded-t-lg from-success-500 to-primary-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-success-500/90 to-primary-500/90"></div>
+          <div className="relative z-10">
+            <div className="flex justify-center items-center mx-auto mb-4 w-20 h-20 rounded-full bg-white/20 animate-bounce-slow">
+              <FaCheckCircle className="w-10 h-10 text-white animate-pulse" />
+            </div>
+            <h3 className="mb-2 text-2xl font-bold">Success!</h3>
+            <p className="text-success-100">Your note has been uploaded successfully ! Waiting for Admin Approval.</p>
+            
+          </div>
+          <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full animate-pulse bg-white/10"></div>
+          <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-white/10 animate-bounce-slow"></div>
+        </div>
 
-      {/* Success Modal */}
-      <Modal 
-        isOpen={showSuccessModal} 
-        onClose={handleCloseSuccessModal}
-        className="w-full max-w-md p-6"
-      >
-        <div className="text-center">
-          {/* Success Icon */}
-          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-green-100">
-            <svg
-              className="w-8 h-8 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+        <div className="p-8 text-center bg-white rounded-b-lg">
+          <div className="mb-6">
+            {/* ... */}
           </div>
 
-          {/* Success Message */}
-          <h3 className="mb-4 text-2xl font-semibold text-gray-900">
-            Note Uploaded Successfully!
-          </h3>
-          <p className="mb-6 text-gray-600">
-            Your note has been uploaded and is now available in your notes collection.
-          </p>
-
-          {/* Action Button */}
           <Button
             onClick={handleCloseSuccessModal}
-            className="w-full transition-all duration-200"
+            className="w-full transition-all duration-300 transform hover:scale-105"
+            size="lg"
+            variant="primary"
+            // ...
           >
             View My Notes
           </Button>
         </div>
       </Modal>
     </AuthLayout>
-  );
-};
+  )
+}
 
-export default UploadNotePage;
+export default EnhancedUploadNotePage

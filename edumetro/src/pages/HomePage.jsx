@@ -8,7 +8,7 @@ import NoteCard from "../components/NoteCard"
 import StrengthSection from "@/components/strength-section"
 import RequestNoteForm from "@/components/request-note-form"
 import Footer from "@/components/footer"
-import EnhancedNotesSection from "@/pages/LatestNote"
+import NotesSection from "@/components/ui/NotesSection"
 import {
   FaArrowRight,
   FaBookOpen as FaBookOpenLegacy,
@@ -96,7 +96,8 @@ const HomePage = () => {
                 {/* here add a download icon */}
                 <FaDownload className="mx-auto text-2xl text-yellow-400" />
                 <div className="text-sm text-white/80">Downloads</div>
-              </div>              <div className="text-center">
+              </div>
+              <div className="text-center">
                 {/* here add a upload icon */}
                 <FaUploadLegacy className="mx-auto text-2xl text-yellow-400" />
                 <div className="text-sm text-white/80">Upload</div>
@@ -234,7 +235,12 @@ const HomePage = () => {
       </section>
 
      {/* Enhanced Latest Notes Section */}
-     <EnhancedNotesSection />
+     <NotesSection 
+       title="Latest Notes"
+       description="Check out our most recent uploads"
+       limit={4}
+       ordering="-created_at"
+     />
       <StrengthSection />
       
       {/* Request note form Section */}

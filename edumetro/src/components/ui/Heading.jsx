@@ -90,16 +90,10 @@ const Heading = ({
   const Tag = `h${level}`
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Tag className={`${baseClasses} ${truncateClasses} ${className}`}>
-        {children}
-      </Tag>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+      <Tag className={`${baseClasses} ${truncateClasses} ${className}`}>{children}</Tag>
     </motion.div>
   )
 }
 
-export default Heading 
+export default Heading
