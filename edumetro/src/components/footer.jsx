@@ -57,19 +57,16 @@ const Footer = () => {
   }
 
   return (
-    <footer
-      id="animated-footer"
-      className="relative overflow-hidden font-sans text-white bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"
-    >
+    <footer id="animated-footer" className="overflow-hidden relative mt-20 font-sans text-white bg-gradient-to-br via-blue-900 from-slate-900 to-slate-900">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute rounded-full -top-40 -left-40 w-80 h-80 bg-blue-500/10 blur-3xl animate-pulse"></div>
-        <div className="absolute delay-1000 rounded-full -bottom-40 -right-40 w-80 h-80 bg-purple-500/10 blur-3xl animate-pulse"></div>
-        <div className="absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full top-1/2 left-1/2 w-96 h-96 bg-cyan-500/5 blur-3xl animate-spin-slow"></div>
+      <div className="overflow-hidden absolute inset-0">
+        <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse bg-blue-500/10"></div>
+        <div className="absolute -right-40 -bottom-40 w-80 h-80 rounded-full blur-3xl delay-1000 animate-pulse bg-purple-500/10"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2 bg-cyan-500/5 animate-spin-slow"></div>
       </div>
 
       {/* Floating Particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="overflow-hidden absolute inset-0 pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -89,15 +86,15 @@ const Footer = () => {
         <div
           className={`container mx-auto transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
         >
-          <div className="flex flex-col items-center justify-between gap-8 mx-auto md:flex-row">
+          <div className="flex flex-col gap-8 justify-between items-center mx-auto md:flex-row">
             <div className="flex items-center text-center md:text-left group">
               <div className="relative mr-4">
-                <div className="absolute inset-0 transition-all duration-500 rounded-full bg-yellow-400/20 blur-xl group-hover:blur-2xl"></div>
+                <div className="absolute inset-0 rounded-full blur-xl transition-all duration-500 bg-yellow-400/20 group-hover:blur-2xl"></div>
                 <Lightbulb className="relative z-10 w-16 h-16 text-yellow-400 transition-transform duration-300 group-hover:scale-110" />
-                <Sparkles className="absolute w-6 h-6 text-yellow-300 -top-2 -right-2 animate-pulse" />
+                <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-300 animate-pulse" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold leading-tight text-transparent md:text-3xl sm: lg:text-4xl bg-gradient-to-r from-white to-blue-200 bg-clip-text">
+                <h3 className="text-2xl font-bold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200 md:text-3xl sm: lg:text-4xl">
                   Subscribe to Our Newsletter
                 </h3>
                 <p className="mt-2 text-xl text-blue-200">for Latest Updates & Exclusive Content</p>
@@ -111,14 +108,14 @@ const Footer = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
-                  className="w-full px-6 py-4 text-white placeholder-blue-200 transition-all duration-300 border rounded-l-2xl bg-white/10 backdrop-blur-sm border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent group-hover:bg-white/15"
+                  className="px-6 py-4 w-full placeholder-blue-200 text-white rounded-l-2xl border backdrop-blur-sm transition-all duration-300 bg-white/10 border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent group-hover:bg-white/15"
                   required
                 />
-                <div className="absolute inset-0 transition-opacity duration-300 opacity-0 pointer-events-none rounded-l-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 group-hover:opacity-100"></div>
+                <div className="absolute inset-0 bg-gradient-to-r rounded-l-2xl opacity-0 transition-opacity duration-300 pointer-events-none from-blue-500/20 to-purple-500/20 group-hover:opacity-100"></div>
               </div>
               <button
                 type="submit"
-                className="flex items-center gap-2 px-8 py-4 font-semibold text-white transition-all duration-300 transform bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-r-2xl hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 group"
+                className="flex gap-2 items-center px-8 py-4 font-semibold text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-r-2xl transition-all duration-300 transform hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 group"
                 disabled={isSubscribed}
               >
                 {isSubscribed ? (
@@ -148,7 +145,7 @@ const Footer = () => {
             >
               <div className="flex items-center mb-6 group">
                 <div className="relative mr-3">
-                  <div className="absolute inset-0 transition-all duration-300 rounded-lg bg-blue-500/20 blur-md group-hover:blur-lg"></div>
+                  <div className="absolute inset-0 rounded-lg blur-md transition-all duration-300 bg-blue-500/20 group-hover:blur-lg"></div>
                   <img
                     src={footerLogo}
                     alt="Logo"
@@ -156,8 +153,8 @@ const Footer = () => {
                   />
                 </div>
                 <h5 className="text-3xl font-bold tracking-wide">
-                  <span className="text-transparent bg-gradient-to-r from-white to-blue-200 bg-clip-text">NOTE</span>
-                  <span className="ml-1 text-transparent bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">NOTE</span>
+                  <span className="ml-1 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-300">
                     BANK
                   </span>
                 </h5>
@@ -192,7 +189,7 @@ const Footer = () => {
             >
               <h6 className="relative pb-3 mb-6 text-2xl font-semibold text-white">
                 Useful Links
-                <span className="absolute bottom-0 left-0 block w-16 h-1 rounded-full bg-gradient-to-r from-blue-500 to-blue-400" />
+                <span className="block absolute bottom-0 left-0 w-16 h-1 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" />
               </h6>
               <ul className="space-y-3">
                 {["Home", "About Us", "Courses", "Categories", "Pricing", "Contact"].map((link, index) => (
@@ -215,7 +212,7 @@ const Footer = () => {
             >
               <h6 className="relative pb-3 mb-6 text-2xl font-semibold text-white">
                 Resources
-                <span className="absolute bottom-0 left-0 block w-16 h-1 rounded-full bg-gradient-to-r from-purple-500 to-purple-400" />
+                <span className="block absolute bottom-0 left-0 w-16 h-1 bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" />
               </h6>
               <ul className="space-y-3">
                 {["Community", "Support", "Video Guides", "Terms and Conditions", "Blog", "Security"].map(
@@ -240,11 +237,11 @@ const Footer = () => {
             >
               <h6 className="relative pb-3 mb-6 text-2xl font-semibold text-white">
                 Contact Us
-                <span className="absolute bottom-0 left-0 block w-16 h-1 rounded-full bg-gradient-to-r from-green-500 to-green-400" />
+                <span className="block absolute bottom-0 left-0 w-16 h-1 bg-gradient-to-r from-green-500 to-green-400 rounded-full" />
               </h6>
               <ul className="space-y-4">
                 <li className="flex items-start group">
-                  <MapPin className="flex-shrink-0 w-5 h-5 mt-1 mr-3 text-green-400 transition-transform duration-300 group-hover:scale-110" />
+                  <MapPin className="flex-shrink-0 mt-1 mr-3 w-5 h-5 text-green-400 transition-transform duration-300 group-hover:scale-110" />
                   <span className="text-blue-200 transition-colors duration-300 group-hover:text-white">
                     5 Arambag
                     <br />
@@ -252,13 +249,13 @@ const Footer = () => {
                   </span>
                 </li>
                 <li className="flex items-center group">
-                  <Phone className="flex-shrink-0 w-5 h-5 mr-3 text-green-400 transition-transform duration-300 group-hover:scale-110" />
+                  <Phone className="flex-shrink-0 mr-3 w-5 h-5 text-green-400 transition-transform duration-300 group-hover:scale-110" />
                   <span className="text-blue-200 transition-colors duration-300 group-hover:text-white">
                     +880 1768628911
                   </span>
                 </li>
                 <li className="flex items-center group">
-                  <Mail className="flex-shrink-0 w-5 h-5 mr-3 text-green-400 transition-transform duration-300 group-hover:scale-110" />
+                  <Mail className="flex-shrink-0 mr-3 w-5 h-5 text-green-400 transition-transform duration-300 group-hover:scale-110" />
                   <span className="text-blue-200 transition-colors duration-300 group-hover:text-white">
                     notebanksupport@gmail.com
                   </span>
@@ -278,11 +275,11 @@ const Footer = () => {
         {/* Scroll to Top Button */}
         <button
           onClick={scrollToTop}
-          className="fixed z-50 flex items-center justify-center transition-all duration-300 transform rounded-full shadow-lg bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-xl hover:shadow-blue-500/25 hover:scale-110 group"
+          className="flex fixed right-8 bottom-8 z-50 justify-center items-center w-14 h-14 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg transition-all duration-300 transform hover:from-blue-600 hover:to-blue-700 hover:shadow-xl hover:shadow-blue-500/25 hover:scale-110 group"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-6 h-6 text-white transition-transform duration-300 group-hover:-translate-y-1" />
-          <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 bg-gradient-to-r from-blue-400 to-blue-500 group-hover:opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-20"></div>
         </button>
       </div>
 

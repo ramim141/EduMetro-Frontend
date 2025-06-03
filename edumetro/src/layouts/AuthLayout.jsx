@@ -1,7 +1,7 @@
 // src/components/AuthLayout.jsx
 
 import React from 'react';
-import Footer from "@/component/Footer"
+
 const AuthLayout = ({ children }) => {
   return (
     <div className="flex justify-center items-center p-8 min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50">
@@ -22,7 +22,7 @@ const AuthLayout = ({ children }) => {
           </div>
         </div>
       </div>
-      <Footer />
+  
     </div>
     
   );

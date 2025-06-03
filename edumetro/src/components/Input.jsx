@@ -161,6 +161,8 @@ const Input = ({
         return <FaCalendar className={`text-primary-500 ${iconClass}`} size={iconSize} />
       case "phone":
         return <FaPhone className={`text-primary-500 ${iconClass}`} size={iconSize} />
+      case "book-open":
+        return <FaBookOpen className={`text-primary-500 ${iconClass}`} size={iconSize} />
       default:
         return null
     }

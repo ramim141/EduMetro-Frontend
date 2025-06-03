@@ -53,10 +53,10 @@ const NoteDetailsPage = () => {
       
       // Get ratings and comments
       const [ratingRes, commentRes] = await Promise.all([
-        api.get(`/api/notes/star-ratings/`, {
+        api.get(`/api/notes/star-ratings/${id}/`, {
           params: { note: id }
         }),
-        api.get(`/api/notes/comments/`, {
+        api.get(`/api/notes/comments/${id}/`, {
           params: { note: id }
         })
       ]);
@@ -217,7 +217,7 @@ const NoteDetailsPage = () => {
   // লোডিং এবং এরর কন্ডিশনাল রেন্ডারিং
   if (loading || authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen">
         <Spinner size="w-12 h-12" />
         <p className="ml-4 text-gray-700">Loading note details...</p>
       </div>
@@ -226,7 +226,7 @@ const NoteDetailsPage = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen">
         <Message type="error" message={error} onClose={() => setError(null)} duration={5000} />
       </div>
     );
@@ -234,7 +234,7 @@ const NoteDetailsPage = () => {
 
   if (!note) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-gray-600">
+      <div className="flex justify-center items-center min-h-screen text-gray-600">
         Note not found.
       </div>
     );
@@ -243,7 +243,7 @@ const NoteDetailsPage = () => {
   const uploadedDate = note.created_at ? format(new Date(note.created_at), 'MMMM d, yyyy') : 'Date N/A';
 
   return (
-    <div className="container max-w-4xl p-4 mx-auto space-y-8">
+    <div className="container p-4 mx-auto space-y-8 max-w-4xl">
       {/* Back Button */}
         <div className="flex items-center">
           <button
@@ -256,8 +256,8 @@ const NoteDetailsPage = () => {
         </div>
 
         {/* Author Info */}
-        <div className="flex items-center p-6 transition-all duration-200 bg-white rounded-lg shadow-sm hover:shadow-md">
-          <div className="flex items-center justify-center flex-shrink-0 w-16 h-16 mr-4 text-xl font-semibold text-gray-700 bg-gray-100 rounded-full">
+        <div className="flex items-center p-6 bg-white rounded-lg shadow-sm transition-all duration-200 hover:shadow-md">
+          <div className="flex flex-shrink-0 justify-center items-center mr-4 w-16 h-16 text-xl font-semibold text-gray-700 bg-gray-100 rounded-full">
             {note.uploader_username?.charAt(0).toUpperCase() || <FaUserCircle />}
           </div>
           <div>
@@ -283,7 +283,7 @@ const NoteDetailsPage = () => {
         </div>
 
         {/* Note Title and Download */}
-      <div className="flex items-center justify-between p-6 bg-white rounded-lg shadow-sm">
+      <div className="flex justify-between items-center p-6 bg-white rounded-lg shadow-sm">
         <h1 className="text-3xl font-bold text-gray-800">{note.title}</h1>
         <Button onClick={handleDownload}>
           <FaDownload className="text-2xl" />
@@ -299,21 +299,21 @@ const NoteDetailsPage = () => {
       </div>
 
       {/* PDF Viewer */}
-      <div className="mb-8 overflow-hidden transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md">
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-gray-50">
+      <div className="overflow-hidden mb-8 bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md">
+        <div className="flex justify-between items-center p-3 bg-gray-50 border-b border-gray-200">
           <span className="text-sm font-semibold text-gray-700">PDF Viewer</span>
           <div className="flex items-center space-x-3">
             <button 
               onClick={zoomOut} 
               disabled={scale <= 0.5} 
-              className="p-2 transition-colors duration-200 rounded-md hover:bg-gray-200 disabled:opacity-50"
+              className="p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 disabled:opacity-50"
             >
               <FaSearchMinus />
             </button>
             <button 
               onClick={zoomIn} 
               disabled={scale >= 3.0} 
-              className="p-2 transition-colors duration-200 rounded-md hover:bg-gray-200 disabled:opacity-50"
+              className="p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 disabled:opacity-50"
             >
               <FaSearchPlus />
             </button>
@@ -339,11 +339,11 @@ const NoteDetailsPage = () => {
                 <div className="text-gray-500">No PDF file available for this note.</div>
             )}
         </div>
-        <div className="flex items-center justify-between p-3 border-t border-gray-200 bg-gray-50">
+        <div className="flex justify-between items-center p-3 bg-gray-50 border-t border-gray-200">
           <button 
             onClick={previousPage} 
             disabled={pageNumber <= 1} 
-            className="p-2 transition-colors duration-200 rounded-md hover:bg-gray-200 disabled:opacity-50"
+            className="p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 disabled:opacity-50"
           >
             <FaChevronLeft />
           </button>
@@ -353,7 +353,7 @@ const NoteDetailsPage = () => {
           <button 
             onClick={nextPage} 
             disabled={pageNumber >= numPages} 
-            className="p-2 transition-colors duration-200 rounded-md hover:bg-gray-200 disabled:opacity-50"
+            className="p-2 rounded-md transition-colors duration-200 hover:bg-gray-200 disabled:opacity-50"
           >
             <FaChevronRight />
           </button>
@@ -394,7 +394,7 @@ const NoteDetailsPage = () => {
                   onChange={(e) => setUserComment(e.target.value)}
                   required
                   rows="4"
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="p-3 w-full rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Share your thoughts about this note..."
                 />
               </div>
@@ -404,7 +404,7 @@ const NoteDetailsPage = () => {
                 className="w-full"
               >
                 {reviewLoading ? (
-                  <div className="flex items-center justify-center">
+                  <div className="flex justify-center items-center">
                     <Spinner className="mr-2" /> Submitting...
                   </div>
                 ) : (
@@ -436,10 +436,10 @@ const NoteDetailsPage = () => {
                 comment => comment.user === review.user
               );
               return (
-                <div key={review.id} className="p-6 mb-4 rounded-lg shadow-md bg-gray-50">
-                  <div className="flex items-center justify-between mb-3">
+                <div key={review.id} className="p-6 mb-4 bg-gray-50 rounded-lg shadow-md">
+                  <div className="flex justify-between items-center mb-3">
                     <div className="flex items-center">
-                      <div className="flex items-center justify-center w-12 h-12 font-semibold text-white bg-blue-500 rounded-full">
+                      <div className="flex justify-center items-center w-12 h-12 font-semibold text-white bg-blue-500 rounded-full">
                         {review.user_first_name 
                           ? review.user_first_name.charAt(0).toUpperCase() 
                           : (review.user_username 
