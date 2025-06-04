@@ -234,13 +234,17 @@ const HomePage = () => {
         </div>
       </section>
 
-     {/* Enhanced Latest Notes Section */}
-     <NotesSection 
-       title="Latest Notes"
-       description="Check out our most recent uploads"
-       limit={4}
-       ordering="-created_at"
-     />
+       {/* Enhanced Latest Notes Section */}
+       <section className="container px-4 py-24 mx-auto max-w-7xl">
+        <NotesSection
+          title="Latest Notes"
+          description="Check out our most recent uploads from the community"
+          limit={4}
+          ordering="-created_at"
+          showViewAllButton={true}
+          className="rounded-3xl border shadow-xl backdrop-blur-sm bg-white/50 border-white/20"
+        />
+      </section>
       <StrengthSection />
       
       {/* Request note form Section */}

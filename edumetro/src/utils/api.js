@@ -136,6 +136,39 @@ export const getCourses = async (departmentId = null) => { // departmentId এ�
 };
 
 
-// ... (আপনার অন্যান্য API কল ফাংশন যেমন registerUser, updateProfile, etc.) ...
+
+
+
+
+// ✅ ফাংশন: বুকমার্ক করা নোটগুলো ফেচ করার জন্য
+export const getBookmarkedNotes = async (page = 1) => {
+  // আপনার backend এ /api/users/user-activity/bookmarked-notes/ endpoint টি ব্যবহার করুন
+  // এটি Authentication Headers প্রয়োজন হবে।
+  try {
+    const response = await api.get(`/api/users/user-activity/bookmarked-notes/?page=${page}`);
+    return response.data; // Expected: { count, next, previous, results: [...] }
+  } catch (error) {
+    console.error("Failed to fetch bookmarked notes:", error);
+    // ✅ Mock Data (যদি API না থাকে বা এরর হয়)
+    return {
+      count: 0,
+      next: null,
+      previous: null,
+      results: [],
+    };
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default api; // `api` instance টি default export হিসেবে রাখুন

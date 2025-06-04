@@ -1,233 +1,218 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaBookmark, FaSearch, FaSortAmountDown, FaSortAmountUp, FaStar, FaDownload } from 'react-icons/fa';
-import api from '../utils/api';
-import Footer from '../components/Footer';
+// src/pages/notes/BookmarksPage.jsx
 
-const BookmarkCard = ({ id, title, excerpt, date, category, rating, downloads, onRemove }) => {
-  return (
-    <div>
-      <div className="overflow-hidden relative p-6 bg-white rounded-xl border-l-4 border-yellow-500 shadow-md transition-all duration-300 transform hover:shadow-xl hover:-translate-y-1 group">
-      <div className="absolute top-0 right-0 px-4 py-1 text-xs font-medium text-white bg-gradient-to-l from-yellow-500 to-yellow-600 rounded-bl-lg">
-        {category}
-      </div>
-      <h3 className="mt-4 mb-2 text-xl font-semibold text-gray-800 transition-colors duration-300 group-hover:text-yellow-600">{title}</h3>
-      <p className="mb-4 text-gray-600 line-clamp-2">{excerpt}</p>
-      <div className="flex justify-between items-center text-sm">
-        <span className="text-gray-500">{date}</span>
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center text-yellow-500">
-            <FaStar className="mr-1" />
-            <span>{rating || '0.0'}</span>
-          </div>
-          <div className="flex items-center text-primary-600">
-            <FaDownload className="mr-1" />
-            <span>{downloads || 0}</span>
-          </div>
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              onRemove(id);
-            }}
-            className="p-1 text-red-500 rounded-full transition-colors duration-300 hover:bg-red-50"
-            title="Remove Bookmark"
-          >
-            <FaBookmark />
-          </button>
-        </div>
-      </div>
-      <span className="inline-block mt-2 font-medium text-yellow-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100">Read more →</span>
-    </div>
+"use client"
 
-    <Footer/>
-    </div>
-  );
-};
+import React, { useState, useEffect, useContext } from 'react';
+import api, { getBookmarkedNotes as fetchBookmarkedNotesApi } from '../utils/api'; // ✅ API ফাংশন ইম্পোর্ট করুন
+import NoteCard from '../components/ui/NoteCard';
+import Spinner from '../components/ui/Spinner';
+import Message from '../components/ui/Message';
+import Pagination from '../components/Pagination';
+import AuthContext from '../context/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+import Footer from '../components/footer'; // আপনার Footer কম্পোনেন্ট
+import Heading from '../components/ui/Heading'; // আপনার Heading কম্পোনেন্ট
+import { toast } from 'react-hot-toast'; // toast নোটিফিকেশনের জন্য
 
 const BookmarksPage = () => {
-  const [bookmarks, setBookmarks] = useState([]);
+  const [bookmarkedNotes, setBookmarkedNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
-  const [animate, setAnimate] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalNotes, setTotalNotes] = useState(0);
 
+  const { isAuthenticated, isLoading: authLoading } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Redirect if not authenticated
   useEffect(() => {
-    // Entrance animation
-    setAnimate(true);
-    
-    // Fetch bookmarks from the API
-    const fetchBookmarks = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/api/users/user-activity/bookmarked-notes/');
-        setBookmarks(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to load bookmarks:', err);
-        if (err.message === 'Network Error') {
-          setError('Cannot connect to the server. Please make sure the backend server is running.');
-        } else {
-          setError('Failed to load bookmarks: ' + (err.response?.data?.detail || err.message));
-        }
-        setLoading(false);
-        
-        // Set mock data for development when backend is not available
-        if (import.meta.env.DEV) {
-          setBookmarks([
-            { id: 1, title: 'Sample Bookmark 1', content: 'This is a sample bookmark for development', category: 'Sample', created_at: new Date().toISOString(), rating: 4.5, downloads: 120 },
-            { id: 2, title: 'Sample Bookmark 2', content: 'Another sample bookmark for testing', category: 'Test', created_at: new Date().toISOString(), rating: 3.8, downloads: 85 },
-          ]);
-        }
-      }
-    };
-    
-    fetchBookmarks();
-  }, []);
+    if (!authLoading && !isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-  };
-
-  const handleRemoveBookmark = async (noteId) => {
+  // Fetch bookmarked notes
+  const fetchBookmarks = async (page = 1) => {
+    if (!isAuthenticated || authLoading) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
     try {
-      // Find the bookmark entry for this note
-      const bookmark = bookmarks.find(b => b.id === noteId);
-      if (bookmark) {
-        await api.delete(`/api/users/user-activity/bookmarked-notes/${bookmark.id}/`);
-        // Update the UI by removing the bookmark
-        setBookmarks(bookmarks.filter(b => b.id !== noteId));
-      }
+      const response = await fetchBookmarkedNotesApi(page); // API কল
+      console.log('Bookmarked Notes API response:', response.data);
+      setBookmarkedNotes(response.data.results || []);
+      setTotalPages(Math.ceil(response.data.count / 10)); // Assuming page_size=10
+      setTotalNotes(response.data.count);
+      setCurrentPage(page);
     } catch (err) {
-      console.error('Failed to remove bookmark:', err);
-      setError('Failed to remove bookmark');
+      console.error('Failed to fetch bookmarked notes:', err.response ? err.response.data : err.message);
+      setError('Failed to load your bookmarked notes. Please try again later.');
+      toast.error('Failed to load bookmarked notes.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Filter and sort bookmarks
-  const filteredBookmarks = bookmarks
-    .filter(bookmark => 
-      bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bookmark.excerpt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bookmark.category?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      const dateA = new Date(a.created_at || a.date);
-      const dateB = new Date(b.created_at || b.date);
-      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-    });
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      fetchBookmarks(currentPage);
+    }
+  }, [isAuthenticated, currentPage, authLoading]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center p-4 min-h-screen bg-gray-50">
-        <FaSpinner className="mb-4 text-4xl text-yellow-500 animate-spin" />
-        <p className="text-gray-600">Loading bookmarks...</p>
-      </div>
-    );
-  }
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
-  if (error) {
-    return (
-      <div className="flex flex-col justify-center items-center p-4 min-h-screen bg-gray-50">
-        <div className="p-8 w-full max-w-md bg-white rounded-xl shadow-md">
-          <h2 className="mb-4 text-2xl font-bold text-red-600">Error</h2>
-          <p className="mb-6 text-gray-700">{error}</p>
-          <div className="flex flex-col space-y-4">
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 text-white bg-yellow-500 rounded-lg transition-colors hover:bg-yellow-600"
-            >
-              Try Again
-            </button>
-            {error.includes('backend server') && (
-              <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400">
-                <p className="text-sm text-yellow-700">
-                  <strong>Developer Note:</strong> Make sure the backend server is running on http://127.0.0.1:8000
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // ✅ লাইক হ্যান্ডলার (বুকমার্ক পেজেও লাইক/আনলাইক করার অনুমতি দিতে)
+  const handleLike = async (noteId) => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to like a note.');
+      navigate('/login');
+      return;
+    }
+    try {
+      const response = await api.post(`/api/notes/${noteId}/toggle_like/`);
+      const { liked, likes_count } = response.data;
+      setBookmarkedNotes(prevNotes =>
+        prevNotes.map(note =>
+          note.id === noteId ? { ...note, is_liked_by_current_user: liked, likes_count: likes_count } : note
+        )
+      );
+    } catch (err) {
+      console.error('Failed to toggle like:', err.response ? err.response.data : err.message);
+      toast.error('Could not like note. Please try again.');
+    }
+  };
+
+  // ✅ বুকমার্ক হ্যান্ডলার (বুকমার্ক রিমুভ করার জন্য)
+  const handleBookmark = async (noteId) => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to manage bookmarks.');
+      navigate('/login');
+      return;
+    }
+    try {
+      const response = await api.post(`/api/notes/${noteId}/toggle_bookmark/`);
+      const { bookmarked, bookmarks_count } = response.data;
+
+      if (!bookmarked) {
+        // If the note was unbookmarked, remove it from the list
+        setBookmarkedNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
+        toast.success('Note removed from bookmarks.');
+      } else {
+        // If it was newly bookmarked (shouldn't happen on this page but for completeness)
+        // You might refetch the list or update individual note if it's already in the list
+        setBookmarkedNotes(prevNotes =>
+          prevNotes.map(note =>
+            note.id === noteId ? { ...note, is_bookmarked_by_current_user: bookmarked, bookmarks_count: bookmarks_count } : note
+          )
+        );
+        toast.success('Note added to bookmarks.');
+      }
+      // If unbookmarked, totalNotes and totalPages might need to be recalculated
+      if (!bookmarked && totalNotes > 0) {
+        setTotalNotes(prevTotal => prevTotal - 1);
+        setTotalPages(Math.ceil((totalNotes - 1) / 10)); // Recalculate pages
+      }
+    } catch (err) {
+      console.error('Failed to toggle bookmark:', err.response ? err.response.data : err.message);
+      toast.error('Could not manage bookmark. Please try again.');
+    }
+  };
+
+  // ✅ ডাউনলোড হ্যান্ডলার
+  const handleDownload = async (noteId) => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to download this note.');
+      navigate('/login');
+      return;
+    }
+    try {
+        const response = await api.get(`/api/notes/${noteId}/download/`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        const contentDisposition = response.headers['content-disposition'];
+        let filename = 'downloaded_note.pdf';
+        if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+            if (filenameMatch && filenameMatch[1]) { filename = filenameMatch[1]; }
+            else { /* ... filenameStarMatch logic ... */ }
+        }
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        // Update download_count in state
+        setBookmarkedNotes(prevNotes =>
+            prevNotes.map(note =>
+              note.id === noteId ? { ...note, download_count: (note.download_count || 0) + 1 } : note
+            )
+        );
+    } catch (err) {
+        console.error('Failed to download note:', err.response ? err.response.data : err.message);
+        toast.error('Failed to download note. Please try again.');
+    }
+  };
+
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-yellow-50 to-yellow-100 py-8 px-4 sm:px-6 lg:px-8 transition-opacity duration-500 ${animate ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="mx-auto max-w-7xl">
-        {/* Header with title */}
-        <div className="flex flex-col justify-between items-start mb-8 space-y-4 md:flex-row md:items-center md:space-y-0">
-          <div>
-            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-yellow-400">My Bookmarks</h1>
-            <p className="mt-2 text-gray-600">Your collection of saved notes</p>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container p-4 py-8 mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <Heading level={1} className="text-3xl font-bold text-gray-800">
+            My Bookmarks
+          </Heading>
         </div>
 
-        {/* Search controls */}
-        <div className="p-4 mb-8 bg-white rounded-xl shadow-md">
-          <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-            <div className="relative flex-grow">
-              <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                <FaSearch className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search bookmarks..."
-                className="py-2 pr-4 pl-10 w-full rounded-lg border border-gray-300 transition-all duration-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={toggleSortOrder}
-                className="flex items-center px-4 py-2 rounded-lg border border-gray-300 transition-colors duration-300 hover:bg-gray-50"
-                title={sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
-              >
-                {sortOrder === 'asc' ? <FaSortAmountUp className="text-gray-600" /> : <FaSortAmountDown className="text-gray-600" />}
-              </button>
-            </div>
-          </div>
-        </div>
+        {error && (
+          <Message type="error" message={error} onClose={() => setError(null)} duration={5000} className="mb-6" />
+        )}
 
-        {/* Bookmarks grid */}
-        {filteredBookmarks.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredBookmarks.map((bookmark) => (
-              <Link to={`/note/${bookmark.id}`} key={bookmark.id} className="block">
-                <BookmarkCard 
-                  id={bookmark.id}
-                  title={bookmark.title} 
-                  excerpt={bookmark.excerpt || bookmark.content?.substring(0, 150) || 'No description available'} 
-                  date={new Date(bookmark.created_at || bookmark.date).toLocaleDateString()} 
-                  category={bookmark.category} 
-                  rating={bookmark.average_rating} 
-                  downloads={bookmark.download_count} 
-                  onRemove={handleRemoveBookmark}
-                />
-              </Link>
-            ))}
+        {loading ? (
+          <div className="flex flex-col justify-center items-center space-y-4 h-64">
+            <Spinner size="w-12 h-12" />
+            <p className="text-gray-600">Loading your bookmarks...</p>
+          </div>
+        ) : bookmarkedNotes.length === 0 ? (
+          <div className="flex flex-col justify-center items-center p-8 h-64 text-center bg-white rounded-lg shadow-sm">
+            <p className="text-gray-600">You haven't bookmarked any notes yet.</p>
+            <Link to="/notes" className="mt-4 text-blue-600 transition-colors duration-200 hover:text-blue-800">
+              Browse Notes to Bookmark
+            </Link>
           </div>
         ) : (
-          <div className="p-8 text-center bg-white rounded-xl shadow-md">
-            <div className="mb-4 text-5xl text-yellow-400">🔖</div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-800">No bookmarks found</h3>
-            <p className="mb-6 text-gray-600">
-              {searchTerm 
-                ? 'Try adjusting your search criteria'
-                : 'Start bookmarking notes to build your collection'}
-            </p>
-            {!searchTerm && (
-              <Link
-                to="/my-notes"
-                className="inline-block px-6 py-3 text-white bg-yellow-600 rounded-lg transition-colors duration-300 hover:bg-yellow-700"
-              >
-                Browse Notes
-              </Link>
-            )}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {bookmarkedNotes.map((note, index) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                index={index}
+                onLike={handleLike}
+                onBookmark={handleBookmark} // NoteCard থেকে রিমুভ ট্রিগার হবে
+                onDownload={handleDownload}
+                // showApprovalStatus এখানে প্রয়োজন নেই কারণ এটি BookmarksPage
+                showApprovalStatus={false}
+              />
+            ))}
+          </div>
+        )}
+
+        {totalNotes > 0 && totalPages > 1 && (
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         )}
       </div>
+      <Footer/>
     </div>
   );
 };

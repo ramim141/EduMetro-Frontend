@@ -19,6 +19,7 @@ import EditProfilePage from '../pages/EditProfilePage';
 import PasswordChangePage from '../pages/PasswordChangePage';
 import UploadNotePage from '../pages/UploadNotePage'; 
 import NoteDetailsPage from '../pages/NoteDetailsPage';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useContext(AuthContext);
@@ -43,16 +44,16 @@ const NotFoundPage = () => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
     <h1 className="text-4xl font-bold text-gray-800">404 - Page Not Found</h1>
     <p className="mt-2 text-gray-600">The page you are looking for does not exist.</p>
-    <div className="flex space-x-4 mt-6">
+    <div className="flex mt-6 space-x-4">
       <Link 
         to="/" 
-        className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
+        className="px-4 py-2 text-white transition-colors duration-200 bg-blue-600 rounded-md hover:bg-blue-700"
       >
         Go to Home
       </Link>
       <Link 
         to="/note" 
-        className="px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors duration-200"
+        className="px-4 py-2 text-blue-600 transition-colors duration-200 border border-blue-600 rounded-md hover:bg-blue-50"
       >
         Browse Notes
       </Link>

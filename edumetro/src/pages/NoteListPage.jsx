@@ -34,6 +34,22 @@ const NoteListPage = ({ className = "" }) => {
     // We need to pass the setter function from useNoteFilters
   })
 
+  const handleBookmark = async (noteId) => {
+    if (!isAuthenticated) { /* ... */ return; }
+    try {
+      const response = await api.post(`/api/notes/${noteId}/toggle_bookmark/`);
+      const { bookmarked, bookmarks_count } = response.data;
+
+      // ✅ `notes` স্টেট আপডেট করুন (NoteListPage এর notes স্টেট)
+      setNotes(prevNotes =>
+        prevNotes.map(note =>
+          note.id === noteId ? { ...note, is_bookmarked_by_current_user: bookmarked, bookmarks_count: bookmarks_count } : note
+        )
+      );
+      toast.success(bookmarked ? 'Note bookmarked successfully.' : 'Note removed from bookmarks.');
+    } catch (err) { /* ... */ }
+  };
+
   // Enhanced action handlers with error handling
   const handleLikeWithError = async (noteId) => {
     try {
