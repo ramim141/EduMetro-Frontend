@@ -1,10 +1,16 @@
+// src/hooks/useNoteActions.js
+
 "use client"
 
 import { useState, useCallback } from "react"
 import api from "../utils/api"
 
-const useNoteActions = (notes, setNotes) => {
-  const [actionLoading, setActionLoading] = useState({})
+// ✅ notes: বর্তমান নোটস স্টেট
+// ✅ setNotes: notes স্টেট আপডেটার ফাংশন
+// ✅ isAuthenticated: AuthContext থেকে আসা প্রমাণীকৃত অবস্থা
+// ✅ toastInstance: react-hot-toast ইনস্ট্যান্স
+const useNoteActions = (notes, setNotes, isAuthenticated, toastInstance) => {
+  const [actionLoading, setActionLoading] = useState({}) // প্রতিটি অ্যাকশনের জন্য লোডিং স্টেট ট্র্যাক করতে
 
   const setNoteActionLoading = useCallback((noteId, action, loading) => {
     setActionLoading((prev) => ({
@@ -15,62 +21,71 @@ const useNoteActions = (notes, setNotes) => {
 
   const handleLike = useCallback(
     async (noteId) => {
+      // ✅ Authentication চেক এখানে হবে না, প্যারেন্ট কম্পোনেন্ট `handleLikeWithError` এ এটি হ্যান্ডেল করবে।
       setNoteActionLoading(noteId, "like", true)
 
       try {
-        await api.post(`/api/notes/${noteId}/toggle_like/`)
+        const response = await api.post(`/api/notes/${noteId}/toggle_like/`)
+        const { liked, likes_count } = response.data; // Ensure these fields exist in backend response
 
         setNotes((prevNotes) =>
           prevNotes.map((note) =>
             note.id === noteId
               ? {
                   ...note,
-                  is_liked: !note.is_liked,
-                  likes_count: note.is_liked ? note.likes_count - 1 : note.likes_count + 1,
+                  is_liked_by_current_user: liked, // ✅ is_liked_by_current_user ব্যবহার করুন
+                  likes_count: likes_count,
                 }
               : note,
           ),
         )
+        toastInstance.success(liked ? 'Note liked successfully!' : 'Note unliked.'); // ✅ toast মেসেজ
       } catch (err) {
-        console.error("Failed to toggle like:", err)
-        throw new Error("Could not like note. Please try again.")
+        console.error("useNoteActions: Failed to toggle like:", err)
+        toastInstance.error("Failed to toggle like. Please try again."); // ✅ toast মেসেজ
+        throw new Error("Could not like note. Please try again.") // ✅ এরর থ্রো করুন
       } finally {
         setNoteActionLoading(noteId, "like", false)
       }
     },
-    [setNotes, setNoteActionLoading],
+    [setNotes, setNoteActionLoading, toastInstance], // ✅ toastInstance কে ডিপেন্ডেন্সিতে রাখুন
   )
 
   const handleBookmark = useCallback(
     async (noteId) => {
+      // ✅ Authentication চেক এখানে হবে না
       setNoteActionLoading(noteId, "bookmark", true)
 
       try {
-        await api.post(`/api/notes/${noteId}/toggle_bookmark/`)
+        const response = await api.post(`/api/notes/${noteId}/toggle_bookmark/`)
+        const { bookmarked, bookmarks_count } = response.data; // Ensure these fields exist in backend response
 
         setNotes((prevNotes) =>
           prevNotes.map((note) =>
             note.id === noteId
               ? {
                   ...note,
-                  is_bookmarked: !note.is_bookmarked,
-                  bookmark_count: note.is_bookmarked ? note.bookmark_count - 1 : note.bookmark_count + 1,
+                  is_bookmarked_by_current_user: bookmarked, // ✅ is_bookmarked_by_current_user ব্যবহার করুন
+                  bookmarks_count: bookmarks_count, // ✅ bookmarks_count ব্যবহার করুন
                 }
               : note,
           ),
         )
+        toastInstance.success(bookmarked ? 'Note bookmarked successfully!' : 'Note removed from bookmarks.'); // ✅ toast মেসেজ
       } catch (err) {
-        console.error("Failed to toggle bookmark:", err)
-        throw new Error("Could not bookmark note. Please try again.")
+        console.error("useNoteActions: Failed to toggle bookmark:", err)
+        toastInstance.error("Failed to toggle bookmark. Please try again."); // ✅ toast মেসেজ
+        throw new Error("Could not bookmark note. Please try again.") // ✅ এরর থ্রো করুন
       } finally {
         setNoteActionLoading(noteId, "bookmark", false)
       }
     },
-    [setNotes, setNoteActionLoading],
+    [setNotes, setNoteActionLoading, toastInstance], // ✅ toastInstance কে ডিপেন্ডেন্সিতে রাখুন
   )
 
   const handleDownload = useCallback(
     async (noteId) => {
+      // ✅ Authentication চেক এখানে হবে না
       setNoteActionLoading(noteId, "download", true)
 
       try {
@@ -78,19 +93,26 @@ const useNoteActions = (notes, setNotes) => {
           responseType: "blob",
         })
 
-        // Create download link
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement("a")
         link.href = url
 
-        // Extract filename from response headers
         const contentDisposition = response.headers["content-disposition"]
         let filename = "downloaded_note.pdf"
         if (contentDisposition) {
           const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
           if (filenameMatch && filenameMatch[1]) {
             filename = filenameMatch[1]
-          }
+          } else { // Fallback for filename* format
+                const filenameStarMatch = contentDisposition.match(/filename\*=(UTF-8|utf-8)''([^;]+)/i);
+                if (filenameStarMatch && filenameStarMatch[2]) {
+                    try {
+                        filename = decodeURIComponent(filenameStarMatch[2]);
+                    } catch (decodeError) {
+                        console.error("Error decoding filename from content-disposition:", decodeError);
+                    }
+                }
+            }
         }
 
         link.setAttribute("download", filename)
@@ -99,20 +121,21 @@ const useNoteActions = (notes, setNotes) => {
         link.remove()
         window.URL.revokeObjectURL(url)
 
-        // Update download count
         setNotes((prevNotes) =>
           prevNotes.map((note) =>
             note.id === noteId ? { ...note, download_count: (note.download_count || 0) + 1 } : note,
           ),
         )
+        toastInstance.success('Download started!'); // ✅ toast মেসেজ
       } catch (err) {
-        console.error("Failed to download note:", err)
-        throw new Error("Failed to download note. Please try again.")
+        console.error("useNoteActions: Failed to download note:", err)
+        toastInstance.error("Failed to download note. Please try again."); // ✅ toast মেসেজ
+        throw new Error("Failed to download note. Please try again.") // ✅ এরর থ্রো করুন
       } finally {
         setNoteActionLoading(noteId, "download", false)
       }
     },
-    [setNotes, setNoteActionLoading],
+    [setNotes, setNoteActionLoading, toastInstance], // ✅ toastInstance কে ডিপেন্ডেন্সিতে রাখুন
   )
 
   return {
@@ -123,4 +146,4 @@ const useNoteActions = (notes, setNotes) => {
   }
 }
 
-export default useNoteActions
+export default useNoteActions;

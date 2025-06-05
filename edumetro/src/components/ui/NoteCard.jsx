@@ -1,18 +1,17 @@
-// src/components/NoteCard.jsx
+// src/components/ui/NoteCard.jsx
 
 "use client"
 
 import React from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
-import { 
+import {
   User as Users,
   Download,
   Eye,
   Heart,
-  Bookmark,
+  Bookmark, // ✅ Bookmark icon
   MessageCircle,
-  Camera
 } from "lucide-react"
 import Button from "./Button"
 import RatingStars from "./RatingStars"
@@ -33,15 +32,14 @@ const NoteCard = ({
   onBookmark,
   showApprovalStatus = false,
 }) => {
+  console.log('NoteCard rendering with note:', note);
   const navigate = useNavigate()
   const { isAuthenticated } = useContext(AuthContext)
 
-  // NoteCard এ ক্লিক করলে ডিটেইল পেজে যাবে
   const handleCardClick = () => {
     navigate(`/notes/${note.id}`)
   }
 
-  // লাইক বাটন ক্লিক হ্যান্ডলার
   const handleLikeClick = (e) => {
     e.stopPropagation()
     e.preventDefault()
@@ -53,7 +51,6 @@ const NoteCard = ({
     if (onLike) onLike(note.id)
   }
 
-  // বুকমার্ক বাটন ক্লিক হ্যান্ডলার
   const handleBookmarkClick = (e) => {
     e.stopPropagation()
     e.preventDefault()
@@ -65,7 +62,6 @@ const NoteCard = ({
     if (onBookmark) onBookmark(note.id)
   }
 
-  // ডাউনলোড বাটন ক্লিক হ্যান্ডলার
   const handleDownloadClick = (e) => {
     e.stopPropagation()
     e.preventDefault()
@@ -78,14 +74,12 @@ const NoteCard = ({
     if (onDownload) onDownload(note.id)
   }
 
-  // ভিউ ডিটেইলস বাটন ক্লিক হ্যান্ডলার
   const handleViewDetailsClick = (e) => {
     e.stopPropagation()
     e.preventDefault()
     navigate(`/notes/${note.id}`)
   }
 
-  // অ্যাপ্রুভাল স্ট্যাটাস ডিসপ্লে লজিক (MyNotesPage এর জন্য)
   const renderApprovalStatus = () => {
     if (!showApprovalStatus) return null
 
@@ -246,7 +240,7 @@ const NoteCard = ({
                 onClick={handleViewDetailsClick}
                 size="md"
                 variant="primary"
-                className="w-full py-3 font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl"
+                className="py-3 w-full font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl"
                 icon={<Eye className="w-4 h-4" />}
                 iconPosition="left"
               >
@@ -254,15 +248,15 @@ const NoteCard = ({
               </Button>
             </motion.div>
 
-            {/* Bookmark Button */}
+            {/* Bookmark Button (Right side, as per screenshot) */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={handleBookmarkClick}
                 size="md"
                 variant="outline"
                 className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 ${
-                  note.is_bookmarked_by_current_user 
-                    ? 'border-blue-500 text-blue-600 hover:border-blue-600 hover:text-blue-700' 
+                  note.is_bookmarked_by_current_user
+                    ? 'border-blue-500 text-blue-600 hover:border-blue-600 hover:text-blue-700'
                     : 'border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600'
                 }`}
               >

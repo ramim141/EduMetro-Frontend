@@ -1,68 +1,50 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+// START OF FILE Card.jsx
+"use client"
 
-const Card = ({ 
-  children, 
-  className = '', 
-  variant = 'default',
-  hover = true,
-  animated = false,
-  ...props 
-}) => {
-  // Base classes for all cards
-  const baseClasses = 'bg-white dark:bg-gray-800 rounded-xl overflow-hidden transition-all duration-300';
-  
-  // Variant classes
-  const variantClasses = {
-    default: 'shadow-card border border-gray-100 dark:border-gray-700',
-    elevated: 'shadow-card-lg border border-gray-50 dark:border-gray-700',
-    outline: 'border border-gray-200 dark:border-gray-700 shadow-sm',
-    filled: 'bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm',
-    gradient: 'bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-100 dark:border-gray-700 shadow-card',
-  }[variant] || 'shadow-card border border-gray-100 dark:border-gray-700';
-  
-  // Hover effect classes
-  const hoverClasses = hover ? 'hover:shadow-card-hover hover:translate-y-[-2px]' : '';
-  
-  // Animation classes
-  const animationClasses = animated ? 'animate-fadeIn' : '';
-  
+import { motion } from "framer-motion"
+
+// Main Card Wrapper
+const Card = ({ children, className = "", hover = false, onClick }) => {
+  const baseClasses = "bg-white rounded-xl shadow-sm overflow-hidden"
+  const hoverClasses = hover
+    ? "transition-all duration-200 hover:shadow-md hover:-translate-y-1"
+    : ""
+  const clickableClasses = onClick ? "cursor-pointer" : ""
+
   return (
-    <div
-      className={cn(
-        baseClasses,
-        variantClasses,
-        hoverClasses,
-        animationClasses,
-        className
-      )}
-      {...props}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`${baseClasses} ${hoverClasses} ${clickableClasses} ${className}`}
+      onClick={onClick}
+      whileHover={hover ? { scale: 1.02 } : undefined}
+      transition={{ duration: 0.2 }}
     >
       {children}
-    </div>
-  );
-};
+    </motion.div>
+  )
+}
 
-// Card subcomponents for better organization
-const CardHeader = ({ className = '', ...props }) => (
-  <div className={cn('p-6 border-b border-gray-100 dark:border-gray-700', className)} {...props} />
-);
+// Card Header Component
+const CardHeader = ({ children, className = "", borderBottom = true }) => (
+  <div className={`p-6 pb-4 ${borderBottom ? "border-b border-slate-100" : ""} ${className}`}>
+    {children}
+  </div>
+)
 
-const CardTitle = ({ className = '', ...props }) => (
-  <h3 className={cn('text-xl font-semibold text-gray-900 dark:text-gray-100', className)} {...props} />
-);
+// Card Content Component
+const CardContent = ({ children, className = "", padding = true }) => (
+  <div className={`${padding ? "p-6" : "p-0"} ${className}`}>
+    {children}
+  </div>
+)
 
-const CardDescription = ({ className = '', ...props }) => (
-  <p className={cn('text-sm text-gray-500 dark:text-gray-400 mt-1', className)} {...props} />
-);
+// Card Footer Component
+const CardFooter = ({ children, className = "", borderTop = true }) => (
+  <div className={`p-6 pt-4 ${borderTop ? "border-t border-slate-100" : ""} ${className}`}>
+    {children}
+  </div>
+)
 
-const CardContent = ({ className = '', ...props }) => (
-  <div className={cn('p-6', className)} {...props} />
-);
-
-const CardFooter = ({ className = '', ...props }) => (
-  <div className={cn('p-6 pt-0 flex items-center', className)} {...props} />
-);
-
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter };
-export default Card;
+export { Card, CardHeader, CardContent, CardFooter }
+// END OF FILE Card.jsx

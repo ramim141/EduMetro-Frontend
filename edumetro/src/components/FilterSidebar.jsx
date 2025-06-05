@@ -1,11 +1,12 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { FaFilter, FaUniversity, FaStar, FaBookOpen, FaSort, FaTimes } from "react-icons/fa"
+import { motion, AnimatePresence } from "framer-motion"
+import { FaFilter, FaSearch, FaTimes, FaPencilAlt, FaUniversity, FaStar, FaSort } from "react-icons/fa"
 import Input from "./Input"
 import Dropdown from "./ui/Dropdown"
 import Button from "./Button"
 import RatingStars from "./RatingStars"
+import { useEffect, useState } from "react"
 
 const FilterSidebar = ({
   isOpen,
@@ -16,6 +17,17 @@ const FilterSidebar = ({
   onClearFilters,
   className = "",
 }) => {
+  const [activeFiltersCount, setActiveFiltersCount] = useState(0)
+
+  // Count active filters
+  useEffect(() => {
+    const count = Object.entries(filters).filter(([key, value]) => {
+      if (key === "sortBy") return false
+      return value && value.toString().trim() !== ""
+    }).length
+    setActiveFiltersCount(count)
+  }, [filters])
+
   const ratingOptions = [
     { value: "", label: "Any Rating" },
     {
@@ -45,24 +57,6 @@ const FilterSidebar = ({
         </div>
       ),
     },
-    {
-      value: "2",
-      label: (
-        <div className="flex items-center">
-          <RatingStars rating={2} size="sm" />
-          <span className="ml-2">2+ Stars</span>
-        </div>
-      ),
-    },
-    {
-      value: "1",
-      label: (
-        <div className="flex items-center">
-          <RatingStars rating={1} size="sm" />
-          <span className="ml-2">1+ Stars</span>
-        </div>
-      ),
-    },
   ]
 
   const sortOptions = [
@@ -82,174 +76,139 @@ const FilterSidebar = ({
   }
 
   return (
-    <>
-      {/* Mobile Overlay */}
+    <AnimatePresence>
       {isOpen && (
-        <motion.div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onToggle}
-        />
-      )}
-
-      {/* Sidebar */}
-      <motion.aside
-        className={`fixed lg:sticky top-0 left-0 z-50 flex flex-col h-screen bg-white/95 backdrop-blur-lg border-r border-gray-200 shadow-xl transition-all duration-300 ${
-          isOpen ? "w-80" : "w-0 lg:w-80"
-        } ${className}`}
-        initial={{ x: -320 }}
-        animate={{ x: isOpen ? 0 : -320 }}
-        transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      >
-        {/* Header */}
-        <div className="relative p-6 text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700">
-          <motion.div
-            className="flex justify-between items-center"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="flex gap-3 items-center">
-              <motion.div
-                className="p-2 rounded-lg bg-white/20"
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-              >
-                <FaFilter className="w-5 h-5" />
-              </motion.div>
-              <div>
-                <h2 className="text-xl font-bold">Filter & Sort</h2>
-                <p className="text-sm text-indigo-100">Find your perfect notes</p>
+        <motion.aside
+          className={`w-80 bg-white border-r border-gray-200 shadow-lg ${className}`}
+          initial={{ x: -320, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -320, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        >
+          {/* Header */}
+          <div className="p-6 text-white bg-gradient-to-r from-purple-600 to-blue-600">
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3 items-center">
+                <div className="flex justify-center items-center w-10 h-10 rounded-xl bg-white/20">
+                  <FaFilter className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="flex gap-2 items-center text-lg font-bold">
+                    Smart Filters
+                    <FaPencilAlt className="w-4 h-4" />
+                  </h2>
+                  <p className="text-sm text-purple-100">Refine your search</p>
+                </div>
               </div>
+              <button
+                onClick={onToggle}
+                className="p-2 rounded-lg transition-colors text-white/80 hover:text-white hover:bg-white/20"
+              >
+                <FaTimes className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={onToggle}
-              className="p-2 text-white rounded-lg transition-colors hover:bg-white/20 lg:hidden"
-              aria-label="Close filters"
+          </div>
+
+          {/* Filter Content */}
+          <div className="overflow-y-auto flex-1 p-6 space-y-6">
+            {/* Quick Search */}
+            <div className="space-y-3">
+              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+                <FaSearch className="w-4 h-4 text-blue-500" />
+                Quick Search
+              </div>
+              <Input
+                type="text"
+                placeholder="Search notes, topics, authors..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            {/* Course Filter */}
+            <div className="space-y-3">
+              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                Course
+              </div>
+              <Input
+                type="text"
+                placeholder="e.g., Computer Science 101"
+                value={filters.course}
+                onChange={(e) => handleFilterChange("course", e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            {/* Department Filter */}
+            <div className="space-y-3">
+              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+                <FaUniversity className="w-4 h-4 text-purple-500" />
+                Department
+              </div>
+              <Input
+                type="text"
+                placeholder="e.g., Engineering, Science"
+                value={filters.department}
+                onChange={(e) => handleFilterChange("department", e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            {/* Rating Filter */}
+            <div className="space-y-3">
+              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+                <FaStar className="w-4 h-4 text-yellow-500" />
+                Minimum Rating
+              </div>
+              <Dropdown
+                options={ratingOptions}
+                value={filters.rating}
+                onChange={(e) => handleFilterChange("rating", e.target.value)}
+                placeholder="Select minimum rating"
+                className="w-full"
+              />
+            </div>
+
+            {/* Sort Options */}
+            <div className="space-y-3">
+              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+                <FaSort className="w-4 h-4 text-indigo-500" />
+                Sort By
+              </div>
+              <Dropdown
+                options={sortOptions}
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                placeholder="Select sort option"
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="p-6 space-y-3 bg-gray-50 border-t border-gray-200">
+            <Button
+              onClick={onApplyFilters}
+              className="w-full text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              size="md"
             >
-              <FaTimes className="w-4 h-4" />
-            </button>
-          </motion.div>
-        </div>
+              Apply Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+            </Button>
 
-        {/* Filter Content */}
-        <div className="overflow-y-auto flex-1 p-6 space-y-6">
-          {/* Search */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Input
-              icon="search"
-              type="text"
-              placeholder="Search notes, courses, authors..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange("search", e.target.value)}
-              className="w-full"
-              label="Search"
-            />
-          </motion.div>
-
-          {/* Course Filter */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Input
-              type="text"
-              label={
-                <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
-                  <FaBookOpen className="w-4 h-4 text-indigo-500" />
-                  Course
-                </div>
-              }
-              placeholder="Enter course name or code..."
-              value={filters.course}
-              onChange={(e) => handleFilterChange("course", e.target.value)}
-              className="w-full"
-            />
-          </motion.div>
-
-          {/* Department Filter */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Input
-              type="text"
-              label={
-                <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
-                  <FaUniversity className="w-4 h-4 text-indigo-500" />
-                  Department
-                </div>
-              }
-              placeholder="Enter department name..."
-              value={filters.department}
-              onChange={(e) => handleFilterChange("department", e.target.value)}
-              className="w-full"
-            />
-          </motion.div>
-
-          {/* Rating Filter */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Dropdown
-              label={
-                <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
-                  <FaStar className="w-4 h-4 text-yellow-500" />
-                  Minimum Rating
-                </div>
-              }
-              options={ratingOptions}
-              value={filters.rating}
-              onChange={(e) => handleFilterChange("rating", e.target.value)}
-              placeholder="Select minimum rating"
-              className="w-full"
-            />
-          </motion.div>
-
-          {/* Sort Options */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Dropdown
-              label={
-                <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
-                  <FaSort className="w-4 h-4 text-indigo-500" />
-                  Sort By
-                </div>
-              }
-              options={sortOptions}
-              value={filters.sortBy}
-              onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-              placeholder="Select sort option"
-              className="w-full"
-            />
-          </motion.div>
-
-          {/* Filter Summary */}
-          <motion.div
-            className="p-4 bg-gray-50 rounded-xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <h4 className="mb-2 text-sm font-semibold text-gray-700">Active Filters</h4>
-            <div className="space-y-1 text-xs text-gray-600">
-              {filters.search && <div>Search: "{filters.search}"</div>}
-              {filters.course && <div>Course: {filters.course}</div>}
-              {filters.department && <div>Department: {filters.department}</div>}
-              {filters.rating && <div>Rating: {filters.rating}+ stars</div>}
-              {!filters.search && !filters.course && !filters.department && !filters.rating && (
-                <div className="text-gray-400">No active filters</div>
-              )}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="p-6 space-y-3 bg-gray-50 border-t border-gray-200">
-          <Button onClick={onApplyFilters} className="w-full" size="md" variant="primary">
-            <FaFilter className="mr-2 w-4 h-4" />
-            Apply Filters
-          </Button>
-          <Button onClick={onClearFilters} variant="outline" className="w-full" size="md">
-            <FaTimes className="mr-2 w-4 h-4" />
-            Clear All
-          </Button>
-        </div>
-      </motion.aside>
-    </>
+            <Button
+              onClick={onClearFilters}
+              variant="outline"
+              className="w-full border-gray-300 hover:bg-gray-100"
+              size="md"
+            >
+              Clear All Filters
+            </Button>
+          </div>
+        </motion.aside>
+      )}
+    </AnimatePresence>
   )
 }
 

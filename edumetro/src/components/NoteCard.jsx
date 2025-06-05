@@ -15,9 +15,10 @@ import {
   FaUser, // ✅ FaUser ইম্পোর্ট করুন
   FaUserGraduate, // ✅ FaUserGraduate ইম্পোর্ট করুন
   FaCheckCircle,  // ✅ নতুন আইকন
-  FaHourglassHalf // ✅ নতুন আইকন
+  FaHourglassHalf, // ✅ নতুন আইকন
+  FaRegBookmark // Import outlined bookmark icon
 } from "react-icons/fa"
-import { motion } from "framer-motion"
+
 import noteThumbnail from "../assets/images/note_thum.jpg" // ✅ সঠিক পাথ
 
 const NoteCard = ({
@@ -25,8 +26,8 @@ const NoteCard = ({
   onDownload,
   onLike,
   onBookmark,
-  index = 0,
   showApprovalStatus = false, // ✅ নতুন প্রপ যোগ করুন
+  isBookmarkPage = false, // New prop
 }) => {
   // ✅ isLiked এবং isBookmarked স্টেটগুলো সরানো হয়েছে।
   // এগুলি এখন সরাসরি note অবজেক্ট থেকে আসবে এবং Parent component (MyNotesPage) দ্বারা আপডেটেড হবে।
@@ -55,13 +56,13 @@ const NoteCard = ({
 
     if (note.is_approved) {
       return (
-        <div className="flex items-center text-green-600 text-sm font-medium mt-2">
+        <div className="flex items-center mt-2 text-sm font-medium text-green-600">
           <FaCheckCircle className="mr-1" /> Approved
         </div>
       );
     } else {
       return (
-        <div className="flex items-center text-yellow-600 text-sm font-medium mt-2">
+        <div className="flex items-center mt-2 text-sm font-medium text-yellow-600">
           <FaHourglassHalf className="mr-1" /> Pending Approval
         </div>
       );
@@ -70,26 +71,17 @@ const NoteCard = ({
 
 
   return (
-    <motion.div
+    <div
       className="flex overflow-hidden relative flex-col w-full bg-white rounded-xl border border-gray-200 transition-all duration-300 hover:shadow-2xl md:flex-row group"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02 }}
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        delay: index * 0.1,
-      }}
     >
       {/* Link to Note Details Page */}
       <Link to={`/notes/${note.id}`} className="flex flex-grow">
         {/* Image Section */}
         <div className="flex object-cover overflow-hidden relative justify-center items-center bg-gradient-to-br from-indigo-50 to-blue-50 md:w-1/3">
-          <motion.img
+          <img
             src={note.noteThumbnail || noteThumbnail} // Note Thumbnail যদি API থেকে আসে, নাহলে default
             alt={note.title}
-            className="w-full h-64 transition-all duration-500  group-hover:scale-105"
-            whileHover={{ scale: 1.05 }}
+            className="w-full h-64 transition-all duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t to-transparent opacity-0 transition-opacity duration-300 from-black/20 group-hover:opacity-100"></div>
 
@@ -130,8 +122,7 @@ const NoteCard = ({
 
       {/* Action Icons Section */}
       <div className="flex justify-around items-center p-4 mt-auto w-full text-sm text-gray-600 bg-gradient-to-r from-gray-50 to-indigo-50 md:w-auto md:p-6 md:justify-end md:mt-0 md:border-l md:border-gray-100">
-        <motion.button
-          whileTap={{ scale: 0.95 }}
+        <button
           className="flex flex-col items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-indigo-50 group"
         >
           <FaComment className="text-xl text-indigo-500 transition-colors duration-200 group-hover:text-indigo-700" />
@@ -139,11 +130,10 @@ const NoteCard = ({
           <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-indigo-700">
             {note.comments?.length || 0}
           </span>
-        </motion.button>
+        </button>
 
-        <motion.button
+        <button
           onClick={handleLikeClick} // ✅ ফাংশনের নাম পরিবর্তন করা হয়েছে
-          whileTap={{ scale: 0.95 }}
           className="flex flex-col items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-red-50 group"
         >
           <FaHeart
@@ -153,36 +143,40 @@ const NoteCard = ({
           <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-red-600">
             {note.likes_count || 0}
           </span>
-        </motion.button>
+        </button>
 
-        <motion.button
+        <button
           onClick={handleBookmarkClick} // ✅ ফাংশনের নাম পরিবর্তন করা হয়েছে
-          whileTap={{ scale: 0.95 }}
           className="flex flex-col items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-blue-50 group"
         >
-          <FaBookmark
-            className={`text-xl ${note.is_bookmarked_by_current_user ? "text-blue-500" : "text-gray-400"} transition-colors duration-200 group-hover:text-blue-600`}
-          />
+          {isBookmarkPage && note.is_bookmarked_by_current_user ? (
+            <FaRegBookmark // Use outlined icon for remove on bookmarks page
+              className={`text-xl text-blue-500 transition-colors duration-200 hover:text-blue-700 hover:scale-110`}
+            />
+          ) : (
+            <FaBookmark
+              className={`text-xl ${note.is_bookmarked_by_current_user ? "text-blue-500" : "text-gray-400"} transition-colors duration-200 group-hover:text-blue-600`}
+            />
+          )}
           {/* ✅ bookmarks_count সরাসরি ব্যবহার করুন, isBookmarked স্টেট আর প্রয়োজন নেই */}
           <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-blue-600">
             {note.bookmarks_count || 0}
           </span>
-        </motion.button>
+        </button>
 
-        <motion.button
+        <button
           onClick={handleDownloadClick} // ✅ ফাংশনের নাম পরিবর্তন করা হয়েছে
-          whileTap={{ scale: 0.95 }}
           className="flex flex-col items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-green-50 group"
         >
           <FaDownload className="text-xl text-green-500 transition-colors duration-200 group-hover:text-green-600" />
           <span className="mt-1 text-xs font-medium text-gray-600 group-hover:text-green-600">
             {note.download_count || 0}
           </span>
-        </motion.button>
+        </button>
       </div>
       {/* ✅ Approval Status Display */}
       {renderApprovalStatus()}
-    </motion.div>
+    </div>
   )
 }
 

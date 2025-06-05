@@ -146,16 +146,10 @@ export const getBookmarkedNotes = async (page = 1) => {
   // এটি Authentication Headers প্রয়োজন হবে।
   try {
     const response = await api.get(`/api/users/user-activity/bookmarked-notes/?page=${page}`);
-    return response.data; // Expected: { count, next, previous, results: [...] }
+    return response; // Return the full response object
   } catch (error) {
     console.error("Failed to fetch bookmarked notes:", error);
-    // ✅ Mock Data (যদি API না থাকে বা এরর হয়)
-    return {
-      count: 0,
-      next: null,
-      previous: null,
-      results: [],
-    };
+    throw error; // Re-throw the error
   }
 };
 
