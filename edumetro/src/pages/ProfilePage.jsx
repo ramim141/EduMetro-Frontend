@@ -1,9 +1,10 @@
+// START OF FILE ProfilePage.jsx
 "use client"
 
 import React, { useState, useEffect, useContext } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import Button from "@/components/Button"
-import { Card, CardContent, CardHeader } from "@/components/card"
+import { Card, CardContent, CardHeader } from "@/components/Card" // Changed to uppercase 'Card' if file is 'Card.jsx'
 import { Badge } from "@/components/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/avatar"
 import AuthContext from '../context/AuthContext'
@@ -23,53 +24,54 @@ import {
   BookOpen,
 } from "lucide-react"
 
-// Mock user data - replace with your actual user context/API
-// const mockUser = {
-//   username: "johndoe",
-//   first_name: "John",
-//   last_name: "Doe",
-//   email: "john.doe@university.edu",
-//   student_id: "STU2024001",
-//   mobile_number: "+1 (555) 123-4567",
-//   website: "https://johndoe.dev",
-//   university: "Stanford University",
-//   department: "Computer Science",
-//   gender: "Male",
-//   birthday: "1998-05-15",
-//   skills: ["JavaScript", "React", "Python", "Machine Learning", "Data Analysis"],
-//   bio: "Passionate computer science student with a focus on AI and web development. Always eager to learn new technologies and contribute to innovative projects.",
-// }
-
 export default function ProfilePage() {
   const navigate = useNavigate()
-  const { user } = useContext(AuthContext)
+  // AuthContext থেকে user ডেটা এবং isLoading স্থিতি নিন
+  const { user, isLoading: authLoading } = useContext(AuthContext)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
-  // Mock success message trigger
-  useEffect(() => {
-    // Simulate success message from profile update
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get("updated") === "true") {
-      setShowSuccessMessage(true)
-      const timer = setTimeout(() => {
-        setShowSuccessMessage(false)
-        // Clean up URL
-        window.history.replaceState({}, "", window.location.pathname)
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [])
-
+  // Academic Statistics এর জন্য প্লেসহোল্ডার ডেটা
+  // এই ডেটাগুলো বর্তমানে GET /api/users/profile/ API response এ নেই।
+  // ব্যাকএন্ড থেকে আসলে user অবজেক্ট ব্যবহার করা যাবে।
   const placeholderData = {
     noteRating: "4.8",
     totalNotes: 127,
     bookmarks: 23,
   }
 
+  // সফল মেসেজ দেখানোর জন্য useEffect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get("updated") === "true") {
+      setShowSuccessMessage(true)
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false)
+        window.history.replaceState({}, "", window.location.pathname) // URL পরিষ্কার করুন
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [])
+
+  // লোডিং স্থিতি হ্যান্ডেল করুন
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br via-blue-50 to-indigo-50 from-slate-50">
+        <p className="text-xl font-semibold text-slate-700">Loading Profile...</p> {/* আপনার কাস্টম লোডিং স্পিনার এখানে ব্যবহার করুন */}
+      </div>
+    )
+  }
+
+
   if (!user) {
     navigate("/login")
     return null
   }
+
+
+  const { 
+    username, first_name, last_name, email, student_id, department, 
+    profile_picture_url, bio, mobile_number, university, website, birthday, gender, skills 
+  } = user;
 
   return (
     <div className="min-h-screen bg-gradient-to-br via-blue-50 to-indigo-50 from-slate-50">
@@ -82,7 +84,7 @@ export default function ProfilePage() {
 
         {/* Success Message */}
         {showSuccessMessage && (
-          <Card className="mb-6 bg-emerald-50 border-emerald-200">
+          <Card className="mb-6 bg-emerald-50 border-emerald-200" padding={false}>
             <CardContent className="flex gap-3 items-center p-4">
               <CheckCircle className="w-5 h-5 text-emerald-600" />
               <div>
@@ -101,10 +103,11 @@ export default function ProfilePage() {
               <CardContent className="p-6 text-center">
                 <div className="relative mb-4">
                   <Avatar className="mx-auto w-32 h-32 border-4 border-white shadow-lg">
-                    <AvatarImage src="/placeholder.svg?height=128&width=128" alt={user.username} />
+              
+                    <AvatarImage src={profile_picture_url} alt={username} />
                     <AvatarFallback className="text-2xl font-bold text-white bg-gradient-to-br from-blue-500 to-indigo-600">
-                      {user.first_name?.charAt(0)}
-                      {user.last_name?.charAt(0)}
+                      {first_name?.charAt(0)}
+                      {last_name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
@@ -115,9 +118,9 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <h2 className="mb-1 text-xl font-bold text-slate-800">
-                  {user.first_name} {user.last_name}
+                  {first_name} {last_name}
                 </h2>
-                <p className="mb-4 text-slate-600">@{user.username}</p>
+                <p className="mb-4 text-slate-600">@{username}</p>
                 <div className="flex gap-4 justify-center text-sm">
                   <div className="text-center">
                     <p className="font-bold text-blue-600">{placeholderData.totalNotes}</p>
@@ -133,7 +136,7 @@ export default function ProfilePage() {
 
             {/* Education Card */}
             <Card className="border-0 shadow-lg">
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3"> 
                 <div className="flex gap-2 items-center">
                   <GraduationCap className="w-5 h-5 text-blue-600" />
                   <h3 className="font-semibold text-slate-800">Education</h3>
@@ -142,15 +145,15 @@ export default function ProfilePage() {
               <CardContent className="space-y-3">
                 <div>
                   <p className="text-sm font-medium text-slate-600">University</p>
-                  <p className="text-slate-800">{user.university || "Not set"}</p>
+                  <p className="text-slate-800">{university || "Not set"}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600">Department</p>
-                  <p className="text-slate-800">{user.department || "Not set"}</p>
+                  <p className="text-slate-800">{department || "Not set"}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600">Student ID</p>
-                  <p className="font-mono text-slate-800">{user.student_id || "Not set"}</p>
+                  <p className="font-mono text-slate-800">{student_id || "Not set"}</p>
                 </div>
               </CardContent>
             </Card>
@@ -164,9 +167,9 @@ export default function ProfilePage() {
                 </div>
               </CardHeader>
               <CardContent>
-                {user.skills && user.skills.length > 0 ? (
+                {skills && skills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {user.skills.map((skill, index) => (
+                    {skills.map((skill, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
@@ -210,32 +213,41 @@ export default function ProfilePage() {
           {/* Right Column */}
           <div className="lg:col-span-2">
             <Card className="border-0 shadow-lg">
-              <CardHeader className="border-b border-slate-100">
+              <CardHeader> 
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="mb-1 text-2xl font-bold text-slate-800">
-                      {user.first_name} {user.last_name}
+                      {first_name} {last_name}
                     </h2>
                     <p className="text-slate-600">Student Profile</p>
                   </div>
                   <Link to="/profile/edit">
-                    <Button className="text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg hover:from-blue-700 hover:to-indigo-700">
-                      <Edit3 className="mr-2 w-4 h-4" />
+                   <div>
+                   
+                   <Button className="inline-table px-6 py-5 text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg hover:from-blue-700 hover:to-indigo-700">
+                     <div className="flex items-center">
+                     <div>
+                     <Edit3 className="mr-2 w-4 h-4" />
+                     </div>
+                      <div>
                       Edit Profile
-                    </Button>
+                      </div>
+                     </div>
+                 </Button>
+                   </div>
                   </Link>
                 </div>
               </CardHeader>
 
-              <CardContent className="p-6 space-y-8">
+              <CardContent className="space-y-8"> 
                 {/* Bio Section */}
-                {user.bio && (
+                {bio && (
                   <div>
                     <h3 className="flex gap-2 items-center mb-3 text-lg font-semibold text-slate-800">
                       <User className="w-5 h-5 text-blue-600" />
                       About
                     </h3>
-                    <p className="leading-relaxed text-slate-700">{user.bio}</p>
+                    <p className="leading-relaxed text-slate-700">{bio}</p>
                   </div>
                 )}
 
@@ -252,7 +264,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-600">Email</p>
-                        <p className="text-slate-800">{user.email || "Not set"}</p>
+                        <p className="text-slate-800">{email || "Not set"}</p>
                       </div>
                     </div>
                     <div className="flex gap-3 items-center">
@@ -261,7 +273,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-600">Mobile</p>
-                        <p className="text-slate-800">{user.mobile_number || "Not set"}</p>
+                        <p className="text-slate-800">{mobile_number || "Not set"}</p>
                       </div>
                     </div>
                     <div className="flex gap-3 items-center">
@@ -270,7 +282,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-600">Website</p>
-                        <p className="text-slate-800">{user.website || "Not set"}</p>
+                        <p className="text-slate-800">{website || "Not set"}</p>
                       </div>
                     </div>
                   </div>
@@ -289,7 +301,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-600">Gender</p>
-                        <p className="text-slate-800">{user.gender || "Not set"}</p>
+                        <p className="text-slate-800">{gender || "Not set"}</p>
                       </div>
                     </div>
                     <div className="flex gap-3 items-center">
@@ -299,8 +311,8 @@ export default function ProfilePage() {
                       <div>
                         <p className="text-sm font-medium text-slate-600">Birthday</p>
                         <p className="text-slate-800">
-                          {user.birthday
-                            ? new Date(user.birthday).toLocaleDateString("en-US", {
+                          {birthday
+                            ? new Date(birthday).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
@@ -319,19 +331,19 @@ export default function ProfilePage() {
                     Academic Activity
                   </h3>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200" padding={false}>
                       <CardContent className="p-4 text-center">
                         <div className="mb-1 text-2xl font-bold text-blue-700">{placeholderData.totalNotes}</div>
                         <div className="text-sm text-blue-600">Notes Shared</div>
                       </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                    <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200" padding={false}>
                       <CardContent className="p-4 text-center">
                         <div className="mb-1 text-2xl font-bold text-purple-700">{placeholderData.bookmarks}</div>
                         <div className="text-sm text-purple-600">Bookmarks</div>
                       </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
+                    <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200" padding={false}>
                       <CardContent className="p-4 text-center">
                         <div className="mb-1 text-2xl font-bold text-emerald-700">{placeholderData.noteRating}</div>
                         <div className="text-sm text-emerald-600">Avg Rating</div>
@@ -347,3 +359,4 @@ export default function ProfilePage() {
     </div>
   )
 }
+// END OF FILE ProfilePage.jsx

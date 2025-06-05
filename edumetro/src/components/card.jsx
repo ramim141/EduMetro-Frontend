@@ -4,18 +4,22 @@
 import { motion } from "framer-motion"
 
 // Main Card Wrapper
-const Card = ({ children, className = "", hover = false, onClick }) => {
+const Card = ({ children, className = "", hover = false, onClick, padding = true }) => {
   const baseClasses = "bg-white rounded-xl shadow-sm overflow-hidden"
   const hoverClasses = hover
     ? "transition-all duration-200 hover:shadow-md hover:-translate-y-1"
     : ""
   const clickableClasses = onClick ? "cursor-pointer" : ""
+  // Padding is handled by CardContent/Header/Footer in the new structure,
+  // but keeping it here for compatibility with direct Card usage if needed
+  const paddingClasses = padding ? "p-6" : ""
+
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`${baseClasses} ${hoverClasses} ${clickableClasses} ${className}`}
+      className={`${baseClasses} ${paddingClasses} ${hoverClasses} ${clickableClasses} ${className}`}
       onClick={onClick}
       whileHover={hover ? { scale: 1.02 } : undefined}
       transition={{ duration: 0.2 }}

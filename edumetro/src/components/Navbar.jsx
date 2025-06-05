@@ -1,4 +1,4 @@
-// src/components/Navbar.jsx
+// START OF FILE Navbar.jsx
 
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -19,6 +19,9 @@ import {
   FaUserCircle,
   FaSignOutAlt
 } from 'react-icons/fa';
+
+// Avatar components import করুন
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/avatar';
 
 const Navbar = () => {
   const { isAuthenticated, logout, user } = useContext(AuthContext);
@@ -61,14 +64,17 @@ const Navbar = () => {
     setIsDropdownOpen(false);
   };
 
-  const userInitial = user?.username ? user.username.charAt(0).toUpperCase() : 'P';
+
+
+  // user অবজেক্ট থেকে ডেটা নিন, যদি user থাকে
+  const userInitial = user?.first_name ? user.first_name.charAt(0).toUpperCase() : (user?.username ? user.username.charAt(0).toUpperCase() : 'P');
   const studentName = user?.first_name && user?.last_name 
     ? `${user.first_name} ${user.last_name}`
     : user?.username || 'Student Name';
   const studentId = user?.student_id || 'Student ID';
 
   // Add console log for debugging
-  console.log('User data:', user);
+  console.log('User data from Navbar:', user); // এখানে user অবজেক্টের profile_picture_url দেখবেন
 
   return (
     <nav 
@@ -140,19 +146,24 @@ const Navbar = () => {
                   <FaBell className="text-xl" />
                   <span className="absolute top-0 right-0 flex w-3 h-3">
                     <span className="absolute inline-flex w-full h-full bg-red-400 rounded-full opacity-75 animate-ping"></span>
-                    <span className="relative inline-flex w-3 h-3 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
+                    <span className="relative inline-flex w-3 h-3 bg-red-500 rounded-full  items-center justify-center text-[8px] text-white font-bold">
                       3
                     </span>
                   </span>
                 </button>
 
-                {/* Profile Button */}
+                {/* Profile Button (Top Right) */}
                 <button
                   onClick={handleProfileClick}
-                  className="relative flex items-center justify-center w-10 h-10 overflow-hidden font-semibold text-white transition-all duration-300 bg-purple-600 border-2 rounded-full border-white/30 hover:border-white hover:bg-purple-700 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500"
+                  // Remove current styling classes from button as Avatar component will handle them
+                  className="relative w-10 h-10 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500 rounded-full overflow-hidden" // Keep essential button styles
                   aria-label="Open user menu"
                 >
-                  {userInitial}
+                  {/* Avatar component ব্যবহার করে প্রোফাইল ছবি বা আদ্যক্ষর দেখান */}
+                  <Avatar className="w-full h-full bg-purple-600 border-2 border-white/30 hover:border-white hover:bg-purple-700">
+                    <AvatarImage src={user?.profile_picture_url} alt={user?.username} />
+                    <AvatarFallback>{userInitial}</AvatarFallback>
+                  </Avatar>
                 </button>
 
                 {/* Dropdown Menu */}
@@ -169,29 +180,52 @@ const Navbar = () => {
                         <div className="absolute w-24 h-24 rounded-full -right-4 -bottom-4 blur-xl bg-primary-300"></div>
                       </div>
                       
-                      {/* Avatar */}
-                      <div className="relative flex items-center justify-center w-24 h-24 mb-3 text-xl font-bold text-white transition-all duration-300 transform rounded-full shadow-lg bg-gradient-to-br ring-4 ring-white from-purple-500 to-purple-700 hover:scale-105">
-                        {userInitial}
-                      </div>                      {/* User Info */}
+                      {/* Dropdown Avatar (larger) */}
+                      {/* Avatar component ব্যবহার করে প্রোফাইল ছবি বা আদ্যক্ষর দেখান */}
+                      <Avatar className="w-24 h-24 mb-3 text-xl font-bold text-white transition-all duration-300 transform rounded-full shadow-lg bg-gradient-to-br ring-4 ring-white from-purple-500 to-purple-700 hover:scale-105">
+                        <AvatarImage src={user?.profile_picture_url} alt={user?.username} />
+                        <AvatarFallback>{userInitial}</AvatarFallback>
+                      </Avatar>                     
+                      {/* User Info */}
                       <p className="text-lg font-bold text-gray-800">{studentName}</p>
-                      <p className="text-sm font-medium text-primary-600">{studentId}</p>
+                      <p className="text-sm font-medium text-purple-600">{studentId}</p> {/* primary-600 to purple-600 */}
                       
                       {/* View Profile Button */}
-                      <Link
+                      {/* <Link
                         to="/profile"
                         onClick={handleDropdownItemClick}
-                        className="px-5 py-2 mt-4 text-sm font-medium text-white transition-all duration-300 rounded-full shadow-md bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                        className="relative w-10 h-10 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500 rounded-full overflow-hidden z-20"// primary-x to blue-x
                       >
                         <FaUserCircle className="inline mr-1" /> View Profile
-                      </Link>
+                      </Link> */}
+                    
                     </div>
                     
                     {/* Menu Items */}
                     <nav className="py-2 bg-white">
+                        {/* Profile Link */}
+                        <Link 
+                          to="/profile"
+                          className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-blue-50" // primary-50 to blue-50
+                          onClick={handleDropdownItemClick}
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-purple-500 rounded-lg shadow-sm">
+                            <FaUserCircle />
+                          </div>
+                          <div>
+                            <p className="font-medium">Profile</p>
+                            <p className="text-xs text-gray-500">View your profile</p>
+              
+                          </div>
+                        </Link>
+
+                        
+
+
                       {/* Dashboard Link */}
                       <Link 
                         to="/dashboard" 
-                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
+                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-blue-50" // primary-50 to blue-50
                         onClick={handleDropdownItemClick}
                       >
                         <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-blue-500 rounded-lg shadow-sm">
@@ -206,7 +240,7 @@ const Navbar = () => {
                       {/* My Notes Link */}
                       <Link 
                         to="/my-notes" 
-                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
+                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-blue-50" // primary-50 to blue-50
                         onClick={handleDropdownItemClick}
                       >
                         <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-yellow-500 rounded-lg shadow-sm">
@@ -221,7 +255,7 @@ const Navbar = () => {
                       {/* Bookmarks Link */}
                       <Link 
                         to="/bookmarks" 
-                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
+                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-blue-50" // primary-50 to blue-50
                         onClick={handleDropdownItemClick}
                       >
                         <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-red-500 rounded-lg shadow-sm">
@@ -236,7 +270,7 @@ const Navbar = () => {
                       {/* Notifications Link */}
                       <Link 
                         to="/notifications" 
-                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
+                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-blue-50" // primary-50 to blue-50
                         onClick={handleDropdownItemClick}
                       >
                         <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-orange-500 rounded-lg shadow-sm">
@@ -251,7 +285,7 @@ const Navbar = () => {
                       {/* Upload New Note Link */}
                       <Link 
                         to="/upload-note" 
-                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-primary-50" 
+                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-blue-50" // primary-50 to blue-50
                         onClick={handleDropdownItemClick}
                       >
                         <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-green-500 rounded-lg shadow-sm">
@@ -288,14 +322,14 @@ const Navbar = () => {
                     `px-4 py-2 text-white transition-all duration-300 rounded-md shadow-md ${
                       isScrolled
                         ? "bg-gray-800 hover:bg-gray-700 hover:scale-105 hover:shadow-lg"
-                        : "bg-primary-600 hover:bg-primary-700 hover:scale-105 hover:shadow-lg"
+                        : "bg-purple-600 hover:bg-purple-700 hover:scale-105 hover:shadow-lg" // primary-600 to purple-600
                     }`
                   }>
                   Login
                 </Link>
                 <Link 
                   to="/register" 
-                  className="px-4 py-2 text-white transition-all duration-300 rounded-md shadow-md bg-primary-600 hover:bg-primary-700 hover:scale-105 hover:shadow-lg"
+                  className="px-4 py-2 text-white transition-all duration-300 rounded-md shadow-md bg-purple-600 hover:bg-purple-700 hover:scale-105 hover:shadow-lg" // primary-600 to purple-600
                 >
                   Register
                 </Link>
@@ -309,3 +343,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+// END OF FILE Navbar.jsx
