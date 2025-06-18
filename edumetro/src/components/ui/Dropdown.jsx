@@ -88,6 +88,7 @@ const Dropdown = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={`
+            appearance-none /* ✅ এই ক্লাসটি যোগ করা হয়েছে */
             ${getVariantClasses()} 
             ${sizeClasses} 
             ${disabledClasses}
@@ -99,7 +100,7 @@ const Dropdown = ({
           aria-invalid={error ? "true" : "false"}
           {...props}
         >
-          <option key="placeholder" value="">
+          <option key="placeholder" value="" disabled>
             {placeholderText}
           </option>
           {Array.isArray(options) &&

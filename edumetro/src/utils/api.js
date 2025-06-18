@@ -135,7 +135,9 @@ export const getCourses = async (departmentId = null) => { // departmentId ржПрж
   return api.get(url);
 };
 
-
+export const getNoteCategories = async () => {
+  return api.get('/api/notes/categories/');
+};
 
 
 

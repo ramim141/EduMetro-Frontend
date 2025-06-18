@@ -4,7 +4,7 @@ import React from 'react';
 
 const AuthLayout = ({ children }) => {
   return (
-    <div className="flex justify-center items-center p-8 min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50">
+    <div className="flex justify-center items-center min-h-screen">
       <div className="relative">
         {/* Decorative elements */}
         <div className="absolute -top-10 -left-10 w-20 h-20 bg-purple-200 rounded-full opacity-70 blur-xl"></div>
@@ -12,9 +12,9 @@ const AuthLayout = ({ children }) => {
         <div className="absolute -left-5 top-1/2 w-10 h-40 bg-blue-200 rounded-full opacity-50 blur-lg -translate-y-1/2"></div>
         
         {/* Main card */}
-        <div className="overflow-hidden relative z-10 p-12 w-full bg-white rounded-2xl border border-gray-100 shadow-xl backdrop-blur-sm">
+        <div className="overflow-hidden relative z-10 w-full">
           {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 z-0 bg-gradient-to-tr from-white/80 to-white/30"></div>
+          <div className="absolute inset-0 z-0"></div>
           
           {/* Content */}
           <div className="relative z-10">
