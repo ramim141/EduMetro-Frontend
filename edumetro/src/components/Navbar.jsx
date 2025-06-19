@@ -156,7 +156,7 @@ const Navbar = () => {
                 <button
                   onClick={handleProfileClick}
                   // Remove current styling classes from button as Avatar component will handle them
-                  className="relative w-10 h-10 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500 rounded-full overflow-hidden" // Keep essential button styles
+                  className="relative w-10 h-10 overflow-hidden transition-all duration-300 rounded-full hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500" // Keep essential button styles
                   aria-label="Open user menu"
                 >
                   {/* Avatar component ব্যবহার করে প্রোফাইল ছবি বা আদ্যক্ষর দেখান */}
@@ -190,14 +190,7 @@ const Navbar = () => {
                       <p className="text-lg font-bold text-gray-800">{studentName}</p>
                       <p className="text-sm font-medium text-purple-600">{studentId}</p> {/* primary-600 to purple-600 */}
                       
-                      {/* View Profile Button */}
-                      {/* <Link
-                        to="/profile"
-                        onClick={handleDropdownItemClick}
-                        className="relative w-10 h-10 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-500 rounded-full overflow-hidden z-20"// primary-x to blue-x
-                      >
-                        <FaUserCircle className="inline mr-1" /> View Profile
-                      </Link> */}
+                 
                     
                     </div>
                     
@@ -267,20 +260,7 @@ const Navbar = () => {
                         </div>
                       </Link>
                       
-                      {/* Notifications Link */}
-                      <Link 
-                        to="/notifications" 
-                        className="flex items-center px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-blue-50" // primary-50 to blue-50
-                        onClick={handleDropdownItemClick}
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 mr-3 text-white bg-orange-500 rounded-lg shadow-sm">
-                          <FaBell />
-                        </div>
-                        <div>
-                          <p className="font-medium">Notifications</p>
-                          <p className="text-xs text-gray-500">Your alerts and updates</p>
-                        </div>
-                      </Link>
+                    
                       
                       {/* Upload New Note Link */}
                       <Link 
@@ -329,7 +309,7 @@ const Navbar = () => {
                 </Link>
                 <Link 
                   to="/register" 
-                  className="px-4 py-2 text-white transition-all duration-300 rounded-md shadow-md bg-purple-600 hover:bg-purple-700 hover:scale-105 hover:shadow-lg" // primary-600 to purple-600
+                  className="px-4 py-2 text-white transition-all duration-300 bg-purple-600 rounded-md shadow-md hover:bg-purple-700 hover:scale-105 hover:shadow-lg" // primary-600 to purple-600
                 >
                   Register
                 </Link>

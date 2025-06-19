@@ -55,7 +55,7 @@ export default function ProfilePage() {
   // লোডিং স্থিতি হ্যান্ডেল করুন
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br via-blue-50 to-indigo-50 from-slate-50">
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br via-blue-50 to-indigo-50 from-slate-50">
         <p className="text-xl font-semibold text-slate-700">Loading Profile...</p> {/* আপনার কাস্টম লোডিং স্পিনার এখানে ব্যবহার করুন */}
       </div>
     )
@@ -74,11 +74,12 @@ export default function ProfilePage() {
   } = user;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br via-blue-50 to-indigo-50 from-slate-50">
+    <section className="">
+      <div className="pt-8 min-h-screen bg-gradient-to-br via-blue-50 to-indigo-50 from-slate-50">
       <div className="container px-4 py-8 mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-slate-800">Profile Dashboard</h1>
+          <h1 className="mb-2 text-3xl font-bold text-slate-800">Profile <span className="text-lime-500">Dashboard</span></h1>
           <p className="text-slate-600">Manage your academic profile and preferences</p>
         </div>
 
@@ -189,20 +190,13 @@ export default function ProfilePage() {
             <Card className="border-0 shadow-lg">
               <CardContent className="p-4 space-y-3">
                 <Link to="/bookmarks" className="block">
-                  <Button
-                    variant="outline"
-                    className="gap-2 justify-start w-full hover:bg-blue-50 hover:border-blue-200"
-                  >
-                    <Bookmark className="w-4 h-4" />
-                    View Bookmarks
+                  <Button variant="outline"  className="gap-2 justify-start w-full hover:bg-blue-50 hover:border-blue-200" >
+                    <Bookmark className="inline mr-3 w-4 h-4" />View Bookmarks
                   </Button>
                 </Link>
                 <Link to="/notes" className="block">
-                  <Button
-                    variant="outline"
-                    className="gap-2 justify-start w-full hover:bg-purple-50 hover:border-purple-200"
-                  >
-                    <BookOpen className="w-4 h-4" />
+                  <Button variant="outline"  className="gap-2 justify-start w-full hover:bg-purple-50 hover:border-purple-200" >
+                    <BookOpen className="inline mr-3 w-4 h-4" />
                     My Notes
                   </Button>
                 </Link>
@@ -357,6 +351,7 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+    </section>
   )
 }
 // END OF FILE ProfilePage.jsx

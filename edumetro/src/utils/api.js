@@ -10,6 +10,7 @@ const api = axios.create({
   timeout: 10000,
 });
 
+// ... আপনার সম্পূর্ণ ইন্টারসেপ্টর এবং টোকেন রিফ্রেশ কোড এখানে অপরিবর্তিত থাকবে ...
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -109,8 +110,12 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+// --- ইন্টারসেপ্টর কোড শেষ ---
 
-// ✅ আপনার API ফাংশনগুলো এখানে এক্সপোর্ট করুন, যাতে অন্য কম্পোনেন্টগুলো তাদের ব্যবহার করতে পারে।
+// =======================================================
+//                API Function Exports
+// =======================================================
+
 export const loginUser = async (credentials) => {
   return api.post('/api/users/login/', credentials);
 };
@@ -119,18 +124,14 @@ export const getUserProfile = async () => {
   return api.get('/api/users/profile/');
 };
 
-// ✅ নতুন ফাংশন: ডিপার্টমেন্ট তালিকা ফেচ করার জন্য
 export const getDepartments = async () => {
-  return api.get('/api/notes/departments/'); // নিশ্চিত করুন এই API এন্ডপয়েন্টটি ঠিক আছে
+  return api.get('/api/notes/departments/');
 };
 
-// ✅ নতুন ফাংশন: কোর্স তালিকা ফেচ করার জন্য
-// আপনি চাইলে একটি `departmentId` প্যারামিটার যোগ করতে পারেন যদি backend এ ফিল্টার সাপোর্ট করে
-// ✅ ফাংশন: কোর্স তালিকা ফেচ করার জন্য
-export const getCourses = async (departmentId = null) => { // departmentId এখন ঐচ্ছিক
+export const getCourses = async (departmentId = null) => {
   let url = '/api/notes/courses/';
   if (departmentId) {
-    url += `?department=${departmentId}`; // ✅ backend filter support
+    url += `?department=${departmentId}`;
   }
   return api.get(url);
 };
@@ -140,31 +141,30 @@ export const getNoteCategories = async () => {
 };
 
 
+// ✅ নতুন ফাংশন: ইউজারের আপলোড করা নোটগুলো পাওয়ার জন্য
+// ড্যাশবোর্ডে stat গণনার জন্য এটি প্রয়োজন
+export const getMyNotes = async (params = {}) => {
+  return api.get('/api/notes/my-notes/', { params });
+}
 
 
-// ✅ ফাংশন: বুকমার্ক করা নোটগুলো ফেচ করার জন্য
-export const getBookmarkedNotes = async (page = 1) => {
-  // আপনার backend এ /api/users/user-activity/bookmarked-notes/ endpoint টি ব্যবহার করুন
-  // এটি Authentication Headers প্রয়োজন হবে।
-  try {
-    const response = await api.get(`/api/users/user-activity/bookmarked-notes/?page=${page}`);
-    return response; // Return the full response object
-  } catch (error) {
-    console.error("Failed to fetch bookmarked notes:", error);
-    throw error; // Re-throw the error
-  }
+// ✅ আপডেট করা ফাংশন: বুকমার্ক করা নোটগুলো ফেচ করার জন্য
+// এটি এখন পেজিনেশন প্যারামিটার (যেমন, page, page_size) আরও সহজে নিতে পারবে
+export const getBookmarkedNotes = async (params = {}) => {
+  return api.get('/api/users/user-activity/bookmarked-notes/', { params });
 };
 
+export const registerUser = async (userData) => {
+  const formattedData = {
+    first_name: userData.firstName,
+    last_name: userData.lastName,
+    username: userData.username,
+    email: userData.email,
+    student_id: userData.studentId,
+    password: userData.password,
+    password2: userData.confirmPassword, // ✅ এই লাইনটি যোগ করুন
+  };
+  return api.post('/api/users/register/', formattedData);
+};
 
-
-
-
-
-
-
-
-
-
-
-
-export default api; // `api` instance টি default export হিসেবে রাখুন
+export default api;

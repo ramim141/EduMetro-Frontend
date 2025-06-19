@@ -1,154 +1,217 @@
 // src/pages/LoginPage.jsx
 
-import React, { useState, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom'; // Link ইম্পোর্ট করা হয়েছে
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+
+import { loginUser } from '../utils/api';
 import AuthLayout from '../layouts/AuthLayout';
-import Button from '../components/Button';
-import Spinner from '../components/Spinner';
-import Message from '../components/Message';
-import AuthContext from '../context/AuthContext';
-import { FaUser, FaLock } from 'react-icons/fa';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+
+  // Form states
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [animate, setAnimate] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const { login } = useContext(AuthContext);
+  // UI Animation states
+  const [animate, setAnimate] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
 
   useEffect(() => {
-    // Trigger the entry animation when the component mounts
+    // Initial animation
     const timer = setTimeout(() => setAnimate(true), 200);
+
+    // Check for remembered credentials
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    if (rememberedUser) {
+      try {
+        const { username: savedUsername } = JSON.parse(rememberedUser);
+        setUsername(savedUsername);
+        setRememberMe(true);
+      } catch (e) {
+        localStorage.removeItem('rememberedUser');
+      }
+    }
     return () => clearTimeout(timer);
   }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!username || !password) {
+      toast.error("Please enter both username and password.");
+      return;
+    }
     setLoading(true);
-    setError(null);
 
     try {
-      await login(username, password);
-      // If login is successful, AuthContext will handle navigation
+      const response = await loginUser({ username, password });
+      
+      const { access, refresh } = response.data;
+
+      // Store tokens in localStorage
+      localStorage.setItem('accessToken', access);
+      localStorage.setItem('refreshToken', refresh);
+      
+      // Handle "Remember Me" functionality
+      if (rememberMe) {
+        localStorage.setItem('rememberedUser', JSON.stringify({ username }));
+      } else {
+        localStorage.removeItem('rememberedUser');
+      }
+      
+      toast.success('Login successful! Redirecting...');
+
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        navigate('/'); // অথবা অন্য কোনো প্রোটেক্টেড রুটে
+      }, 1000);
+
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid username or password. Please try again.');
+      // API থেকে আসা এরর মেসেজ দেখানো হচ্ছে
+      const errorMessage = err.response?.data?.detail || 
+                           (err.response?.data?.non_field_errors?.[0]) ||
+                           'Invalid credentials. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const Spinner = () => (
+    <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin" />
+  );
+
   return (
     <AuthLayout>
-      <div className="relative w-full max-w-sm mx-auto">
+      <div className="relative w-full mt-20 rounded-4xl">
         {/* Floating Avatar Icon */}
-        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="absolute z-20 transform -translate-x-1/2 -top-8 left-1/2">
           <div className={`transition-all duration-700 ease-out transform ${
             animate ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-90'
           }`}>
-            <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
-              <FaUser className="text-white text-xl" />
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full opacity-75 bg-gradient-to-r from-blue-400 to-purple-500 animate-ping"></div>
+              <div className="relative flex items-center justify-center w-16 h-16 rounded-full shadow-2xl bg-gradient-to-r from-blue-500 to-purple-600">
+                <User className="w-8 h-8 text-white" />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Main Login Card */}
-        <div className={`bg-white rounded-3xl  p-8 pt-16 transition-all duration-700 ease-out transform ${
+        <div className={`bg-[#d4e6f1] rounded-3xl px-16 pt-12 pb-12 shadow-2xl border border-white/20 transition-all duration-700 ease-out transform ${
           animate ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'
         }`}>
           
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 animate-shake">
-              <Message 
-                type="error" 
-                message={error} 
-                onClose={() => setError(null)} 
-              />
-            </div>
-          )}
+          {/* Welcome Text */}
+          <div className="mb-8 text-center">
+            <h1 className="mb-2 text-3xl font-bold text-gray-800">NOTEBANK</h1>
+            <p className="text-gray-600">Sign in to your account</p>
+           
+          </div>
 
-          {/* Form */}
+          {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Username Input */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                <FaUser className="h-4 w-4 text-gray-500" />
+              <div className="absolute inset-y-0 left-0 z-10 flex items-center pl-4 pointer-events-none">
+                <User className={`w-5 h-5 transition-colors duration-200 ${
+                  focusedField === 'username' ? 'text-blue-500' : 'text-gray-400'
+                }`} />
               </div>
               <input
                 type="text"
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-gray-100 border-0 rounded-full text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-0 focus:bg-gray-200 transition-all duration-200"
+                onFocus={() => setFocusedField('username')}
+                onBlur={() => setFocusedField(null)}
+                className={`w-full py-4 pl-12 pr-4 text-gray-700 placeholder-gray-400 transition-all duration-300 bg-gray-50 border-2 rounded-2xl focus:outline-none focus:border-blue-500 focus:bg-white focus:shadow-lg transform ${
+                  focusedField === 'username' ? 'scale-[1.02]' : ''
+                }`}
                 required
               />
             </div>
 
             {/* Password Input */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                <FaLock className="h-4 w-4 text-gray-500" />
+              <div className="absolute inset-y-0 left-0 z-10 flex items-center pl-4 pointer-events-none">
+                <Lock className={`w-5 h-5 transition-colors duration-200 ${
+                  focusedField === 'password' ? 'text-blue-500' : 'text-gray-400'
+                }`} />
               </div>
               <input
-                type="password"
-                placeholder="************"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-gray-100 border-0 rounded-full text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-0 focus:bg-gray-200 transition-all duration-200"
+                onFocus={() => setFocusedField('password')}
+                onBlur={() => setFocusedField(null)}
+                className={`w-full py-4 pl-12 pr-12 text-gray-700 placeholder-gray-400 transition-all duration-300 bg-gray-50 border-2 rounded-2xl focus:outline-none focus:border-blue-500 focus:bg-white focus:shadow-lg transform ${
+                  focusedField === 'password' ? 'scale-[1.02]' : ''
+                }`}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 transition-colors duration-200 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-sm mt-6">
-              <label className="flex items-center cursor-pointer text-gray-600">
+         
+            <div className="flex items-center justify-between">
+              <label className="flex items-center text-gray-600 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-gray-600 focus:ring-0 border-gray-400 rounded"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                 />
-                <span className="ml-2">Remember me</span>
+                <span className="ml-2 text-sm transition-colors duration-200 group-hover:text-gray-800">
+                  Remember me
+                </span>
               </label>
+   
               <Link
                 to="/forgot-password"
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 italic"
+                className="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800"
               >
                 Forgot Password?
               </Link>
             </div>
 
             {/* Submit Button */}
-            <div className="pt-4">
-  <button
-    type="submit"
-    disabled={loading} // loading true হলে বাটন disabled হবে
-    className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-full font-medium text-lg tracking-wide transition-all duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none uppercase"
-  >
-    {loading ? ( // যখন loading true, তখন স্পিনার এবং "LOGGING IN..." দেখাবে
-      <div className="flex items-center justify-center">
-        <Spinner size="small" className="mr-2" />
-        <span>LOGGING IN...</span>
-      </div>
-    ) : ( // অন্যথায়, "LOGIN" দেখাবে
-      'LOGIN'
-    )}
-  </button>
-</div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-2xl font-semibold text-lg tracking-wide transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none shadow-xl"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <Spinner />
+                  <span className="ml-3">SIGNING IN...</span>
+                </div>
+              ) : (
+                'SIGN IN'
+              )}
+            </button>
           </form>
 
           {/* Register Link */}
-          <div className="text-center mt-8">
-            <p className="text-gray-600 text-sm">
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
               Don't have an account?{' '}
-              <Link
-                to="/register"
-                className="text-red-500 hover:text-red-600 font-medium transition-colors duration-200"
-              >
-                Register now
+        
+              <Link to="/register" className="font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-800">
+                Create Account
               </Link>
             </p>
           </div>
@@ -159,3 +222,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
