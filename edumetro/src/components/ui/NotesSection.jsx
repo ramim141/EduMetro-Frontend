@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import api from "../../utils/api"
-import NoteCard from "./NoteCard" // ✅ NoteCard পাথ ঠিক আছে কিনা নিশ্চিত করুন
+import NoteCard from "./NoteCard" 
 import Spinner from "./Spinner"
 import Button from "./Button"
 import { FaArrowRight } from "react-icons/fa"
@@ -19,7 +19,7 @@ const NotesSection = ({ title, description, limit = 3, ordering = "-created_at" 
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
   const navigate = useNavigate()
 
-  // ✅ DEBUG LOG: যখন কম্পোনেন্ট মাউন্ট হয়
+
   useEffect(() => {
     console.log("NotesSection component mounted or re-rendered.");
     console.log("Initial state - notesLoading:", notesLoading, "notesError:", notesError, "notes.length:", notes.length);
@@ -33,12 +33,12 @@ const NotesSection = ({ title, description, limit = 3, ordering = "-created_at" 
         const response = await api.get(`/api/notes/?ordering=${ordering}&page_size=${limit}`);
         const fetchedNotes = response.data.results || [];
         setNotes(fetchedNotes);
-        // ✅ DEBUG LOG: API রেসপন্স পরীক্ষা করুন
+ 
         console.log("NotesSection: API Response received:", response.data);
         console.log("NotesSection: Fetched notes count:", fetchedNotes.length);
         console.log("NotesSection: Fetched notes data:", fetchedNotes);
       } catch (err) {
-        console.error("NotesSection: Failed to fetch notes:", err); // ✅ এরর লগ
+        console.error("NotesSection: Failed to fetch notes:", err); 
         if (err.code === "ECONNABORTED") {
           setNotesError("Request timeout. Please check your connection and try again.")
         } else if (err.response?.status === 404) {
@@ -56,18 +56,18 @@ const NotesSection = ({ title, description, limit = 3, ordering = "-created_at" 
       }
     }
 
-    // ✅ DEBUG LOG: API কল শুরু হয়েছে
+    
     console.log("NotesSection: Fetching notes API call initiated.");
     fetchNotes()
   }, [limit, ordering])
 
   const handleViewAllNotes = () => {
-    navigate('/note'); // NoteListPage এর রাউট পাথ
+    navigate('/note'); 
   };
 
   return (
     <section ref={sectionRef} className="py-12">
-  
+
       {console.log("NotesSection: Inside render block. notesLoading:", notesLoading, "notesError:", notesError, "notes.length:", notes.length)}
       <div className="container px-4 mx-auto">
         {title && (
@@ -78,11 +78,11 @@ const NotesSection = ({ title, description, limit = 3, ordering = "-created_at" 
         )}
 
         {notesLoading ? (
-          <div className="flex justify-center items-center py-12">
+          <div className="flex items-center justify-center py-12">
             <Spinner size="lg" />
           </div>
         ) : notesError ? (
-          <div className="p-4 text-center text-red-500 bg-red-50 rounded-lg">
+          <div className="p-4 text-center text-red-500 rounded-lg bg-red-50">
             <p>{notesError}</p>
             <button
               onClick={() => window.location.reload()}
@@ -109,7 +109,7 @@ const NotesSection = ({ title, description, limit = 3, ordering = "-created_at" 
                 ))}
               </div>
             ) : (
-                <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-lg">
+                <div className="p-4 text-center text-gray-500 rounded-lg bg-gray-50">
                     <p>No notes to display.</p>
                 </div>
             )}
@@ -118,17 +118,17 @@ const NotesSection = ({ title, description, limit = 3, ordering = "-created_at" 
               <div className="p-4 mt-20 text-center">
                 <button
                   onClick={handleViewAllNotes}
-                  className="inline-flex overflow-hidden relative gap-3 items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg transition-all duration-300 ease-out transform group hover:shadow-xl hover:-translate-y-1"
+                  className="relative inline-flex items-center gap-3 px-8 py-4 overflow-hidden text-lg font-semibold text-white transition-all duration-300 ease-out transform shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl group hover:shadow-xl hover:-translate-y-1"
                 >
                   {/* Background animation */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-r from-purple-600 to-blue-600 group-hover:opacity-100" />
 
                   {/* Content */}
                   <span className="relative z-10">View All Notes</span>
                   <ArrowRight className="relative z-10 w-5 h-5 transition-transform duration-300 transform group-hover:translate-x-1" />
 
                   {/* Shine effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-transparent opacity-0 transition-opacity duration-500 -skew-x-12 via-white/20 group-hover:opacity-100 group-hover:animate-pulse" />
+                  <div className="absolute inset-0 transition-opacity duration-500 -skew-x-12 opacity-0 bg-gradient-to-r from-transparent to-transparent via-white/20 group-hover:opacity-100 group-hover:animate-pulse" />
                 </button>
 
               </div>

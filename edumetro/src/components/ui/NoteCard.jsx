@@ -80,19 +80,31 @@ const NoteCard = ({
     navigate(`/notes/${note.id}`)
   }
 
+  // Renders a badge for the note's category if available
+  const renderCategoryBadge = () => {
+    if (!note.category) return null;
+    return (
+      <div className="absolute top-3 right-3">
+        <span className="px-2 py-1 text-xs font-semibold text-white bg-blue-500 rounded-full shadow">
+          {note.category_name}
+        </span>
+      </div>
+    );
+  };
+
   const renderApprovalStatus = () => {
     if (!showApprovalStatus) return null
 
     if (note.is_approved) {
       return (
-        <div className="flex absolute top-3 right-3 gap-1 items-center px-2 py-1 text-xs font-semibold text-white bg-green-500 rounded-full">
+        <div className="absolute flex items-center gap-1 px-2 py-1 text-xs font-semibold text-white bg-green-500 rounded-full top-3 right-3">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
           Approved
         </div>
       )
     } else {
       return (
-        <div className="flex absolute top-3 right-3 gap-1 items-center px-2 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-full">
+        <div className="absolute flex items-center gap-1 px-2 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-full top-3 right-3">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path></svg>
           Pending
         </div>
@@ -114,9 +126,9 @@ const NoteCard = ({
       className="w-full cursor-pointer group"
       onClick={handleCardClick}
     >
-      <div className="overflow-hidden bg-white rounded-2xl border-0 shadow-lg backdrop-blur-sm transition-all duration-500 hover:shadow-xl">
+      <div className="overflow-hidden transition-all duration-500 bg-white border-0 shadow-lg rounded-2xl backdrop-blur-sm hover:shadow-xl">
         {/* Image Section */}
-        <div className="flex overflow-hidden relative justify-center items-center h-48 bg-gray-100">
+        <div className="relative flex items-center justify-center h-48 overflow-hidden bg-gray-100">
           <motion.img
             src={note.file_url || noteThumbnail}
             alt={note.title || "Note thumbnail"}
@@ -130,7 +142,7 @@ const NoteCard = ({
           {/* Subject Badge */}
           <div className="absolute top-3 left-3">
             <motion.span
-              className="px-3 py-1 text-xs font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-lg"
+              className="px-3 py-1 text-xs font-semibold text-white rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-500"
               whileHover={{ scale: 1.05 }}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -141,9 +153,9 @@ const NoteCard = ({
           </div>
 
           {/* Rating Badge (Top Right) */}
-          {note.average_rating > 0 && (
+          {/* {note.average_rating > 0 && (
             <motion.div
-              className="flex absolute top-3 right-3 gap-1 items-center px-2 py-1 text-xs font-medium text-white rounded-full backdrop-blur-sm bg-black/40"
+              className="absolute flex items-center gap-1 px-2 py-1 text-xs font-medium text-white rounded-full top-3 right-3 backdrop-blur-sm bg-black/40"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 + 0.3 }}
@@ -151,7 +163,9 @@ const NoteCard = ({
               <RatingStars rating={1} maxRating={1} size="xs" color="warning" spacing="none" />
               {(note.average_rating || 0).toFixed(1)}
             </motion.div>
-          )}
+          )} */}
+          {/* Here would be note category badge if available */}
+          {renderCategoryBadge()}
           {renderApprovalStatus()}
         </div>
 
@@ -166,7 +180,7 @@ const NoteCard = ({
           </motion.h3>
 
           {/* Author Info */}
-          <div className="flex gap-2 items-center mb-4 text-sm text-gray-600">
+          <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
             <Users className={STAT_ICON_CLASSES} />
             <span>
               by {note.uploader_first_name || note.uploader_username || "Anonymous"} {note.uploader_last_name || ""}
@@ -174,16 +188,16 @@ const NoteCard = ({
           </div>
 
           {/* Rating Display below author info */}
-          <div className="flex gap-2 items-center mb-4">
+          <div className="flex items-center gap-2 mb-4">
             <RatingStars rating={note.average_rating || 0} size="sm" color="warning" showValue={false} spacing="xs" />
             <span className="text-sm text-gray-500">({note.star_ratings?.length || 0} reviews)</span>
           </div>
 
           {/* Stats Row */}
-          <div className="flex justify-between items-center mb-6 text-xs text-gray-500">
+          <div className="flex items-center justify-between mb-6 text-xs text-gray-500">
             {/* Downloads */}
             <motion.div
-              className="flex gap-1 items-center"
+              className="flex items-center gap-1"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -193,7 +207,7 @@ const NoteCard = ({
 
             {/* Views */}
             <motion.div
-              className="flex gap-1 items-center"
+              className="flex items-center gap-1"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -203,7 +217,7 @@ const NoteCard = ({
 
             {/* Like Count */}
             <motion.div
-              className="flex gap-1 items-center"
+              className="flex items-center gap-1"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -213,7 +227,7 @@ const NoteCard = ({
 
             {/* Bookmark Count */}
             <motion.div
-              className="flex gap-1 items-center"
+              className="flex items-center gap-1"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -223,7 +237,7 @@ const NoteCard = ({
 
             {/* Comment Count */}
             <motion.div
-              className="flex gap-1 items-center"
+              className="flex items-center gap-1"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -240,7 +254,7 @@ const NoteCard = ({
                 onClick={handleViewDetailsClick}
                 size="md"
                 variant="primary"
-                className="py-3 w-full font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl"
+                className="w-full py-3 font-medium text-white transition-all duration-300 shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl"
                 icon={<Eye className="w-4 h-4" />}
                 iconPosition="left"
               >

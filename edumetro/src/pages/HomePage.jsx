@@ -57,15 +57,15 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Hero Section */}
-      <section className="overflow-hidden relative bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700">
+      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-0 left-20 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+          <div className="absolute top-0 left-0 bg-white rounded-full w-96 h-96 mix-blend-multiply filter blur-xl animate-blob"></div>
+          <div className="absolute top-0 right-0 bg-yellow-300 rounded-full w-96 h-96 mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-0 bg-pink-300 rounded-full left-20 w-96 h-96 mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
         </div>
 
-        <div className="flex relative flex-col gap-16 justify-center items-center px-4 py-20 mx-auto max-w-7xl md:flex-row md:px-8 lg:px-12">
+        <div className="relative flex flex-col items-center justify-center gap-16 px-4 py-20 mx-auto max-w-7xl md:flex-row md:px-8 lg:px-12">
           {/* Left Side: Text Content and CTAs */}
           <div className="order-2 space-y-8 text-center md:w-1/2 md:text-left md:order-1">
             <div className="space-y-6">
@@ -78,7 +78,7 @@ const HomePage = () => {
                 <br />
                 <span className="text-white">Potential</span>
               </h1>
-              <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full"></div>
+              <div className="w-24 h-1 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400"></div>
               <p className="max-w-2xl text-xl leading-relaxed md:text-2xl text-white/90">
                 Discover, share, and manage high-quality study notes from various courses and departments. Join
                 thousands of students already excelling.
@@ -86,7 +86,7 @@ const HomePage = () => {
             </div>
 
             {/* Stats */}
-            <div className="flex flex-wrap gap-8 justify-center md:justify-start">
+            <div className="flex flex-wrap justify-center gap-8 md:justify-start">
               <div className="text-center">
                 {/* here add a share icon */}
                 <FaUsers className="mx-auto text-2xl text-yellow-400" />
@@ -105,26 +105,26 @@ const HomePage = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col gap-4 justify-center sm:flex-row md:justify-start">
+            <div className="flex flex-col justify-center gap-4 sm:flex-row md:justify-start">
               <Link
                 to="/note"
-                className="overflow-hidden relative px-8 py-4 font-bold text-indigo-600 bg-white rounded-2xl shadow-2xl transition-all duration-300 transform group hover:shadow-3xl hover:scale-105"
+                className="relative px-8 py-4 overflow-hidden font-bold text-indigo-600 transition-all duration-300 transform bg-white shadow-2xl rounded-2xl group hover:shadow-3xl hover:scale-105"
               >
-                <span className="flex relative z-10 gap-2 justify-center items-center">
+                <span className="relative z-10 flex items-center justify-center gap-2">
                   Browse All Notes
                   <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-                <span className="flex absolute inset-0 z-10 gap-2 justify-center items-center font-bold text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <div className="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-r from-indigo-600 to-purple-600 group-hover:opacity-100"></div>
+                <span className="absolute inset-0 z-10 flex items-center justify-center gap-2 font-bold text-white transition-opacity duration-300 opacity-0 group-hover:opacity-100">
                   Browse All Notes
                   <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </Link>
               <Link
                 to="/register"
-                className="px-8 py-4 font-bold text-gray-900 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl shadow-2xl transition-all duration-300 transform group hover:shadow-3xl hover:scale-105 hover:from-yellow-300 hover:to-orange-300"
+                className="px-8 py-4 font-bold text-gray-900 transition-all duration-300 transform shadow-2xl bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl group hover:shadow-3xl hover:scale-105 hover:from-yellow-300 hover:to-orange-300"
               >
-                <span className="flex gap-2 justify-center items-center">
+                <span className="flex items-center justify-center gap-2">
                   Join Now - It's Free!
                   <FaStar className="transition-transform duration-300 group-hover:rotate-12" />
                 </span>
@@ -133,13 +133,13 @@ const HomePage = () => {
           </div>
 
           {/* Right Side: Image */}
-          <div className="flex order-1 justify-center md:w-1/2 md:order-2">
+          <div className="flex justify-center order-1 md:w-1/2 md:order-2">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl opacity-30 blur-2xl animate-pulse"></div>
               <img
                 src={heroImage || "/placeholder.svg"}
                 alt="Study materials"
-                className="object-cover relative w-full max-w-lg rounded-3xl shadow-2xl transition-transform duration-500 transform hover:scale-105"
+                className="relative object-cover w-full max-w-lg transition-transform duration-500 transform shadow-2xl rounded-3xl hover:scale-105"
               />
             </div>
           </div>
@@ -147,11 +147,11 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="overflow-hidden relative px-4 py-24 mx-auto max-w-7xl bg-white md:px-8 lg:px-8">
+      <section className="relative px-4 py-24 mx-auto overflow-hidden bg-white max-w-7xl md:px-8 lg:px-8">
         {/* Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-5">
-          <div className="absolute left-10 top-20 w-72 h-72 bg-indigo-600 rounded-full"></div>
-          <div className="absolute right-10 bottom-20 w-96 h-96 bg-purple-600 rounded-full"></div>
+          <div className="absolute bg-indigo-600 rounded-full left-10 top-20 w-72 h-72"></div>
+          <div className="absolute bg-purple-600 rounded-full right-10 bottom-20 w-96 h-96"></div>
         </div>
 
         <div className="container relative z-10 mx-auto">
@@ -162,8 +162,8 @@ const HomePage = () => {
                 NoteBank?
               </span>
             </h2>
-            <div className="mx-auto mb-6 w-32 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"></div>
-            <p className="mx-auto max-w-3xl text-xl leading-relaxed text-gray-600">
+            <div className="w-32 h-1 mx-auto mb-6 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600"></div>
+            <p className="max-w-3xl mx-auto text-xl leading-relaxed text-gray-600">
               Join thousands of students who are already transforming their academic journey with our comprehensive
               note-sharing platform.
             </p>
@@ -171,10 +171,10 @@ const HomePage = () => {
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12">
             {/* Feature 1 */}
-            <div className="relative p-8 bg-gradient-to-br from-white to-gray-50 rounded-3xl border border-gray-100 shadow-xl transition-all duration-500 transform group hover:shadow-2xl hover:-translate-y-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-5"></div>
+            <div className="relative p-8 transition-all duration-500 transform border border-gray-100 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-3xl group hover:shadow-2xl hover:-translate-y-2">
+              <div className="absolute inset-0 transition-opacity duration-500 opacity-0 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl group-hover:opacity-5"></div>
               <div className="relative z-10">
-                <div className="flex justify-center items-center mb-6 w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <div className="flex items-center justify-center w-20 h-20 mb-6 transition-transform duration-300 shadow-lg bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl group-hover:scale-110">
                   <FaSearch className="text-3xl text-white" />
                 </div>
                 <h3 className="mb-4 text-2xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-indigo-600">
@@ -191,9 +191,9 @@ const HomePage = () => {
             </div>
 
             {/* Feature 2 */}
-            <div className="relative p-8 bg-gradient-to-br from-white to-gray-50 rounded-3xl border border-gray-100 shadow-xl transition-all duration-500 transform group hover:shadow-2xl hover:-translate-y-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-5"></div>              <div className="relative z-10">
-                <div className="flex justify-center items-center mb-6 w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110">
+            <div className="relative p-8 transition-all duration-500 transform border border-gray-100 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-3xl group hover:shadow-2xl hover:-translate-y-2">
+              <div className="absolute inset-0 transition-opacity duration-500 opacity-0 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-3xl group-hover:opacity-5"></div>              <div className="relative z-10">
+                <div className="flex items-center justify-center w-20 h-20 mb-6 transition-transform duration-300 shadow-lg bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl group-hover:scale-110">
                   <FaUploadLegacy className="text-3xl text-white" />
                 </div>
                 <h3 className="mb-4 text-2xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
@@ -210,10 +210,10 @@ const HomePage = () => {
             </div>
 
             {/* Feature 3 */}
-            <div className="relative p-8 bg-gradient-to-br from-white to-gray-50 rounded-3xl border border-gray-100 shadow-xl transition-all duration-500 transform group hover:shadow-2xl hover:-translate-y-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-5"></div>
+            <div className="relative p-8 transition-all duration-500 transform border border-gray-100 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-3xl group hover:shadow-2xl hover:-translate-y-2">
+              <div className="absolute inset-0 transition-opacity duration-500 opacity-0 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl group-hover:opacity-5"></div>
               <div className="relative z-10">
-                <div className="flex justify-center items-center mb-6 w-20 h-20 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <div className="flex items-center justify-center w-20 h-20 mb-6 transition-transform duration-300 shadow-lg bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl group-hover:scale-110">
                   <FaStar className="text-3xl text-white" />
                 </div>
                 <h3 className="mb-4 text-2xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-yellow-600">
@@ -235,16 +235,25 @@ const HomePage = () => {
       </section>
 
        {/* Enhanced Latest Notes Section */}
-       <section className="container px-4 py-24 mx-auto max-w-7xl">
+       <section className="bg-gradient-to-tl from-[#84A2A8] via-white to-[#99BEE3]">
+        <div className="container px-4 py-24 mx-auto max-w-7xl ">
+        <h1 className="text-6xl font-extrabold text-center">Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                Notes
+              </span></h1>
+         <div className="w-32 h-1 mx-auto mt-4 mb-6 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600"></div>
+            <p className="max-w-3xl mx-auto text-xl leading-relaxed text-center text-gray-600">
+              Check out our most recent uploads from the community
+            </p>
+        
         <NotesSection
-          title="Latest Notes"
-          description="Check out our most recent uploads from the community"
+       
           limit={4}
           ordering="-created_at"
           showViewAllButton={true}
-          className="rounded-3xl border shadow-xl backdrop-blur-sm bg-white/50 border-white/20"
+          className="border shadow-xl rounded-3xl backdrop-blur-sm bg-white/50 border-white/20"
         />
-      </section>
+      </div>
+       </section>
       <StrengthSection />
       
       {/* Request note form Section */}

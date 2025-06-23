@@ -13,6 +13,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { FaUpload } from 'react-icons/fa';
 import Footer from '../components/footer';
 import Button from '../components/Button';
+import { BookIcon } from './../components/dashboard/DashboardIcons';
 
 
 const MyNotesPage = () => {
@@ -142,13 +143,23 @@ const MyNotesPage = () => {
 
 
   return (
-    <section className="bg-gray-50"> {/* ✅ Background */}
+    <section className="mt-12 bg-gray-50"> {/* ✅ Background */}
       <div className="container p-4 px-4 py-8 mx-auto max-w-7xl">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">My Notes Library</h1>
+        <div className="flex items-center justify-between mb-8">
+          {/* Notes BookIcon */}
+          <div>
+            
+            <h1 className="text-5xl font-extrabold ">
+              <span>
+                <BookIcon className="inline w-12 h-12 mr-2 text-indigo-600" />
+              </span>
+              My <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                Notes
+          </span></h1>
+          </div>
           <Link
             to="/upload-note"
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors duration-200 hover:bg-blue-700"
+            className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-blue-600 rounded-md hover:bg-blue-700"
           >
             <FaUpload className="mr-2" /> Upload New Note
           </Link>
@@ -186,12 +197,12 @@ const MyNotesPage = () => {
         )}
 
         {loading ? (
-          <div className="flex flex-col justify-center items-center space-y-4 h-64">
+          <div className="flex flex-col items-center justify-center h-64 space-y-4">
             <Spinner size="w-12 h-12" />
             <p className="text-gray-600">Loading notes...</p>
           </div>
         ) : notes.length === 0 ? (
-          <div className="flex flex-col justify-center items-center p-8 h-64 text-center bg-white rounded-lg shadow-sm">
+          <div className="flex flex-col items-center justify-center h-64 p-8 text-center bg-white rounded-lg shadow-sm">
             <p className="text-gray-600">
               {activeTab === 'all' ? "You have not uploaded any notes yet." : "No notes pending approval currently."}
             </p>

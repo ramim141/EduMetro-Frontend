@@ -4,13 +4,13 @@ import axios from "axios";
 import { toast } from 'react-hot-toast';
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "http://127.0.0.1:8000";
+// const BASE_API_URL = "https://edumetro-server.onrender.com";
 
 const api = axios.create({
   baseURL: BASE_API_URL,
   timeout: 10000,
 });
 
-// ... আপনার সম্পূর্ণ ইন্টারসেপ্টর এবং টোকেন রিফ্রেশ কোড এখানে অপরিবর্তিত থাকবে ...
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -110,11 +110,7 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// --- ইন্টারসেপ্টর কোড শেষ ---
 
-// =======================================================
-//                API Function Exports
-// =======================================================
 
 export const loginUser = async (credentials) => {
   return api.post('/api/users/login/', credentials);
@@ -141,15 +137,13 @@ export const getNoteCategories = async () => {
 };
 
 
-// ✅ নতুন ফাংশন: ইউজারের আপলোড করা নোটগুলো পাওয়ার জন্য
-// ড্যাশবোর্ডে stat গণনার জন্য এটি প্রয়োজন
+
 export const getMyNotes = async (params = {}) => {
   return api.get('/api/notes/my-notes/', { params });
 }
 
 
-// ✅ আপডেট করা ফাংশন: বুকমার্ক করা নোটগুলো ফেচ করার জন্য
-// এটি এখন পেজিনেশন প্যারামিটার (যেমন, page, page_size) আরও সহজে নিতে পারবে
+
 export const getBookmarkedNotes = async (params = {}) => {
   return api.get('/api/users/user-activity/bookmarked-notes/', { params });
 };
@@ -162,9 +156,17 @@ export const registerUser = async (userData) => {
     email: userData.email,
     student_id: userData.studentId,
     password: userData.password,
-    password2: userData.confirmPassword, // ✅ এই লাইনটি যোগ করুন
+    password2: userData.confirmPassword, 
   };
   return api.post('/api/users/register/', formattedData);
 };
 
+
+export const getSiteStats = async () => {
+  return api.get('/api/users/site-stats/'); 
+};
+
+export const createNoteRequest = async (requestData) => {
+  return api.post('/api/notes/note-requests/', requestData);
+};
 export default api;

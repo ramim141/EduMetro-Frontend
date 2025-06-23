@@ -136,21 +136,8 @@ const Navbar = () => {
           <div className="flex items-center">
             {isAuthenticated ? (
               <div className="relative flex items-center space-x-4" ref={dropdownRef}>
-                {/* Notification Bell */}
-                <button
-                  className={`relative p-2 rounded-full transition-all duration-200 hover:scale-110 ${
-                    isScrolled ? "text-gray-700 hover:bg-gray-100" : "text-white hover:bg-white/10"
-                  }`}
-                  aria-label="Notifications"
-                >
-                  <FaBell className="text-xl" />
-                  <span className="absolute top-0 right-0 flex w-3 h-3">
-                    <span className="absolute inline-flex w-full h-full bg-red-400 rounded-full opacity-75 animate-ping"></span>
-                    <span className="relative inline-flex w-3 h-3 bg-red-500 rounded-full  items-center justify-center text-[8px] text-white font-bold">
-                      3
-                    </span>
-                  </span>
-                </button>
+                
+                
 
                 {/* Profile Button (Top Right) */}
                 <button
