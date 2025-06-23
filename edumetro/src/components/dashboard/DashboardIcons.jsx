@@ -1,4 +1,5 @@
-// --- START OF FILE components/dashboard/DashboardIcons.jsx ---
+// components/dashboard/DashboardIcons.jsx
+
 import { motion } from "framer-motion"
 
 export const BookIcon = ({ size = 24, className = "", animated = false }) => ( <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className} animate={animated ? { rotateY: [0, 15, 0] } : {}} transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}> <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 0 4 4.5v15z" /> <motion.path d="M6 2h14v15H6z" initial={{ pathLength: 0 }} animate={{ pathLength: animated ? [0, 1, 0] : 1 }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }} /> </motion.svg> )
@@ -17,5 +18,7 @@ export const TargetIcon = ({ size = 24, className = "" }) => ( <motion.svg width
 export const UsersIcon = ({ size = 24, className = "" }) => ( <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} whileHover={{ scale: 1.05 }}> <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M23 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /> </motion.svg> )
 export const PieChartIcon = ({ size = 24, className = "" }) => ( <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}> <path d="M21.21 15.89A10 10 0 1 1 8 2.83" /> <path d="M22 12A10 10 0 0 0 12 2v10z" /> </motion.svg> )
 
-export const FloatingParticles = () => ( <div className="overflow-hidden absolute inset-0 pointer-events-none"> {Array.from({ length: 15 }).map((_, i) => ( <motion.div key={i} className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-20" animate={{ x: [0, Math.random() * 100 - 50], y: [0, Math.random() * 100 - 50], scale: [0, 1, 0], }} transition={{ duration: Math.random() * 3 + 2, repeat: Number.POSITIVE_INFINITY, delay: Math.random() * 2, ease: "easeInOut", }} style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, }} /> ))} </div> )
-// --- END OF FILE components/dashboard/DashboardIcons.jsx ---
+export const FloatingParticles = () => ( <div className="absolute inset-0 overflow-hidden pointer-events-none"> {Array.from({ length: 15 }).map((_, i) => ( <motion.div key={i} className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-20" animate={{ x: [0, Math.random() * 100 - 50], y: [0, Math.random() * 100 - 50], scale: [0, 1, 0], }} transition={{ duration: Math.random() * 3 + 2, repeat: Number.POSITIVE_INFINITY, delay: Math.random() * 2, ease: "easeInOut", }} style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, }} /> ))} </div> )
+
+// ✅ Changed: নতুন আইকনটি এখানে যোগ করা হয়েছে
+export const MessageSquareIcon = ({ size = 24, className = "" }) => ( <motion.svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 400 }}> <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /> </motion.svg> )

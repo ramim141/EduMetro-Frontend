@@ -79,7 +79,7 @@ const FilterSidebar = ({
     <AnimatePresence>
       {isOpen && (
         <motion.aside
-          className={`w-80 bg-white border-r border-gray-200 shadow-lg ${className}`}
+          className={`w-80 bg-white border-r border-gray-200 shadow-lg rounded-xl ${className}`}
           initial={{ x: -320, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -320, opacity: 0 }}
@@ -87,13 +87,13 @@ const FilterSidebar = ({
         >
           {/* Header */}
           <div className="p-6 text-white bg-gradient-to-r from-purple-600 to-blue-600">
-            <div className="flex justify-between items-center">
-              <div className="flex gap-3 items-center">
-                <div className="flex justify-center items-center w-10 h-10 rounded-xl bg-white/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/20">
                   <FaFilter className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="flex gap-2 items-center text-lg font-bold">
+                  <h2 className="flex items-center gap-2 text-lg font-bold">
                     Smart Filters
                     <FaPencilAlt className="w-4 h-4" />
                   </h2>
@@ -102,7 +102,7 @@ const FilterSidebar = ({
               </div>
               <button
                 onClick={onToggle}
-                className="p-2 rounded-lg transition-colors text-white/80 hover:text-white hover:bg-white/20"
+                className="p-2 transition-colors rounded-lg text-white/80 hover:text-white hover:bg-white/20"
               >
                 <FaTimes className="w-4 h-4" />
               </button>
@@ -110,10 +110,10 @@ const FilterSidebar = ({
           </div>
 
           {/* Filter Content */}
-          <div className="overflow-y-auto flex-1 p-6 space-y-6">
+          <div className="flex-1 p-6 space-y-6 overflow-y-auto">
             {/* Quick Search */}
             <div className="space-y-3">
-              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <FaSearch className="w-4 h-4 text-blue-500" />
                 Quick Search
               </div>
@@ -128,7 +128,7 @@ const FilterSidebar = ({
 
             {/* Course Filter */}
             <div className="space-y-3">
-              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 Course
               </div>
@@ -143,7 +143,7 @@ const FilterSidebar = ({
 
             {/* Department Filter */}
             <div className="space-y-3">
-              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <FaUniversity className="w-4 h-4 text-purple-500" />
                 Department
               </div>
@@ -158,7 +158,7 @@ const FilterSidebar = ({
 
             {/* Rating Filter */}
             <div className="space-y-3">
-              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <FaStar className="w-4 h-4 text-yellow-500" />
                 Minimum Rating
               </div>
@@ -173,7 +173,7 @@ const FilterSidebar = ({
 
             {/* Sort Options */}
             <div className="space-y-3">
-              <div className="flex gap-2 items-center text-sm font-semibold text-gray-700">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <FaSort className="w-4 h-4 text-indigo-500" />
                 Sort By
               </div>
@@ -188,7 +188,7 @@ const FilterSidebar = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="p-6 space-y-3 bg-gray-50 border-t border-gray-200">
+          <div className="p-6 space-y-3 border-t border-gray-200 bg-gray-50">
             <Button
               onClick={onApplyFilters}
               className="w-full text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"

@@ -57,7 +57,7 @@ const NotesGrid = ({
 const LoadingState = () => {
   return (
     <motion.div
-      className="flex flex-col justify-center items-center space-y-8 h-96"
+      className="flex flex-col items-center justify-center space-y-8 h-96"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -69,7 +69,7 @@ const LoadingState = () => {
       >
         <Spinner size="xl" variant="primary" type="border" />
         <motion.div
-          className="flex absolute inset-0 justify-center items-center"
+          className="absolute inset-0 flex items-center justify-center"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
         >
@@ -87,16 +87,16 @@ const LoadingState = () => {
 const ErrorState = ({ error }) => {
   return (
     <motion.div
-      className="flex flex-col justify-center items-center h-96 text-center"
+      className="flex flex-col items-center justify-center text-center h-96"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
     >
-      <div className="flex justify-center items-center mb-6 w-24 h-24 bg-red-100 rounded-full">
+      <div className="flex items-center justify-center w-24 h-24 mb-6 bg-red-100 rounded-full">
         <FaBookOpen className="w-12 h-12 text-red-600" />
       </div>
       <h3 className="mb-3 text-3xl font-bold text-gray-900">Oops! Something went wrong</h3>
-      <p className="mb-6 max-w-md text-gray-600">{error}</p>
+      <p className="max-w-md mb-6 text-gray-600">{error}</p>
       <Button
         onClick={() => window.location.reload()}
         variant="primary"
@@ -112,16 +112,16 @@ const ErrorState = ({ error }) => {
 const EmptyState = ({ onClearFilters }) => {
   return (
     <motion.div
-      className="flex flex-col justify-center items-center h-96 text-center"
+      className="flex flex-col items-center justify-center text-center h-96"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
     >
-      <div className="flex justify-center items-center mb-6 w-32 h-32 bg-blue-100 rounded-full">
+      <div className="flex items-center justify-center w-32 h-32 mb-6 bg-blue-100 rounded-full">
         <FaBookOpen className="w-16 h-16 text-blue-600" />
       </div>
       <h3 className="mb-3 text-3xl font-bold text-gray-900">No notes found</h3>
-      <p className="mb-8 max-w-md text-gray-600">
+      <p className="max-w-md mb-8 text-gray-600">
         We couldn't find any notes matching your criteria. Try adjusting your filters or explore different search terms.
       </p>
       <Button onClick={onClearFilters} variant="primary" size="md" className="bg-blue-600 hover:bg-blue-700">
@@ -142,7 +142,7 @@ const NotesContent = ({ notes, viewMode, currentPage, totalPages, onPageChange, 
       <motion.div
         className={
           viewMode === "grid"
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+            ? "grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             : "space-y-4"
         }
         layout
@@ -184,7 +184,7 @@ const NotesContent = ({ notes, viewMode, currentPage, totalPages, onPageChange, 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-lg">
+          <div className="p-4 bg-white border border-gray-200 shadow-lg rounded-2xl">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
