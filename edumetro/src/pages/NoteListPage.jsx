@@ -1,7 +1,7 @@
 // pages/NoteListPage.jsx
 "use client"
 
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FaFilter, FaBookOpen, FaTimes } from "react-icons/fa"
 import FilterSidebar from "../components/FilterSidebar"
@@ -15,12 +15,12 @@ import useNoteActions from "../hooks/useNoteActions"
 import AuthContext from "../context/AuthContext"
 import { toast } from "react-hot-toast"
 import Footer from "@/components/footer"
-
-const CATEGORIES = ["All", "Assignment", "Class Note", "Previous QS"]
+import { getNoteCategories } from "../utils/api"
 
 const NoteListPage = ({ className = "" }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024)
   const [viewMode, setViewMode] = useState("grid")
+  const [categories, setCategories] = useState(["All"])
 
   const { isAuthenticated } = useContext(AuthContext)
 
@@ -40,6 +40,30 @@ const NoteListPage = ({ className = "" }) => {
   } = useNoteFilters()
 
   const { handleLike, handleBookmark, handleDownload } = useNoteActions(notes, setNotes, isAuthenticated, toast)
+
+  // ✅ Corrected useEffect hook
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getNoteCategories()
+        // ✅ FIX: Directly access the .results array from the paginated response
+        if (response.data && Array.isArray(response.data.results)) {
+          const categoryNames = response.data.results.map(cat => cat.name)
+          setCategories(["All", ...categoryNames])
+        } else {
+            // This is a safety check in case the API response is not as expected
+            throw new Error("Invalid data format for categories");
+        }
+      } catch (error) {
+        console.error("Failed to fetch note categories:", error)
+        toast.error("Could not load note categories.")
+        // Fallback to a default list if the API call fails
+        setCategories(["All", "Assignment", "Class Note", "Previous QS"])
+      }
+    }
+
+    fetchCategories()
+  }, []) // Empty dependency array ensures this runs only once
 
   const renderContent = () => {
     if (loading && notes.length === 0) {
@@ -89,11 +113,10 @@ const NoteListPage = ({ className = "" }) => {
         <motion.div
           className={
             viewMode === "grid"
-              // ✅ Changed: এখন সাইডবার খোলা বা বন্ধ থাকার উপর ভিত্তি করে কলামের সংখ্যা পরিবর্তন হবে
               ? `grid grid-cols-1 sm:grid-cols-2 ${
                   isSidebarOpen
-                    ? "lg:grid-cols-2" // সাইডবার খোলা থাকলে: বড় স্ক্রিনে ২টি কলাম
-                    : "lg:grid-cols-3" // সাইডবার বন্ধ থাকলে: বড় স্ক্রিনে ৩টি কলাম
+                    ? "lg:grid-cols-2"
+                    : "lg:grid-cols-3"
                 } gap-6 lg:gap-8 px-2 sm:px-0`
               : "space-y-6 px-2 sm:px-0"
           }
@@ -198,7 +221,7 @@ const NoteListPage = ({ className = "" }) => {
               {/* Category Tabs */}
               <div className="flex flex-col items-center justify-between gap-4 p-3 mb-4 border shadow-lg sm:flex-row sm:gap-6 sm:p-4 lg:p-5 sm:mb-6 lg:mb-8 border-gray-200/50 bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1 sm:gap-2 p-1.5 sm:p-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl shadow-inner w-full sm:w-auto">
-                  {CATEGORIES.map((category) => (
+                  {categories.map((category) => (
                     <button key={category} onClick={() => updateFilters({ category })} className={`px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 text-xs sm:text-sm lg:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 ${filters.category === category ? "bg-gradient-to-r from-white to-gray-50 text-gray-800 shadow-lg border border-gray-200/50" : "text-gray-600 hover:bg-white/50 hover:text-gray-800"}`}>{category}</button>
                   ))}
                 </div>

@@ -1,20 +1,20 @@
 // src/App.jsx (Updated and Corrected)
 
 import React from 'react';
-import { Toaster } from 'react-hot-toast'; // ✅ ধাপ ১: Toaster ইম্পোর্ট করুন
-import { AuthProvider } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast';
+// import { AuthProvider } from './context/AuthContext'; // ❌ এই লাইনটি সম্পূর্ণ রিমুভ করুন
 import Navbar from './components/Navbar';
 import AppRoutes from './routes/Routes';
 import './App.css';
 
 const App = () => {
   return (
-    <AuthProvider>
-      {/* ✅ ধাপ ২: Toaster কম্পোনেন্টটি এখানে যোগ করুন */}
+    // <AuthProvider> ❌ এই wrapper টি সম্পূর্ণ রিমুভ করুন
+    <> {/* আপনি চাইলে এখানে React.Fragment বা <> ব্যবহার করতে পারেন */}
       <Toaster 
         position="top-center" 
         toastOptions={{
-          duration: 5000, // মেসেজ ৫ সেকেন্ড থাকবে
+          duration: 5000,
           style: {
             fontSize: '16px',
             maxWidth: '500px',
@@ -22,13 +22,13 @@ const App = () => {
           },
           success: {
             style: {
-              background: '#4CAF50', // সবুজ
+              background: '#4CAF50',
               color: 'white',
             },
           },
           error: {
             style: {
-              background: '#F44336', // লাল
+              background: '#F44336',
               color: 'white',
             },
           },
@@ -43,7 +43,8 @@ const App = () => {
           </div>
         </main>
       </div>
-    </AuthProvider>
+    </>
+    // </AuthProvider> ❌ এই wrapper টি সম্পূর্ণ রিমুভ করুন
   );
 };
 

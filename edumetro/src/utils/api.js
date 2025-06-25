@@ -3,12 +3,12 @@
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 
-const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "http://127.0.0.1:8000";
-// const BASE_API_URL = "https://edumetro-server.onrender.com";
+// const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "http://127.0.0.1:8000";
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "https://edumetro.onrender.com";
 
 const api = axios.create({
   baseURL: BASE_API_URL,
-  timeout: 10000,
+  timeout: 60000,
 });
 
 let isRefreshing = false;
@@ -156,7 +156,9 @@ export const registerUser = async (userData) => {
     email: userData.email,
     student_id: userData.studentId,
     password: userData.password,
-    password2: userData.confirmPassword, 
+    password2: userData.confirmPassword,
+    batch: userData.batch,
+    section: userData.section, 
   };
   return api.post('/api/users/register/', formattedData);
 };

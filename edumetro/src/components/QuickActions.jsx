@@ -1,6 +1,9 @@
+// QuickActions.jsx (Updated & Corrected)
+
 "use client"
 
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"; // ✅ Link ইম্পোর্ট করা হয়েছে
 import { FaUpload, FaSearch, FaEye, FaBookmark, FaUsers, FaCog } from "react-icons/fa"
 
 const QuickActions = () => {
@@ -64,7 +67,7 @@ const QuickActions = () => {
 
   return (
     <motion.div
-      className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+      className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
@@ -76,11 +79,13 @@ const QuickActions = () => {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         {actions.map((action, index) => {
-          const IconComponent = action.icon
+          const IconComponent = action.icon;
+          const MotionLink = motion(Link); // ✅ motion এবং Link একসাথে ব্যবহারের জন্য
+          
           return (
-            <motion.a
+            <MotionLink
               key={action.title}
-              href={action.link}
+              to={action.link} // ✅ href এর পরিবর্তে to ব্যবহার করা হচ্ছে
               className={`group relative overflow-hidden rounded-xl p-4 transition-all duration-300 hover:shadow-lg ${
                 action.primary
                   ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
@@ -102,9 +107,9 @@ const QuickActions = () => {
                 <p className={`text-xs ${action.primary ? "text-blue-100" : "text-gray-600"}`}>{action.description}</p>
               </div>
               {action.primary && (
-                <div className="absolute inset-0 bg-gradient-to-r transition-transform duration-700 transform -translate-x-full -skew-x-12 from-white/0 via-white/10 to-white/0 group-hover:translate-x-full" />
+                <div className="absolute inset-0 transition-transform duration-700 transform -translate-x-full -skew-x-12 bg-gradient-to-r from-white/0 via-white/10 to-white/0 group-hover:translate-x-full" />
               )}
-            </motion.a>
+            </MotionLink>
           )
         })}
       </div>

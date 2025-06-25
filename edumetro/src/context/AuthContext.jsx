@@ -1,159 +1,135 @@
-// START OF FILE AuthContext.jsx
-// src/context/AuthContext.jsx
+// src/context/AuthContext.jsx (Updated & Corrected)
 
 import React, { createContext, useState, useEffect, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/api"; // নিশ্চিত করুন এই Axios instanceটি সঠিকভাবে JWT এর জন্য কনফিগার করা হয়েছে
+import api from "../utils/api";
+import Spinner from '../components/ui/Spinner'; // একটি সুন্দর লোডিং স্পিনারের জন্য
 
-// AuthContext তৈরি করুন
 const AuthContext = createContext(null);
 
-// AuthProvider কম্পোনেন্ট তৈরি করুন
 export const AuthProvider = ({ children }) => {
-  // Authentication স্থিতি এবং ব্যবহারকারীর ডেটা পরিচালনার জন্য একটি একক স্টেট ব্যবহার করুন
-  const [authState, setAuthState] = useState({
-    user: null, // ব্যাকএন্ড থেকে পুরো ব্যবহারকারী প্রোফাইল অবজেক্ট
-    accessToken: null,
-    refreshToken: null,
-    isAuthenticated: false,
-    isLoading: true, // প্রাথমিক অথেন্টিকেশন চেকের জন্য লোডিং স্থিতি
-  });
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // ✅ শুধুমাত্র প্রাথমিক লোডিং এর জন্য
 
   const navigate = useNavigate();
 
-  // localStorage এবং স্টেটে টোকেন আপডেট করার জন্য হেল্পার
-  const setTokens = useCallback((access, refresh) => {
+  // টোকেন সেট করার ফাংশন
+  const setTokensAndUser = useCallback((access, refresh, userData) => {
     localStorage.setItem("accessToken", access);
     localStorage.setItem("refreshToken", refresh);
-    setAuthState((prev) => ({ ...prev, accessToken: access, refreshToken: refresh, isAuthenticated: !!access }));
+    setUser(userData);
+    setIsAuthenticated(!!access);
   }, []);
 
-  // localStorage এবং স্টেট থেকে টোকেন পরিষ্কার করার জন্য হেল্পার
-  const clearTokens = useCallback(() => {
+  // টোকেন এবং ইউজার স্টেট ক্লিয়ার করার ফাংশন
+  const clearAuth = useCallback(() => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    setAuthState((prev) => ({
-      ...prev,
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
-    }));
+    setUser(null);
+    setIsAuthenticated(false);
   }, []);
 
-  // ব্যাকএন্ড থেকে ব্যবহারকারী প্রোফাইল ডেটা ফেচ করুন
-  const fetchUserProfile = useCallback(async () => {
-    setAuthState((prev) => ({ ...prev, isLoading: true }));
-    try {
-      const response = await api.get("/api/users/profile/"); // ✅ প্রকৃত API কল
-      console.log("AuthContext: Fetched user profile data:", response.data);
-      setAuthState((prev) => ({
-        ...prev,
-        user: response.data,
-        isAuthenticated: true,
-        isLoading: false,
-      }));
-      return response.data;
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error.response?.data || error.message);
-      clearTokens(); // প্রোফাইল ফেচ ব্যর্থ হলে সেশন পরিষ্কার করুন (যেমন, টোকেন মেয়াদোত্তীর্ণ, অবৈধ)
-      setAuthState((prev) => ({ ...prev, isLoading: false }));
-      navigate("/login");
-      return Promise.reject(error);
-    }
-  }, [clearTokens, navigate]);
-
-  // লগইন ফাংশন
+  // ✅ লগইন ফাংশন (আপডেট করা হয়েছে)
   const login = useCallback(
     async (username, password) => {
-      setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        const response = await api.post("/api/users/login/", { username, password }); // ✅ প্রকৃত API কল
-        const { access, refresh } = response.data;
-        setTokens(access, refresh); // টোকেন সংরক্ষণ এবং স্টেট আপডেট করুন
-
-        // সফল লগইনের পর, অবিলম্বে পুরো ব্যবহারকারী প্রোফাইল ফেচ করুন
-        await fetchUserProfile();
-
-        navigate("/dashboard"); // সফল লগইন, ড্যাশবোর্ডে নেভিগেট করুন (প্রয়োজন অনুযায়ী অ্যাডজাস্ট করুন)
+        const response = await api.post("/api/users/login/", { username, password });
+        const { access, refresh, user: userData } = response.data; // ব্যাকএন্ড থেকে user ডেটা নিন
+        setTokensAndUser(access, refresh, userData);
+        navigate("/dashboard"); // বা যেখানে পাঠাতে চান
         return response.data;
       } catch (error) {
         console.error("Login failed:", error.response?.data || error.message);
-        setAuthState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: error.response?.data?.detail || "Login failed!",
-          isAuthenticated: false,
-        }));
-        clearTokens(); // লগইন ব্যর্থ হলে টোকেন পরিষ্কার করুন
-        return Promise.reject(error);
+        clearAuth();
+        throw error; // এররটি LoginPage-এ হ্যান্ডেল করার জন্য re-throw করুন
       }
     },
-    [setTokens, fetchUserProfile, navigate, clearTokens],
+    [setTokensAndUser, clearAuth, navigate]
   );
 
-  // লগআউট ফাংশন
+  // ✅ লগআউট ফাংশন (আপডেট করা হয়েছে)
   const logout = useCallback(async () => {
-    setAuthState((prev) => ({ ...prev, isLoading: true }));
-    const currentRefreshToken = localStorage.getItem("refreshToken"); // লগআউট API এর জন্য বর্তমান রিফ্রেশ টোকেন নিন
+    const currentRefreshToken = localStorage.getItem("refreshToken");
     if (currentRefreshToken) {
       try {
-        await api.post("/api/users/logout/", { refresh: currentRefreshToken }); // ঐচ্ছিকভাবে লগআউট API কল করুন
+        await api.post("/api/users/logout/", { refresh: currentRefreshToken });
       } catch (e) {
-        console.warn("Logout API call failed, but clearing tokens anyway:", e);
+        console.warn("Logout API call failed, but clearing tokens locally:", e);
       }
     }
-    clearTokens(); // টোকেন এবং স্টেট পরিষ্কার করুন
-    setAuthState((prev) => ({ ...prev, isLoading: false }));
-    navigate("/login"); // লগআউটের পর লগইন পেজে নেভিগেট করুন
-  }, [clearTokens, navigate]);
+    clearAuth();
+    navigate("/login");
+  }, [clearAuth, navigate]);
 
-  // কম্পোনেন্ট মাউন্ট হওয়ার সময় প্রাথমিক অথেন্টিকেশন চেক
+  // ✅ প্রোফাইল রিফ্রেশ করার জন্য আলাদা ফাংশন (ঐচ্ছিক কিন্তু কাজের)
+  const fetchUserProfile = useCallback(async () => {
+    try {
+        const response = await api.get("/api/users/profile/");
+        setUser(response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to refresh user profile, logging out.", error);
+        logout(); // প্রোফাইল ফেচ ব্যর্থ হলে লগআউট
+    }
+  }, [logout]);
+
+
+  // ✅ শুধুমাত্র একবার চলবে, অ্যাপ লোড হওয়ার সময়
   useEffect(() => {
-    const checkAuthAndLoadProfile = async () => {
-      const storedAccessToken = localStorage.getItem("accessToken");
-      const storedRefreshToken = localStorage.getItem("refreshToken");
+    const checkAuthStatus = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        setIsLoading(false);
+        return;
+      }
 
-      if (storedAccessToken && storedRefreshToken) {
-        // যদি টোকেন থাকে, তাহলে স্টেটে সেট করুন এবং প্রোফাইল ফেচ করার চেষ্টা করুন
-        setAuthState(prev => ({ ...prev, accessToken: storedAccessToken, refreshToken: storedRefreshToken, isAuthenticated: true }));
-        await fetchUserProfile(); // প্রাথমিক লোডে প্রোফাইল ডেটা ফেচ করুন
-      } else {
-        // কোনো টোকেন নেই, তাই অথেন্টিকেটেড নয়
-        clearTokens(); // সবকিছু পরিষ্কার আছে তা নিশ্চিত করুন
-        setAuthState(prev => ({ ...prev, isLoading: false })); // লোডিং শেষ করুন
+      try {
+        // টোকেন থাকলে, প্রোফাইল ফেচ করার চেষ্টা করা হবে
+        const response = await api.get("/api/users/profile/");
+        setUser(response.data);
+        setIsAuthenticated(true);
+      } catch (error) {
+        // টোকেন অবৈধ হলে বা অন্য কোনো সমস্যা হলে
+        console.error("Initial auth check failed:", error);
+        clearAuth();
+      } finally {
+        // সবশেষে প্রাথমিক লোডিং শেষ হবে
+        setIsLoading(false);
       }
     };
+    
+    checkAuthStatus();
+  }, [clearAuth]); // clearAuth এখানে থাকা নিরাপদ
 
-    checkAuthAndLoadProfile();
+  // প্রাথমিক লোডিং স্ক্রিন
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100">
+        <div className="text-center">
+            <Spinner size="xl" color="indigo" />
+            <p className="mt-4 text-lg font-semibold text-gray-700">Loading Authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
-    // Axios ইন্টারসেপ্টর টোকেন রিফ্রেশ করার জন্য `api.js` এ একবার সেট করা উচিত,
-    // React কম্পোনেন্টের মধ্যে নয় যাতে বারবার রেজিস্ট্রিং সমস্যা এড়ানো যায়।
-  }, [fetchUserProfile, clearTokens]);
-
-  const authContextData = {
-    user: authState.user,
-    isAuthenticated: authState.isAuthenticated,
-    isLoading: authState.isLoading,
+  const authContextValue = {
+    user,
+    isAuthenticated,
+    isLoading, // যদিও এটি এখন false থাকবে, তাও এক্সপোজ করা ভালো
     login,
     logout,
-    fetchUserProfile, // ✅ fetchUserProfile কে এখানে এক্সপোজ করা হলো
+    fetchUserProfile, // প্রোফাইল ম্যানুয়ালি রিফ্রেশ করার জন্য
   };
 
   return (
-    <AuthContext.Provider value={authContextData}>
-      {authState.isLoading ? ( // প্রাথমিক অথেন্টিকেশন চেকের সময় একটি লোডিং স্পিনার দেখান
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br via-blue-50 to-indigo-50 from-slate-50">
-          <p className="text-xl font-semibold text-slate-700">Loading Authentication...</p>
-        </div>
-      ) : (
-        children
-      )}
+    <AuthContext.Provider value={authContextValue}>
+      {children}
     </AuthContext.Provider>
   );
 };
 
-// AuthContext কে ডিফল্ট এক্সপোর্ট করুন
 export default AuthContext;
 
 // AuthContext ব্যবহার করার জন্য কাস্টম হুক
@@ -164,4 +140,3 @@ export const useAuth = () => {
   }
   return context;
 };
-// END OF FILE AuthContext.jsx

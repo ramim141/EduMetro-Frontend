@@ -1,4 +1,4 @@
-// src/pages/RegisterPage.jsx
+// src/pages/RegisterPage.jsx (Updated & Corrected)
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -23,7 +23,9 @@ const RegisterPage = () => {
     email: '',
     studentId: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    batch: '',      // ✅ নতুন ফিল্ড যোগ করা হয়েছে
+    section: '',    // ✅ নতুন ফিল্ড যোগ করা হয়েছে
   });
 
   useEffect(() => {
@@ -35,11 +37,9 @@ const RegisterPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  // ✅ উন্নত handleSubmit ফাংশন
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ---- ১. পাসওয়ার্ড ম্যাচ না করলে মেসেজ ----
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match!");
       return;
@@ -48,12 +48,12 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      await registerUser(formData);
+      // formData এখন batch এবং section সহ পাস হবে
+      await registerUser(formData); 
       
-      // ---- ২. সফলভাবে রেজিস্টার হলে মেসেজ ----
       toast.success(
         'Registration successful! Please check your email to verify your account.', 
-        { duration: 6000 } // এই মেসেজটি ৬ সেকেন্ড থাকবে
+        { duration: 6000 }
       );
       
       setTimeout(() => {
@@ -61,25 +61,20 @@ const RegisterPage = () => {
       }, 6000);
 
     } catch (err) {
-      // ---- ৩. ব্যাকএন্ড থেকে আসা সব ধরনের এরর মেসেজ ----
       if (err.response && err.response.data) {
         console.error("API Error Response:", err.response.data);
         const errors = err.response.data;
 
         if (typeof errors === 'object' && errors !== null) {
-          // সাধারণ ফিল্ড এরর (username, email, password)
           Object.keys(errors).forEach(key => {
-            // যেমন: "username already exists", "password is too common"
             const userFriendlyKey = key.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
             const errorMessage = Array.isArray(errors[key]) ? errors[key][0] : errors[key];
             toast.error(`${userFriendlyKey}: ${errorMessage}`);
           });
         } else {
-          // অন্যান্য এরর
           toast.error('An unexpected error occurred. Please try again.');
         }
       } else {
-        // নেটওয়ার্ক বা অন্য কোনো এরর
         toast.error('Registration failed. Please check your network and try again.');
       }
     } finally {
@@ -134,6 +129,32 @@ const RegisterPage = () => {
               icon="idcard" type="text" placeholder="Student ID (e.g., 222-115-141)"
               name="studentId" value={formData.studentId} onChange={handleInputChange} required 
             />
+          </div>
+
+          {/* ✅ Batch এবং Section এর জন্য নতুন ইনপুট ফিল্ড */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+                <Input
+                  icon="user" // আপনি চাইলে একটি উপযুক্ত আইকন ব্যবহার করতে পারেন
+                  type="text"
+                  placeholder="Batch (e.g., 57)"
+                  name="batch"
+                  value={formData.batch}
+                  onChange={handleInputChange}
+                  required
+                />
+            </div>
+            <div>
+                <Input
+                  icon="user" // আপনি চাইলে একটি উপযুক্ত আইকন ব্যবহার করতে পারেন
+                  type="text"
+                  placeholder="Section (e.g., D)"
+                  name="section"
+                  value={formData.section}
+                  onChange={handleInputChange}
+                  required
+                />
+            </div>
           </div>
           
           <div>

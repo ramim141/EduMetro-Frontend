@@ -21,6 +21,8 @@ import {
   Star,
   Edit3,
   BookOpen,
+  Users as BatchIcon,
+
 } from "lucide-react"
 
 export default function ProfilePage() {
@@ -129,7 +131,7 @@ export default function ProfilePage() {
     last_name,
     email,
     student_id,
-    department,
+    department_name, 
     profile_picture_url,
     bio,
     mobile_number,
@@ -138,6 +140,7 @@ export default function ProfilePage() {
     birthday,
     gender,
     skills,
+    batch_with_section,
   } = user
 
   return (
@@ -349,7 +352,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-600">Department</p>
-                        <p className="font-semibold text-slate-800">{department || "Not set"}</p>
+                        <p className="font-semibold text-slate-800">{department_name || "Not set"}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 transition-all duration-300 rounded-lg bg-gradient-to-r from-purple-400/10 to-pink-400/15 hover:from-purple-500/20 hover:to-pink-500/25">
@@ -360,6 +363,11 @@ export default function ProfilePage() {
                         <p className="text-sm font-medium text-slate-600">Student ID</p>
                         <p className="font-mono font-bold text-slate-800">{student_id || "Not set"}</p>
                       </div>
+                      
+                    </div>
+                    <div className="flex items-center gap-3 p-3 transition-all duration-300 rounded-lg bg-gradient-to-r from-teal-400/10 to-cyan-400/15 hover:from-teal-500/20 hover:to-cyan-500/25">
+                      <div className="p-2 rounded-lg shadow-lg bg-gradient-to-r from-teal-500 to-cyan-500"><BatchIcon className="w-4 h-4 text-white" /></div>
+                      <div><p className="text-sm font-medium text-slate-600">Batch (Section)</p><p className="font-semibold text-slate-800">{batch_with_section || "Not set"}</p></div>
                     </div>
                   </CardContent>
                 </Card>

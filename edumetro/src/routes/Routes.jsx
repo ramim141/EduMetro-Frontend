@@ -21,6 +21,7 @@ import UploadNotePage from '../pages/UploadNotePage';
 import NoteDetailsPage from '../pages/NoteDetailsPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import PasswordResetConfirmPage from '../pages/PasswordResetConfirmPage';
+import ContributorsPage from '../pages/ContributorsPage';
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useContext(AuthContext);
@@ -73,6 +74,7 @@ const AppRoutes = () => {
       {/* New Public Routes for Password Management */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} /> 
       <Route path="/reset-password/:uid64/:token/" element={<PasswordResetConfirmPage />} /> 
+      <Route path="/contributors" element={<ContributorsPage />} />
 
       {/* Protected Routes */}
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
