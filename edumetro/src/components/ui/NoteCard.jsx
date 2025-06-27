@@ -10,7 +10,7 @@ import {
   Download,
   Eye,
   Heart,
-  Bookmark, // ✅ Bookmark icon
+  Bookmark,
   MessageCircle,
 } from "lucide-react"
 import Button from "./Button"
@@ -32,7 +32,6 @@ const NoteCard = ({
   onBookmark,
   showApprovalStatus = false,
 }) => {
-  console.log('NoteCard rendering with note:', note);
   const navigate = useNavigate()
   const { isAuthenticated } = useContext(AuthContext)
 
@@ -152,19 +151,6 @@ const NoteCard = ({
             </motion.span>
           </div>
 
-          {/* Rating Badge (Top Right) */}
-          {/* {note.average_rating > 0 && (
-            <motion.div
-              className="absolute flex items-center gap-1 px-2 py-1 text-xs font-medium text-white rounded-full top-3 right-3 backdrop-blur-sm bg-black/40"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 + 0.3 }}
-            >
-              <RatingStars rating={1} maxRating={1} size="xs" color="warning" spacing="none" />
-              {(note.average_rating || 0).toFixed(1)}
-            </motion.div>
-          )} */}
-          {/* Here would be note category badge if available */}
           {renderCategoryBadge()}
           {renderApprovalStatus()}
         </div>
@@ -195,59 +181,30 @@ const NoteCard = ({
 
           {/* Stats Row */}
           <div className="flex items-center justify-between mb-6 text-xs text-gray-500">
-            {/* Downloads */}
-            <motion.div
-              className="flex items-center gap-1"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
+            <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 400 }}>
               <Download className={STAT_ICON_CLASSES} />
               <span>{(note.download_count || 0).toLocaleString()}</span>
             </motion.div>
-
-            {/* Views */}
-            <motion.div
-              className="flex items-center gap-1"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
+            <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 400 }}>
               <Eye className={STAT_ICON_CLASSES} />
               <span>{(note.view_count || 0).toLocaleString()}</span>
             </motion.div>
-
-            {/* Like Count */}
-            <motion.div
-              className="flex items-center gap-1"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
+            <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 400 }}>
               <Heart className={STAT_ICON_CLASSES} />
               <span>{note.likes_count || 0}</span>
             </motion.div>
-
-            {/* Bookmark Count */}
-            <motion.div
-              className="flex items-center gap-1"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
+            <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 400 }}>
               <Bookmark className={STAT_ICON_CLASSES} />
               <span>{note.bookmarks_count || 0}</span>
             </motion.div>
-
-            {/* Comment Count */}
-            <motion.div
-              className="flex items-center gap-1"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
+            <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 400 }}>
               <MessageCircle className={STAT_ICON_CLASSES} />
               <span>{note.comments?.length || 0}</span>
             </motion.div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
             {/* View Note Button */}
             <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
@@ -262,12 +219,30 @@ const NoteCard = ({
               </Button>
             </motion.div>
 
-            {/* Bookmark Button (Right side, as per screenshot) */}
+            {/* Like Button --- ✅ ADDED */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                onClick={handleLikeClick}
+                size="md"
+                variant="outline"
+                aria-label="Like this note"
+                className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 ${
+                  note.is_liked_by_current_user
+                    ? 'border-pink-500 text-pink-600 hover:border-pink-600 hover:text-pink-700'
+                    : 'border-gray-200 text-gray-600 hover:border-pink-300 hover:text-pink-600'
+                }`}
+              >
+                <Heart className={`w-5 h-5 ${note.is_liked_by_current_user ? 'fill-current' : ''}`} />
+              </Button>
+            </motion.div>
+
+            {/* Bookmark Button */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={handleBookmarkClick}
                 size="md"
                 variant="outline"
+                aria-label="Bookmark this note"
                 className={`px-4 py-3 rounded-xl border-2 transition-all duration-300 ${
                   note.is_bookmarked_by_current_user
                     ? 'border-blue-500 text-blue-600 hover:border-blue-600 hover:text-blue-700'

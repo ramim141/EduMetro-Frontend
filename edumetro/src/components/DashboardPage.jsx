@@ -1,11 +1,11 @@
-// components/DashboardPage.jsx
+// src/pages/DashboardPage.jsx (Corrected Version)
 
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useNavigate } from "react-router-dom"
-import { getUserProfile, getMyNotes, getBookmarkedNotes } from "../utils/api"
+import React, { useState, useEffect, useContext } from "react"; // ✅ Import useContext
+import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext"; // ✅ Import AuthContext
+import { getUserProfile, getMyNotes, getBookmarkedNotes, getSiteStats } from "./../utils/api";
 
 import StatCard from "./dashboard/StatCard"
 import RechartsPieChart from "./dashboard/Enhanced3DPieChart";
@@ -13,42 +13,43 @@ import EnhancedLoadingDashboard from "./dashboard/EnhancedLoadingDashboard"
 import { 
   BookIcon, DownloadIcon, HeartIcon, BookmarkIcon, PlusIcon, 
   ArrowRightIcon, SparklesIcon, AwardIcon, StarIcon, UserIcon, 
-  ActivityIcon, TargetIcon, UsersIcon, PieChartIcon, MessageSquareIcon // ✅ Changed: নতুন আইকন ইম্পোর্ট করা হয়েছে
+  ActivityIcon, TargetIcon, UsersIcon, PieChartIcon, MessageSquareIcon
 } from "./dashboard/DashboardIcons"
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   
-  const [loading, setLoading] = useState(true);
+  // ✅ Get user, auth status, and authLoading from AuthContext
+  const { user, isAuthenticated, isLoading: authLoading } = useContext(AuthContext);
+  
+  // Dashboard এর নিজস্ব state
+  const [loading, setLoading] = useState(true); // Dashboard data loading state
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
-  // ✅ Changed: Likes এর বদলে totalReviews এবং avgRating যোগ করা হয়েছে
   const [stats, setStats] = useState({ uploads: 0, downloads: 0, totalReviews: 0, avgRating: "0.0" });
   const [myNotes, setMyNotes] = useState([]);
   const [recentBookmarks, setRecentBookmarks] = useState([]);
   const [performanceData, setPerformanceData] = useState([]);
 
+  // --- THE CRUCIAL GUARD ---
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // setLoading(true); // Redundant, handled by initial state
-        setError(null);
+        setError(null); // Reset error on new fetch attempt
 
-        const [profileRes, myNotesRes, bookmarksRes] = await Promise.all([
-          getUserProfile(),
-          getMyNotes({ page_size: 1000 }),
-          getBookmarkedNotes({ page_size: 5 }),
+        // Fetching data using API calls
+        // Note: getUserProfile() is now implicitly handled by AuthContext's initial load.
+        const [myNotesRes, bookmarksRes] = await Promise.all([
+          getMyNotes({ page_size: 1000 }), // Fetching all notes for calculations
+          getBookmarkedNotes({ page_size: 5 }), // Fetching recent 5 bookmarks
         ]);
 
-        const profileData = profileRes.data;
         const allMyNotes = myNotesRes.data.results || [];
         const bookmarksData = bookmarksRes.data.results || [];
 
-        setUser(profileData);
         setMyNotes(allMyNotes);
         setRecentBookmarks(bookmarksData);
 
-        // ✅ Changed: নতুন গণনার লজিক
+        // Perform calculations based on fetched data
         const totalDownloads = allMyNotes.reduce((sum, note) => sum + (note.download_count || 0), 0);
         const totalReviews = allMyNotes.reduce((sum, note) => sum + (note.star_ratings?.length || 0), 0);
         
@@ -65,6 +66,7 @@ export default function DashboardPage() {
           avgRating: averageRating,
         });
 
+        // Generate chart data
         const categoryCounts = allMyNotes.reduce((acc, note) => {
           const category = note.category_name || 'Uncategorized';
           acc[category] = (acc[category] || 0) + 1;
@@ -83,23 +85,46 @@ export default function DashboardPage() {
         console.error("Failed to fetch dashboard data:", err);
         setError("Could not load your dashboard. Please try again.");
       } finally {
-        // ✅ Fixed: কৃত্রিম ডিলে সরিয়ে দেওয়া হয়েছে
-        setLoading(false);
+        setLoading(false); // Dashboard data loading is finished
       }
     };
 
-    fetchDashboardData();
-  }, []);
+    // --- THE CRUCIAL GUARD ---
+    // Only proceed if AuthContext has finished loading AND the user IS authenticated.
+    if (!authLoading && isAuthenticated) {
+      fetchDashboardData();
+    } else if (!authLoading && !isAuthenticated) {
+      // If AuthContext is loaded but the user is NOT authenticated, redirect to login.
+      // This also handles cases where the initial auth check might fail.
+      navigate('/login');
+      setLoading(false); // Stop dashboard loading as we are redirecting
+    }
+    // If authLoading is still true, we do nothing here and wait for it to finish.
+    // The loading state from AuthContext will be shown first.
+
+  // Dependencies: This effect should re-run if authLoading or isAuthenticated changes.
+  // It also depends on `navigate` which is stable, and `fetchDashboardData` which is stable.
+  }, [authLoading, isAuthenticated, navigate]); 
+
 
   const handleNavigation = (path) => {
     navigate(path);
   };
 
-  // ✅ Fixed: এখন user ডেটা লোড না হওয়া পর্যন্ত লোডিং স্ক্রিন দেখাবে, যা রিফ্রেশ সমস্যা সমাধান করবে
-  if (loading || !user) {
+  // --- Conditional Rendering ---
+
+  // If AuthContext is still loading, let it handle the initial loading display.
+  // This component will re-render when AuthContext finishes loading.
+  if (authLoading) {
+    return null; // AuthProvider will show its own loading spinner.
+  }
+
+  // If dashboard data is loading (and Auth is done), show the dashboard loading screen.
+  if (loading) {
     return <EnhancedLoadingDashboard />;
   }
   
+  // If there was an error fetching data, show the error message.
   if (error) {
       return (
           <div className="flex items-center justify-center min-h-screen bg-red-50">
@@ -108,6 +133,14 @@ export default function DashboardPage() {
       );
   }
 
+  // If user is not authenticated after authLoading is false, redirect to login.
+  // This check is a safeguard, the useEffect should ideally handle redirection earlier.
+  if (!isAuthenticated) {
+    navigate('/login');
+    return null; 
+  }
+
+  // If we reach here, it means auth is loaded, user is authenticated, and dashboard data is ready.
   return (
     <div className="relative min-h-screen pt-12 overflow-hidden bg-gradient-to-br via-blue-50 to-indigo-100 from-slate-50">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -134,7 +167,6 @@ export default function DashboardPage() {
           <StatCard icon={StarIcon} value={stats.avgRating} label="Average Rating" gradientFrom="from-amber-500" gradientTo="to-orange-600" trend={null} delay={0.3} />
         </div>
         
-        {/* Rest of the component remains unchanged */}
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
           <div className="space-y-10 lg:col-span-2">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="relative p-8 overflow-hidden border shadow-2xl bg-gradient-to-br rounded-3xl backdrop-blur-sm from-white/80 to-blue-50/50 border-white/20">

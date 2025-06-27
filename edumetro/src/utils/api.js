@@ -1,9 +1,8 @@
-// src/utils/api.js
+// src/utils/api.js (Corrected)
 
 import axios from "axios";
 import { toast } from 'react-hot-toast';
 
-// const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "http://127.0.0.1:8000";
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "https://edumetro.onrender.com";
 
 const api = axios.create({
@@ -25,25 +24,30 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// ✅ Create a centralized function to handle forced logout
+const logoutUser = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  // Redirect to login page to force a clean state
+  window.location.href = '/login'; 
+  toast.error("Your session has expired. Please log in again.");
+};
+
+// ✅ Simplified the refresh function. It just tries to get a token or fails.
 const refreshAccessToken = async () => {
-  try {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) {
-      throw new Error("No refresh token found.");
-    }
-    const response = await axios.post(`${BASE_API_URL}/api/users/token/refresh/`, {
-      refresh: refreshToken,
-    });
-    const { access } = response.data;
-    localStorage.setItem("accessToken", access);
-    return access;
-  } catch (error) {
-    console.error("Token refresh failed:", error);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    toast.error("Your session has expired. Please log in again.");
-    return Promise.reject(error);
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) {
+    // If there's no refresh token, we can't refresh. Reject immediately.
+    return Promise.reject(new Error("No refresh token available."));
   }
+
+  const response = await api.post("/api/users/token/refresh/", {
+    refresh: refreshToken,
+  });
+
+  const { access } = response.data;
+  localStorage.setItem("accessToken", access);
+  return access;
 };
 
 api.interceptors.request.use(
@@ -65,35 +69,31 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (
-      error.response?.status === 401 &&
-      originalRequest.url !== `${BASE_API_URL}/api/users/token/refresh/` &&
-      !originalRequest._retry
-    ) {
-      originalRequest._retry = true;
-
+    // Check for 401, ensure it's not a retry, and not the refresh endpoint itself
+    if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
+        // If a refresh is already in progress, queue the request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        })
-        .then(token => {
+        }).then(token => {
           originalRequest.headers.Authorization = `Bearer ${token}`;
           return api(originalRequest);
-        })
-        .catch(err => {
-          return Promise.reject(err);
         });
       }
 
+      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
         const newAccessToken = await refreshAccessToken();
+        api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         processQueue(null, newAccessToken);
         return api(originalRequest);
       } catch (refreshError) {
+        // ✅ This is the crucial part. If refreshAccessToken fails, logout.
         processQueue(refreshError, null);
+        logoutUser(); // Force logout and redirect
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -111,6 +111,8 @@ api.interceptors.response.use(
   }
 );
 
+
+// --- The rest of your API functions remain the same ---
 
 export const loginUser = async (credentials) => {
   return api.post('/api/users/login/', credentials);
@@ -136,13 +138,9 @@ export const getNoteCategories = async () => {
   return api.get('/api/notes/categories/');
 };
 
-
-
 export const getMyNotes = async (params = {}) => {
   return api.get('/api/notes/my-notes/', { params });
 }
-
-
 
 export const getBookmarkedNotes = async (params = {}) => {
   return api.get('/api/users/user-activity/bookmarked-notes/', { params });
@@ -171,4 +169,5 @@ export const getSiteStats = async () => {
 export const createNoteRequest = async (requestData) => {
   return api.post('/api/notes/note-requests/', requestData);
 };
+
 export default api;

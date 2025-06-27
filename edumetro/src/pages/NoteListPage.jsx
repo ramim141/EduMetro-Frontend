@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useContext, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { FaFilter, FaBookOpen, FaTimes } from "react-icons/fa"
 import FilterSidebar from "../components/FilterSidebar"
 import NoteCard from "../components/ui/NoteCard"
@@ -10,7 +10,7 @@ import Message from "../components/Message"
 import Spinner from "../components/ui/Spinner"
 import Pagination from "../components/Pagination"
 import Button from "../components/Button"
-import useNoteFilters from "../hooks/useNoteFilters"
+import { useNotes } from "../context/NoteContext" // ✅ নতুন হুক ইম্পোর্ট করা হয়েছে
 import useNoteActions from "../hooks/useNoteActions"
 import AuthContext from "../context/AuthContext"
 import { toast } from "react-hot-toast"
@@ -19,11 +19,12 @@ import { getNoteCategories } from "../utils/api"
 
 const NoteListPage = ({ className = "" }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024)
-  const [viewMode, setViewMode] = useState("grid")
   const [categories, setCategories] = useState(["All"])
+  const [viewMode] = useState('grid');
 
   const { isAuthenticated } = useContext(AuthContext)
 
+  // ✅ useNoteFilters এর পরিবর্তে useNotes ব্যবহার করা হয়েছে
   const {
     notes,
     loading,
@@ -34,38 +35,46 @@ const NoteListPage = ({ className = "" }) => {
     filters,
     updateFilters,
     clearFilters,
-    applyFilters,
     setCurrentPage,
     setNotes,
-  } = useNoteFilters()
+  } = useNotes()
 
+  // ✅ useNoteActions এখন NoteContext থেকে আসা notes এবং setNotes ব্যবহার করবে
   const { handleLike, handleBookmark, handleDownload } = useNoteActions(notes, setNotes, isAuthenticated, toast)
 
-  // ✅ Corrected useEffect hook
+  // ক্যাটাগরিগুলো শুধুমাত্র প্রথমবার লোড করার জন্য এই লজিকটি ব্যবহার করা হয়েছে
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await getNoteCategories()
-        // ✅ FIX: Directly access the .results array from the paginated response
+        const response = await getNoteCategories();
+        let fetchedCategories;
+        // Robustly handle all possible response shapes
         if (response.data && Array.isArray(response.data.results)) {
-          const categoryNames = response.data.results.map(cat => cat.name)
-          setCategories(["All", ...categoryNames])
+            fetchedCategories = response.data.results.map(cat => cat.name);
+        } else if (Array.isArray(response.data)) {
+            fetchedCategories = response.data.map(cat => cat.name);
+        } else if (response.data && Array.isArray(response.data.categories)) {
+            fetchedCategories = response.data.categories.map(cat => cat.name);
         } else {
-            // This is a safety check in case the API response is not as expected
-            throw new Error("Invalid data format for categories");
+            console.error('Invalid response format from server:', response);
+            throw new Error('Invalid response format from server');
         }
+        setCategories(["All", ...fetchedCategories]);
       } catch (error) {
-        console.error("Failed to fetch note categories:", error)
-        toast.error("Could not load note categories.")
-        // Fallback to a default list if the API call fails
-        setCategories(["All", "Assignment", "Class Note", "Previous QS"])
+        console.error("Failed to fetch note categories:", error);
+        toast.error("Could not load note categories.");
+        setCategories(["All", "Assignment", "Class Note", "Previous QS"]); // Fallback
       }
-    }
+    };
 
-    fetchCategories()
-  }, []) // Empty dependency array ensures this runs only once
+    // শুধুমাত্র যদি ক্যাটাগরি আগে থেকে লোড করা না থাকে, তাহলেই API কল হবে
+    if (categories.length <= 1) {
+        fetchCategories();
+    }
+  }, [categories.length]) 
 
   const renderContent = () => {
+    // লোডিং স্পিনার দেখাবে যদি ডেটা লোড হতে থাকে এবং কোনো নোট না থাকে
     if (loading && notes.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-16 space-y-4 sm:py-20 lg:py-24 sm:space-y-6">
@@ -154,6 +163,8 @@ const NoteListPage = ({ className = "" }) => {
     )
   }
 
+  const validatedCategories = Array.isArray(categories) ? categories.filter(cat => typeof cat === 'string') : [];
+
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-[#B1E0F6] via-[#E8F4FD] to-[#EFD4EA] overflow-hidden">
       {/* Background Pattern */}
@@ -179,7 +190,6 @@ const NoteListPage = ({ className = "" }) => {
                     onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                     filters={filters}
                     onFiltersChange={updateFilters}
-                    onApplyFilters={applyFilters}
                     onClearFilters={clearFilters}
                     className="w-80 xl:w-96"
                   />
@@ -198,7 +208,14 @@ const NoteListPage = ({ className = "" }) => {
                       <button onClick={() => setIsSidebarOpen(false)} className="p-2 transition-all duration-200 rounded-lg text-white/80 hover:text-white bg-white/10 hover:bg-white/20" aria-label="Close Filters"><FaTimes className="w-5 h-5" /></button>
                     </div>
                     <div className="p-4 sm:p-6 rounded-xl">
-                      <FilterSidebar isOpen={true} onToggle={() => setIsSidebarOpen(false)} filters={filters} onFiltersChange={updateFilters} onApplyFilters={(filters) => { applyFilters(filters); setIsSidebarOpen(false); }} onClearFilters={() => { clearFilters(); setIsSidebarOpen(false); }} className="w-full" />
+                      <FilterSidebar 
+                        isOpen={true} 
+                        onToggle={() => setIsSidebarOpen(false)} 
+                        filters={filters} 
+                        onFiltersChange={updateFilters} 
+                        onClearFilters={() => { clearFilters(); setIsSidebarOpen(false); }} 
+                        className="w-full" 
+                      />
                     </div>
                   </motion.div>
                 </>
@@ -220,9 +237,9 @@ const NoteListPage = ({ className = "" }) => {
 
               {/* Category Tabs */}
               <div className="flex flex-col items-center justify-between gap-4 p-3 mb-4 border shadow-lg sm:flex-row sm:gap-6 sm:p-4 lg:p-5 sm:mb-6 lg:mb-8 border-gray-200/50 bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1 sm:gap-2 p-1.5 sm:p-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl shadow-inner w-full sm:w-auto">
-                  {categories.map((category) => (
-                    <button key={category} onClick={() => updateFilters({ category })} className={`px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 text-xs sm:text-sm lg:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 ${filters.category === category ? "bg-gradient-to-r from-white to-gray-50 text-gray-800 shadow-lg border border-gray-200/50" : "text-gray-600 hover:bg-white/50 hover:text-gray-800"}`}>{category}</button>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1 sm:gap-2 p-1.5 sm:p-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl shadow-inner w-full sm:w-auto overflow-x-auto">
+                  {validatedCategories.map((category) => (
+                    <button key={category} onClick={() => updateFilters({ category })} className={`px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 text-xs sm:text-sm lg:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${filters.category === category ? "bg-gradient-to-r from-white to-gray-50 text-gray-800 shadow-lg border border-gray-200/50" : "text-gray-600 hover:bg-white/50 hover:text-gray-800"}`}>{category}</button>
                   ))}
                 </div>
               </div>

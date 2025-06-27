@@ -1,16 +1,14 @@
-// src/App.jsx (Updated and Corrected)
+// src/App.jsx (This file is correct, no changes needed)
 
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
-// import { AuthProvider } from './context/AuthContext'; // ❌ এই লাইনটি সম্পূর্ণ রিমুভ করুন
 import Navbar from './components/Navbar';
 import AppRoutes from './routes/Routes';
 import './App.css';
 
 const App = () => {
   return (
-    // <AuthProvider> ❌ এই wrapper টি সম্পূর্ণ রিমুভ করুন
-    <> {/* আপনি চাইলে এখানে React.Fragment বা <> ব্যবহার করতে পারেন */}
+    <>
       <Toaster 
         position="top-center" 
         toastOptions={{
@@ -44,7 +42,6 @@ const App = () => {
         </main>
       </div>
     </>
-    // </AuthProvider> ❌ এই wrapper টি সম্পূর্ণ রিমুভ করুন
   );
 };
 

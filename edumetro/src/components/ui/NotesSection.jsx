@@ -30,13 +30,15 @@ const NotesSection = ({ title, description, limit = 3, ordering = "-created_at" 
       setNotesLoading(true)
       setNotesError("")
       try {
-        const response = await api.get(`/api/notes/?ordering=${ordering}&page_size=${limit}`);
-        const fetchedNotes = response.data.results || [];
-        setNotes(fetchedNotes);
+        const response = await api.get("/api/notes/");
+        const notes = Array.isArray(response.data)
+          ? response.data
+          : (response.data.results || []);
+        setNotes(notes);
  
         console.log("NotesSection: API Response received:", response.data);
-        console.log("NotesSection: Fetched notes count:", fetchedNotes.length);
-        console.log("NotesSection: Fetched notes data:", fetchedNotes);
+        console.log("NotesSection: Fetched notes count:", notes.length);
+        console.log("NotesSection: Fetched notes data:", notes);
       } catch (err) {
         console.error("NotesSection: Failed to fetch notes:", err); 
         if (err.code === "ECONNABORTED") {

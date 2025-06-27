@@ -34,7 +34,7 @@ const useNoteFilters = () => {
     search: "",
     course: "",
     department: "",
-    category: "All", // ✅ ক্যাটাগরি ফিল্টার যোগ করা হয়েছে
+    category: "All",
     rating: "",
     sortBy: "newest",
   })
@@ -74,12 +74,20 @@ const useNoteFilters = () => {
         const params = buildApiParams(page, filterParams)
         const response = await api.get(`/api/notes/?${params.toString()}`)
         
+        // ✅ CORRECTED LOGIC: Handle both paginated and non-paginated responses
         if (response.data && Array.isArray(response.data.results)) {
+          // Case 1: Paginated response like { count: 5, results: [...] }
           setNotes(response.data.results)
           setTotalPages(Math.ceil((response.data.count || 0) / 10)) // Assuming page size is 10
           setTotalNotes(response.data.count || 0)
+        } else if (Array.isArray(response.data)) {
+          // Case 2: Simple array response like [...]
+          setNotes(response.data);
+          setTotalPages(1); // If it's a simple array, there's only one page
+          setTotalNotes(response.data.length);
         } else {
-          throw new Error("Invalid response format from server.");
+          // If the format is still unexpected, throw an error
+          throw new Error("Invalid response format from server. Expected notes data.");
         }
       } catch (err) {
         setError(err.response?.data?.detail || err.message || "Failed to load notes.")
@@ -142,4 +150,4 @@ const useNoteFilters = () => {
   }
 }
 
-export default useNoteFilters
+export default useNoteFilters;
