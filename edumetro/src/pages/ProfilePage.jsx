@@ -24,12 +24,13 @@ import {
   Users as BatchIcon,
 
 } from "lucide-react"
-
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "https://edumetro.onrender.com";
 export default function ProfilePage() {
   const navigate = useNavigate()
 
   const { user, isLoading: authLoading } = useContext(AuthContext)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const profilePicUrl = user?.profile_picture_url  ? `${BASE_API_URL}${user.profile_picture_url}` : null;
 
   // ডাইনামিক ডেটা এবং লোডিং স্টেটের জন্য
   const [stats, setStats] = useState({
@@ -141,6 +142,8 @@ export default function ProfilePage() {
     gender,
     skills,
     batch_with_section,
+    batch,
+    section
   } = user
 
   return (
@@ -288,7 +291,7 @@ export default function ProfilePage() {
                     <div className="relative mb-4 group">
                       <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-75 bg-gradient-to-r from-purple-400 to-pink-400 blur-lg group-hover:opacity-100 animate-pulse"></div>
                       <Avatar className="relative w-32 h-32 mx-auto transition-all duration-300 transform border-4 border-white shadow-2xl hover:shadow-purple-500/50 hover:scale-110">
-                        <AvatarImage src={profile_picture_url || "/placeholder.svg"} alt={username} />
+                        <AvatarImage src={profilePicUrl || "/placeholder.svg"} alt={username} />
                         <AvatarFallback className="text-2xl font-bold text-white bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 animate-gradient-x">
                           {first_name?.charAt(0)}
                           {last_name?.charAt(0)}
@@ -365,10 +368,17 @@ export default function ProfilePage() {
                       </div>
                       
                     </div>
+                    {/* ✅ Batch এবং Section আলাদাভাবে দেখানো হচ্ছে */}
                     <div className="flex items-center gap-3 p-3 transition-all duration-300 rounded-lg bg-gradient-to-r from-teal-400/10 to-cyan-400/15 hover:from-teal-500/20 hover:to-cyan-500/25">
-                      <div className="p-2 rounded-lg shadow-lg bg-gradient-to-r from-teal-500 to-cyan-500"><BatchIcon className="w-4 h-4 text-white" /></div>
-                      <div><p className="text-sm font-medium text-slate-600">Batch (Section)</p><p className="font-semibold text-slate-800">{batch_with_section || "Not set"}</p></div>
+                      <div className="flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg shadow-lg bg-gradient-to-r from-teal-500 to-cyan-500">
+                        <BatchIcon className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-600">Batch(Section)</p>
+                        <p className="font-semibold text-slate-800">{batch || "Not set"}({section || " "})</p>
+                      </div>
                     </div>
+
                   </CardContent>
                 </Card>
               </div>

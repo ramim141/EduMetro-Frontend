@@ -19,7 +19,7 @@ import {
   FaUserCircle,
   FaSignOutAlt
 } from 'react-icons/fa';
-
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || "https://edumetro.onrender.com";
 // Avatar components import করুন
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/avatar';
 
@@ -28,6 +28,7 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false)
+  const profilePicUrl = user?.profile_picture_url ? `${BASE_API_URL}${user.profile_picture_url}` : null;
   
  // Handle scroll effect
   useEffect(() => {
@@ -162,7 +163,7 @@ const Navbar = () => {
                 >
                   {/* Avatar component ব্যবহার করে প্রোফাইল ছবি বা আদ্যক্ষর দেখান */}
                   <Avatar className="w-full h-full bg-purple-600 border-2 border-white/30 hover:border-white hover:bg-purple-700">
-                    <AvatarImage src={user?.profile_picture_url} alt={user?.username} />
+                    <AvatarImage src={user?.profilePicUrl} alt={user?.username} />
                     <AvatarFallback>{userInitial}</AvatarFallback>
                   </Avatar>
                 </button>
